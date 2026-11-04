@@ -1,0 +1,917 @@
+{
+ "catatan": "Urutan turun = urutan standar Mushaf Mesir/Al-Azhar (86 Makkiyah + 28 Madaniyah). Halaman = Mushaf Madinah 604 halaman. Jumlah ayat hitungan Kufi (total 6236). Ada perbedaan pendapat ulama tentang beberapa surah; cek ulang bila perlu.",
+ "surah": [
+  {
+   "no": 1,
+   "nama": "Al-Fatihah",
+   "ayat": 7,
+   "halaman_mulai": 1,
+   "jenis": "makkiyah",
+   "urutan_turun": 5
+  },
+  {
+   "no": 2,
+   "nama": "Al-Baqarah",
+   "ayat": 286,
+   "halaman_mulai": 2,
+   "jenis": "madaniyah",
+   "urutan_turun": 87
+  },
+  {
+   "no": 3,
+   "nama": "Ali 'Imran",
+   "ayat": 200,
+   "halaman_mulai": 50,
+   "jenis": "madaniyah",
+   "urutan_turun": 89
+  },
+  {
+   "no": 4,
+   "nama": "An-Nisa'",
+   "ayat": 176,
+   "halaman_mulai": 77,
+   "jenis": "madaniyah",
+   "urutan_turun": 92
+  },
+  {
+   "no": 5,
+   "nama": "Al-Ma'idah",
+   "ayat": 120,
+   "halaman_mulai": 106,
+   "jenis": "madaniyah",
+   "urutan_turun": 112
+  },
+  {
+   "no": 6,
+   "nama": "Al-An'am",
+   "ayat": 165,
+   "halaman_mulai": 128,
+   "jenis": "makkiyah",
+   "urutan_turun": 55
+  },
+  {
+   "no": 7,
+   "nama": "Al-A'raf",
+   "ayat": 206,
+   "halaman_mulai": 151,
+   "jenis": "makkiyah",
+   "urutan_turun": 39
+  },
+  {
+   "no": 8,
+   "nama": "Al-Anfal",
+   "ayat": 75,
+   "halaman_mulai": 177,
+   "jenis": "madaniyah",
+   "urutan_turun": 88
+  },
+  {
+   "no": 9,
+   "nama": "At-Taubah",
+   "ayat": 129,
+   "halaman_mulai": 187,
+   "jenis": "madaniyah",
+   "urutan_turun": 113
+  },
+  {
+   "no": 10,
+   "nama": "Yunus",
+   "ayat": 109,
+   "halaman_mulai": 208,
+   "jenis": "makkiyah",
+   "urutan_turun": 51
+  },
+  {
+   "no": 11,
+   "nama": "Hud",
+   "ayat": 123,
+   "halaman_mulai": 221,
+   "jenis": "makkiyah",
+   "urutan_turun": 52
+  },
+  {
+   "no": 12,
+   "nama": "Yusuf",
+   "ayat": 111,
+   "halaman_mulai": 235,
+   "jenis": "makkiyah",
+   "urutan_turun": 53
+  },
+  {
+   "no": 13,
+   "nama": "Ar-Ra'd",
+   "ayat": 43,
+   "halaman_mulai": 249,
+   "jenis": "madaniyah",
+   "urutan_turun": 96
+  },
+  {
+   "no": 14,
+   "nama": "Ibrahim",
+   "ayat": 52,
+   "halaman_mulai": 255,
+   "jenis": "makkiyah",
+   "urutan_turun": 72
+  },
+  {
+   "no": 15,
+   "nama": "Al-Hijr",
+   "ayat": 99,
+   "halaman_mulai": 262,
+   "jenis": "makkiyah",
+   "urutan_turun": 54
+  },
+  {
+   "no": 16,
+   "nama": "An-Nahl",
+   "ayat": 128,
+   "halaman_mulai": 267,
+   "jenis": "makkiyah",
+   "urutan_turun": 70
+  },
+  {
+   "no": 17,
+   "nama": "Al-Isra'",
+   "ayat": 111,
+   "halaman_mulai": 282,
+   "jenis": "makkiyah",
+   "urutan_turun": 50
+  },
+  {
+   "no": 18,
+   "nama": "Al-Kahf",
+   "ayat": 110,
+   "halaman_mulai": 293,
+   "jenis": "makkiyah",
+   "urutan_turun": 69
+  },
+  {
+   "no": 19,
+   "nama": "Maryam",
+   "ayat": 98,
+   "halaman_mulai": 305,
+   "jenis": "makkiyah",
+   "urutan_turun": 44
+  },
+  {
+   "no": 20,
+   "nama": "Taha",
+   "ayat": 135,
+   "halaman_mulai": 312,
+   "jenis": "makkiyah",
+   "urutan_turun": 45
+  },
+  {
+   "no": 21,
+   "nama": "Al-Anbiya'",
+   "ayat": 112,
+   "halaman_mulai": 322,
+   "jenis": "makkiyah",
+   "urutan_turun": 73
+  },
+  {
+   "no": 22,
+   "nama": "Al-Hajj",
+   "ayat": 78,
+   "halaman_mulai": 332,
+   "jenis": "madaniyah",
+   "urutan_turun": 103
+  },
+  {
+   "no": 23,
+   "nama": "Al-Mu'minun",
+   "ayat": 118,
+   "halaman_mulai": 342,
+   "jenis": "makkiyah",
+   "urutan_turun": 74
+  },
+  {
+   "no": 24,
+   "nama": "An-Nur",
+   "ayat": 64,
+   "halaman_mulai": 350,
+   "jenis": "madaniyah",
+   "urutan_turun": 102
+  },
+  {
+   "no": 25,
+   "nama": "Al-Furqan",
+   "ayat": 77,
+   "halaman_mulai": 359,
+   "jenis": "makkiyah",
+   "urutan_turun": 42
+  },
+  {
+   "no": 26,
+   "nama": "Asy-Syu'ara'",
+   "ayat": 227,
+   "halaman_mulai": 367,
+   "jenis": "makkiyah",
+   "urutan_turun": 47
+  },
+  {
+   "no": 27,
+   "nama": "An-Naml",
+   "ayat": 93,
+   "halaman_mulai": 377,
+   "jenis": "makkiyah",
+   "urutan_turun": 48
+  },
+  {
+   "no": 28,
+   "nama": "Al-Qasas",
+   "ayat": 88,
+   "halaman_mulai": 385,
+   "jenis": "makkiyah",
+   "urutan_turun": 49
+  },
+  {
+   "no": 29,
+   "nama": "Al-'Ankabut",
+   "ayat": 69,
+   "halaman_mulai": 396,
+   "jenis": "makkiyah",
+   "urutan_turun": 85
+  },
+  {
+   "no": 30,
+   "nama": "Ar-Rum",
+   "ayat": 60,
+   "halaman_mulai": 404,
+   "jenis": "makkiyah",
+   "urutan_turun": 84
+  },
+  {
+   "no": 31,
+   "nama": "Luqman",
+   "ayat": 34,
+   "halaman_mulai": 411,
+   "jenis": "makkiyah",
+   "urutan_turun": 57
+  },
+  {
+   "no": 32,
+   "nama": "As-Sajdah",
+   "ayat": 30,
+   "halaman_mulai": 415,
+   "jenis": "makkiyah",
+   "urutan_turun": 75
+  },
+  {
+   "no": 33,
+   "nama": "Al-Ahzab",
+   "ayat": 73,
+   "halaman_mulai": 418,
+   "jenis": "madaniyah",
+   "urutan_turun": 90
+  },
+  {
+   "no": 34,
+   "nama": "Saba'",
+   "ayat": 54,
+   "halaman_mulai": 428,
+   "jenis": "makkiyah",
+   "urutan_turun": 58
+  },
+  {
+   "no": 35,
+   "nama": "Fathir",
+   "ayat": 45,
+   "halaman_mulai": 434,
+   "jenis": "makkiyah",
+   "urutan_turun": 43
+  },
+  {
+   "no": 36,
+   "nama": "Yasin",
+   "ayat": 83,
+   "halaman_mulai": 440,
+   "jenis": "makkiyah",
+   "urutan_turun": 41
+  },
+  {
+   "no": 37,
+   "nama": "As-Saffat",
+   "ayat": 182,
+   "halaman_mulai": 446,
+   "jenis": "makkiyah",
+   "urutan_turun": 56
+  },
+  {
+   "no": 38,
+   "nama": "Sad",
+   "ayat": 88,
+   "halaman_mulai": 453,
+   "jenis": "makkiyah",
+   "urutan_turun": 38
+  },
+  {
+   "no": 39,
+   "nama": "Az-Zumar",
+   "ayat": 75,
+   "halaman_mulai": 458,
+   "jenis": "makkiyah",
+   "urutan_turun": 59
+  },
+  {
+   "no": 40,
+   "nama": "Ghafir",
+   "ayat": 85,
+   "halaman_mulai": 467,
+   "jenis": "makkiyah",
+   "urutan_turun": 60
+  },
+  {
+   "no": 41,
+   "nama": "Fussilat",
+   "ayat": 54,
+   "halaman_mulai": 477,
+   "jenis": "makkiyah",
+   "urutan_turun": 61
+  },
+  {
+   "no": 42,
+   "nama": "Asy-Syura",
+   "ayat": 53,
+   "halaman_mulai": 483,
+   "jenis": "makkiyah",
+   "urutan_turun": 62
+  },
+  {
+   "no": 43,
+   "nama": "Az-Zukhruf",
+   "ayat": 89,
+   "halaman_mulai": 489,
+   "jenis": "makkiyah",
+   "urutan_turun": 63
+  },
+  {
+   "no": 44,
+   "nama": "Ad-Dukhan",
+   "ayat": 59,
+   "halaman_mulai": 496,
+   "jenis": "makkiyah",
+   "urutan_turun": 64
+  },
+  {
+   "no": 45,
+   "nama": "Al-Jatsiyah",
+   "ayat": 37,
+   "halaman_mulai": 499,
+   "jenis": "makkiyah",
+   "urutan_turun": 65
+  },
+  {
+   "no": 46,
+   "nama": "Al-Ahqaf",
+   "ayat": 35,
+   "halaman_mulai": 502,
+   "jenis": "makkiyah",
+   "urutan_turun": 66
+  },
+  {
+   "no": 47,
+   "nama": "Muhammad",
+   "ayat": 38,
+   "halaman_mulai": 507,
+   "jenis": "madaniyah",
+   "urutan_turun": 95
+  },
+  {
+   "no": 48,
+   "nama": "Al-Fath",
+   "ayat": 29,
+   "halaman_mulai": 511,
+   "jenis": "madaniyah",
+   "urutan_turun": 111
+  },
+  {
+   "no": 49,
+   "nama": "Al-Hujurat",
+   "ayat": 18,
+   "halaman_mulai": 515,
+   "jenis": "madaniyah",
+   "urutan_turun": 106
+  },
+  {
+   "no": 50,
+   "nama": "Qaf",
+   "ayat": 45,
+   "halaman_mulai": 518,
+   "jenis": "makkiyah",
+   "urutan_turun": 34
+  },
+  {
+   "no": 51,
+   "nama": "Adz-Dzariyat",
+   "ayat": 60,
+   "halaman_mulai": 520,
+   "jenis": "makkiyah",
+   "urutan_turun": 67
+  },
+  {
+   "no": 52,
+   "nama": "At-Tur",
+   "ayat": 49,
+   "halaman_mulai": 523,
+   "jenis": "makkiyah",
+   "urutan_turun": 76
+  },
+  {
+   "no": 53,
+   "nama": "An-Najm",
+   "ayat": 62,
+   "halaman_mulai": 526,
+   "jenis": "makkiyah",
+   "urutan_turun": 23
+  },
+  {
+   "no": 54,
+   "nama": "Al-Qamar",
+   "ayat": 55,
+   "halaman_mulai": 528,
+   "jenis": "makkiyah",
+   "urutan_turun": 37
+  },
+  {
+   "no": 55,
+   "nama": "Ar-Rahman",
+   "ayat": 78,
+   "halaman_mulai": 531,
+   "jenis": "madaniyah",
+   "urutan_turun": 97
+  },
+  {
+   "no": 56,
+   "nama": "Al-Waqi'ah",
+   "ayat": 96,
+   "halaman_mulai": 534,
+   "jenis": "makkiyah",
+   "urutan_turun": 46
+  },
+  {
+   "no": 57,
+   "nama": "Al-Hadid",
+   "ayat": 29,
+   "halaman_mulai": 537,
+   "jenis": "madaniyah",
+   "urutan_turun": 94
+  },
+  {
+   "no": 58,
+   "nama": "Al-Mujadalah",
+   "ayat": 22,
+   "halaman_mulai": 542,
+   "jenis": "madaniyah",
+   "urutan_turun": 105
+  },
+  {
+   "no": 59,
+   "nama": "Al-Hasyr",
+   "ayat": 24,
+   "halaman_mulai": 545,
+   "jenis": "madaniyah",
+   "urutan_turun": 101
+  },
+  {
+   "no": 60,
+   "nama": "Al-Mumtahanah",
+   "ayat": 13,
+   "halaman_mulai": 549,
+   "jenis": "madaniyah",
+   "urutan_turun": 91
+  },
+  {
+   "no": 61,
+   "nama": "As-Saff",
+   "ayat": 14,
+   "halaman_mulai": 551,
+   "jenis": "madaniyah",
+   "urutan_turun": 109
+  },
+  {
+   "no": 62,
+   "nama": "Al-Jumu'ah",
+   "ayat": 11,
+   "halaman_mulai": 553,
+   "jenis": "madaniyah",
+   "urutan_turun": 110
+  },
+  {
+   "no": 63,
+   "nama": "Al-Munafiqun",
+   "ayat": 11,
+   "halaman_mulai": 554,
+   "jenis": "madaniyah",
+   "urutan_turun": 104
+  },
+  {
+   "no": 64,
+   "nama": "At-Taghabun",
+   "ayat": 18,
+   "halaman_mulai": 556,
+   "jenis": "madaniyah",
+   "urutan_turun": 108
+  },
+  {
+   "no": 65,
+   "nama": "At-Talaq",
+   "ayat": 12,
+   "halaman_mulai": 558,
+   "jenis": "madaniyah",
+   "urutan_turun": 99
+  },
+  {
+   "no": 66,
+   "nama": "At-Tahrim",
+   "ayat": 12,
+   "halaman_mulai": 560,
+   "jenis": "madaniyah",
+   "urutan_turun": 107
+  },
+  {
+   "no": 67,
+   "nama": "Al-Mulk",
+   "ayat": 30,
+   "halaman_mulai": 562,
+   "jenis": "makkiyah",
+   "urutan_turun": 77
+  },
+  {
+   "no": 68,
+   "nama": "Al-Qalam",
+   "ayat": 52,
+   "halaman_mulai": 564,
+   "jenis": "makkiyah",
+   "urutan_turun": 2
+  },
+  {
+   "no": 69,
+   "nama": "Al-Haqqah",
+   "ayat": 52,
+   "halaman_mulai": 566,
+   "jenis": "makkiyah",
+   "urutan_turun": 78
+  },
+  {
+   "no": 70,
+   "nama": "Al-Ma'arij",
+   "ayat": 44,
+   "halaman_mulai": 568,
+   "jenis": "makkiyah",
+   "urutan_turun": 79
+  },
+  {
+   "no": 71,
+   "nama": "Nuh",
+   "ayat": 28,
+   "halaman_mulai": 570,
+   "jenis": "makkiyah",
+   "urutan_turun": 71
+  },
+  {
+   "no": 72,
+   "nama": "Al-Jinn",
+   "ayat": 28,
+   "halaman_mulai": 572,
+   "jenis": "makkiyah",
+   "urutan_turun": 40
+  },
+  {
+   "no": 73,
+   "nama": "Al-Muzzammil",
+   "ayat": 20,
+   "halaman_mulai": 574,
+   "jenis": "makkiyah",
+   "urutan_turun": 3
+  },
+  {
+   "no": 74,
+   "nama": "Al-Muddatstsir",
+   "ayat": 56,
+   "halaman_mulai": 575,
+   "jenis": "makkiyah",
+   "urutan_turun": 4
+  },
+  {
+   "no": 75,
+   "nama": "Al-Qiyamah",
+   "ayat": 40,
+   "halaman_mulai": 577,
+   "jenis": "makkiyah",
+   "urutan_turun": 31
+  },
+  {
+   "no": 76,
+   "nama": "Al-Insan",
+   "ayat": 31,
+   "halaman_mulai": 578,
+   "jenis": "madaniyah",
+   "urutan_turun": 98
+  },
+  {
+   "no": 77,
+   "nama": "Al-Mursalat",
+   "ayat": 50,
+   "halaman_mulai": 580,
+   "jenis": "makkiyah",
+   "urutan_turun": 33
+  },
+  {
+   "no": 78,
+   "nama": "An-Naba'",
+   "ayat": 40,
+   "halaman_mulai": 582,
+   "jenis": "makkiyah",
+   "urutan_turun": 80
+  },
+  {
+   "no": 79,
+   "nama": "An-Nazi'at",
+   "ayat": 46,
+   "halaman_mulai": 583,
+   "jenis": "makkiyah",
+   "urutan_turun": 81
+  },
+  {
+   "no": 80,
+   "nama": "'Abasa",
+   "ayat": 42,
+   "halaman_mulai": 585,
+   "jenis": "makkiyah",
+   "urutan_turun": 24
+  },
+  {
+   "no": 81,
+   "nama": "At-Takwir",
+   "ayat": 29,
+   "halaman_mulai": 586,
+   "jenis": "makkiyah",
+   "urutan_turun": 7
+  },
+  {
+   "no": 82,
+   "nama": "Al-Infitar",
+   "ayat": 19,
+   "halaman_mulai": 587,
+   "jenis": "makkiyah",
+   "urutan_turun": 82
+  },
+  {
+   "no": 83,
+   "nama": "Al-Mutaffifin",
+   "ayat": 36,
+   "halaman_mulai": 587,
+   "jenis": "makkiyah",
+   "urutan_turun": 86
+  },
+  {
+   "no": 84,
+   "nama": "Al-Insyiqaq",
+   "ayat": 25,
+   "halaman_mulai": 589,
+   "jenis": "makkiyah",
+   "urutan_turun": 83
+  },
+  {
+   "no": 85,
+   "nama": "Al-Buruj",
+   "ayat": 22,
+   "halaman_mulai": 590,
+   "jenis": "makkiyah",
+   "urutan_turun": 27
+  },
+  {
+   "no": 86,
+   "nama": "At-Tariq",
+   "ayat": 17,
+   "halaman_mulai": 591,
+   "jenis": "makkiyah",
+   "urutan_turun": 36
+  },
+  {
+   "no": 87,
+   "nama": "Al-A'la",
+   "ayat": 19,
+   "halaman_mulai": 591,
+   "jenis": "makkiyah",
+   "urutan_turun": 8
+  },
+  {
+   "no": 88,
+   "nama": "Al-Ghasyiyah",
+   "ayat": 26,
+   "halaman_mulai": 592,
+   "jenis": "makkiyah",
+   "urutan_turun": 68
+  },
+  {
+   "no": 89,
+   "nama": "Al-Fajr",
+   "ayat": 30,
+   "halaman_mulai": 593,
+   "jenis": "makkiyah",
+   "urutan_turun": 10
+  },
+  {
+   "no": 90,
+   "nama": "Al-Balad",
+   "ayat": 20,
+   "halaman_mulai": 594,
+   "jenis": "makkiyah",
+   "urutan_turun": 35
+  },
+  {
+   "no": 91,
+   "nama": "Asy-Syams",
+   "ayat": 15,
+   "halaman_mulai": 595,
+   "jenis": "makkiyah",
+   "urutan_turun": 26
+  },
+  {
+   "no": 92,
+   "nama": "Al-Lail",
+   "ayat": 21,
+   "halaman_mulai": 595,
+   "jenis": "makkiyah",
+   "urutan_turun": 9
+  },
+  {
+   "no": 93,
+   "nama": "Ad-Duha",
+   "ayat": 11,
+   "halaman_mulai": 596,
+   "jenis": "makkiyah",
+   "urutan_turun": 11
+  },
+  {
+   "no": 94,
+   "nama": "Asy-Syarh",
+   "ayat": 8,
+   "halaman_mulai": 596,
+   "jenis": "makkiyah",
+   "urutan_turun": 12
+  },
+  {
+   "no": 95,
+   "nama": "At-Tin",
+   "ayat": 8,
+   "halaman_mulai": 597,
+   "jenis": "makkiyah",
+   "urutan_turun": 28
+  },
+  {
+   "no": 96,
+   "nama": "Al-'Alaq",
+   "ayat": 19,
+   "halaman_mulai": 597,
+   "jenis": "makkiyah",
+   "urutan_turun": 1
+  },
+  {
+   "no": 97,
+   "nama": "Al-Qadr",
+   "ayat": 5,
+   "halaman_mulai": 598,
+   "jenis": "makkiyah",
+   "urutan_turun": 25
+  },
+  {
+   "no": 98,
+   "nama": "Al-Bayyinah",
+   "ayat": 8,
+   "halaman_mulai": 598,
+   "jenis": "madaniyah",
+   "urutan_turun": 100
+  },
+  {
+   "no": 99,
+   "nama": "Az-Zalzalah",
+   "ayat": 8,
+   "halaman_mulai": 599,
+   "jenis": "madaniyah",
+   "urutan_turun": 93
+  },
+  {
+   "no": 100,
+   "nama": "Al-'Adiyat",
+   "ayat": 11,
+   "halaman_mulai": 599,
+   "jenis": "makkiyah",
+   "urutan_turun": 14
+  },
+  {
+   "no": 101,
+   "nama": "Al-Qari'ah",
+   "ayat": 11,
+   "halaman_mulai": 600,
+   "jenis": "makkiyah",
+   "urutan_turun": 30
+  },
+  {
+   "no": 102,
+   "nama": "At-Takatsur",
+   "ayat": 8,
+   "halaman_mulai": 600,
+   "jenis": "makkiyah",
+   "urutan_turun": 16
+  },
+  {
+   "no": 103,
+   "nama": "Al-'Asr",
+   "ayat": 3,
+   "halaman_mulai": 601,
+   "jenis": "makkiyah",
+   "urutan_turun": 13
+  },
+  {
+   "no": 104,
+   "nama": "Al-Humazah",
+   "ayat": 9,
+   "halaman_mulai": 601,
+   "jenis": "makkiyah",
+   "urutan_turun": 32
+  },
+  {
+   "no": 105,
+   "nama": "Al-Fil",
+   "ayat": 5,
+   "halaman_mulai": 601,
+   "jenis": "makkiyah",
+   "urutan_turun": 19
+  },
+  {
+   "no": 106,
+   "nama": "Quraisy",
+   "ayat": 4,
+   "halaman_mulai": 602,
+   "jenis": "makkiyah",
+   "urutan_turun": 29
+  },
+  {
+   "no": 107,
+   "nama": "Al-Ma'un",
+   "ayat": 7,
+   "halaman_mulai": 602,
+   "jenis": "makkiyah",
+   "urutan_turun": 17
+  },
+  {
+   "no": 108,
+   "nama": "Al-Kautsar",
+   "ayat": 3,
+   "halaman_mulai": 602,
+   "jenis": "makkiyah",
+   "urutan_turun": 15
+  },
+  {
+   "no": 109,
+   "nama": "Al-Kafirun",
+   "ayat": 6,
+   "halaman_mulai": 603,
+   "jenis": "makkiyah",
+   "urutan_turun": 18
+  },
+  {
+   "no": 110,
+   "nama": "An-Nasr",
+   "ayat": 3,
+   "halaman_mulai": 603,
+   "jenis": "madaniyah",
+   "urutan_turun": 114
+  },
+  {
+   "no": 111,
+   "nama": "Al-Lahab",
+   "ayat": 5,
+   "halaman_mulai": 603,
+   "jenis": "makkiyah",
+   "urutan_turun": 6
+  },
+  {
+   "no": 112,
+   "nama": "Al-Ikhlas",
+   "ayat": 4,
+   "halaman_mulai": 604,
+   "jenis": "makkiyah",
+   "urutan_turun": 22
+  },
+  {
+   "no": 113,
+   "nama": "Al-Falaq",
+   "ayat": 5,
+   "halaman_mulai": 604,
+   "jenis": "makkiyah",
+   "urutan_turun": 20
+  },
+  {
+   "no": 114,
+   "nama": "An-Nas",
+   "ayat": 6,
+   "halaman_mulai": 604,
+   "jenis": "makkiyah",
+   "urutan_turun": 21
+  }
+ ]
+}
