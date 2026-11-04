@@ -392,6 +392,9 @@ function drawBg(t) {
 }
 
 // ---------- overlay ----------
+const PROF = new Image(); PROF.src = 'profile.jpg'; await PROF.decode();
+// foto 'jauh': seluruh foto masuk lingkaran (sosok penuh terlihat, tidak dipotong rapat)
+function avatar(cx, cy, r) { ox.save(); ox.beginPath(); ox.arc(cx, cy, r, 0, 7); ox.clip(); ox.fillStyle = '#1a6b45'; ox.fillRect(cx - r, cy - r, 2 * r, 2 * r); const d = r * 2 * 1.06; ox.drawImage(PROF, cx - d / 2, cy - d * .47, d, d); ox.restore(); ox.save(); ox.strokeStyle = 'rgba(228,196,123,.85)'; ox.lineWidth = Math.max(1.5, r * .06); ox.beginPath(); ox.arc(cx, cy, r, 0, 7); ox.stroke(); ox.restore(); }
 function proj(v) { const p = v.clone().project(cam); return [(p.x + 1) / 2 * W, (1 - p.y) / 2 * H, p.z < 1]; }
 function txt(s, x, y, { font = `bold 30px ${SANS}`, col = WHITE, al = 'left', a = 1, ls = '0px', blur = 0, sh = 0 } = {}) {
   ox.save(); ox.globalAlpha = a; ox.font = font; ox.fillStyle = col; ox.textAlign = al; ox.letterSpacing = ls; if (blur > .1) ox.filter = `blur(${blur}px)`;
@@ -504,8 +507,7 @@ function subFollow(t) {
   const a = win(t, .2, 3.5, .3, .35); if (a <= 0) return;
   const x = 150, y = 1060 + 14 * (1 - ss(.2, .5, t)), w = 420, h = 74;
   ox.save(); ox.globalAlpha = a; ox.fillStyle = '#fff'; ox.shadowColor = 'rgba(0,0,0,.4)'; ox.shadowBlur = 20; ox.beginPath(); ox.roundRect(x, y, w, h, 16); ox.fill(); ox.shadowBlur = 0;
-  ox.fillStyle = '#1b1712'; ox.beginPath(); ox.arc(x + 38, y + 37, 22, 0, 7); ox.fill();
-  ox.translate(x + 38, y + 37); ox.fillStyle = '#C9952F'; ox.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 7.6 : 10, an = i * Math.PI / 8; ox.lineTo(r * Math.sin(an), -r * Math.cos(an)); } ox.closePath(); ox.fill(); ox.setTransform(SC, 0, 0, SC, 0, 0); ox.globalAlpha = a;
+  avatar(x + 38, y + 37, 25); ox.globalAlpha = a;
   ox.fillStyle = '#111'; ox.font = `bold 17px ${SANS}`; ox.fillText('alurziyadahku', x + 72, y + 32); ox.fillStyle = '#777'; ox.font = `500 12px ${SANS}`; ox.fillText('Kajian Al-Qur\'an', x + 72, y + 52);
   const s1 = t > 1.25, s2 = t > 2.25;
   const btn = (bx_, txt_, on, pulse) => { ox.fillStyle = on ? '#E8E4DC' : '#1b1712'; ox.beginPath(); ox.roundRect(bx_, y + 20, 92, 34, 17); ox.fill(); ox.fillStyle = on ? '#3a3328' : '#fff'; ox.font = `600 13px ${SANS}`; ox.textAlign = 'center'; ox.fillText(txt_, bx_ + 46, y + 42); ox.textAlign = 'left';
@@ -521,13 +523,14 @@ function followCard(t) {
   const a = ss(170.0, 170.5, t); if (a <= 0) return;
   ox.fillStyle = `rgba(3,3,3,${.55 * a})`; ox.fillRect(0, 0, W, H);
   const y = 470 + 20 * (1 - a);
-  ox.save(); ox.globalAlpha = a; ox.fillStyle = 'rgba(20,18,14,.85)'; ox.strokeStyle = 'rgba(228,196,123,.35)'; ox.beginPath(); ox.roundRect(90, y, 540, 300, 22); ox.fill(); ox.stroke(); ox.restore();
-  txt('Jangan lupa follow ya', W / 2, y + 74, { font: `bold 34px ${SANS}`, al: 'center', a, ls: '-0.6px' });
-  txt('@alurziyadahku', W / 2, y + 122, { font: `bold 30px ${SANS}`, al: 'center', col: GOLD, a, ls: '-0.4px' });
+  ox.save(); ox.globalAlpha = a; ox.fillStyle = 'rgba(20,18,14,.85)'; ox.strokeStyle = 'rgba(228,196,123,.35)'; ox.beginPath(); ox.roundRect(90, y, 540, 320, 22); ox.fill(); ox.stroke(); ox.restore();
+  ox.save(); ox.globalAlpha = a; avatar(W / 2, y, 62); ox.restore();
+  txt('Jangan lupa follow ya', W / 2, y + 104, { font: `bold 34px ${SANS}`, al: 'center', a, ls: '-0.6px' });
+  txt('@alurziyadahku', W / 2, y + 148, { font: `bold 30px ${SANS}`, al: 'center', col: GOLD, a, ls: '-0.4px' });
   ['Follow', 'Simpan', 'Kongsi'].forEach((s, i) => {
     const x = 140 + i * 152, on = i === 0; ox.save(); ox.globalAlpha = a * ss(170.5 + i * .2, 170.9 + i * .2, t);
-    ox.fillStyle = on ? GOLD : 'rgba(255,255,255,.08)'; ox.strokeStyle = 'rgba(228,196,123,.5)'; ox.beginPath(); ox.roundRect(x, y + 180, 136, 52, 26); ox.fill(); if (!on) ox.stroke();
-    ox.fillStyle = on ? '#16110a' : WHITE; ox.font = `bold 19px ${SANS}`; ox.textAlign = 'center'; ox.fillText(s, x + 68, y + 213); ox.restore();
+    ox.fillStyle = on ? GOLD : 'rgba(255,255,255,.08)'; ox.strokeStyle = 'rgba(228,196,123,.5)'; ox.beginPath(); ox.roundRect(x, y + 205, 136, 52, 26); ox.fill(); if (!on) ox.stroke();
+    ox.fillStyle = on ? '#16110a' : WHITE; ox.font = `bold 19px ${SANS}`; ox.textAlign = 'center'; ox.fillText(s, x + 68, y + 238); ox.restore();
   });
 }
 function vignette() { const g = ox.createRadialGradient(W / 2, H / 2, 380, W / 2, H / 2, 900); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.6)'); ox.fillStyle = g; ox.fillRect(0, 0, W, H); }
