@@ -30,84 +30,112 @@ const SUR = (await (await fetch('surah114.json')).json()).surah;
 await document.fonts.load('40px Sch'); await document.fonts.load('40px SchB');
 await document.fonts.load(`bold 30px ${SANS}`);
 
-// ---------- mushaf page textures ----------
+// ---------- mushaf page textures (gaya Mushaf Madinah 15 baris) ----------
 const PW = 640, PH = 910;
+const FX0 = 30, FY0 = 36, FX1 = PW - 30, FY1 = PH - 44;           // bingkai luar
+const TX0 = 56, TX1 = PW - 56, TY0 = 62, TY1 = PH - 66, NL = 15; // area teks
+const SLOT = (TY1 - TY0) / NL;
+const juzOf = p => p < 22 ? 1 : Math.min(30, Math.floor((p - 2) / 20) + 1);
 const layoutCache = {};
+const mctx = document.createElement('canvas').getContext('2d');
+function wrap(toks, FS, width) {
+  mctx.font = `${FS}px Sch`; const sp = FS * .28; const lines = []; let line = [], lw = 0;
+  for (const tk of toks) {
+    const w = tk.m ? FS * 1.05 : mctx.measureText(tk.w).width;
+    if (line.length && lw + sp + w > width) { lines.push({ toks: line, lw }); line = []; lw = 0; }
+    lw += (line.length ? sp : 0) + w; line.push({ ...tk, wd: w });
+  }
+  if (line.length) lines.push({ toks: line, lw }); return lines;
+}
 function layoutPage(p) {
   if (layoutCache[p]) return layoutCache[p];
-  const c = document.createElement('canvas').getContext('2d');
-  const FS = 29, LH = 49, X0 = 52, X1 = PW - 52; let y = 88;
-  const items = []; // {type, ...}
-  for (const blk of PAGES[p]) {
-    if (blk.head) {
-      items.push({ type: 'head', y, name: blk.name }); y += 58;
-      if (blk.s !== 1 && blk.s !== 9) { items.push({ type: 'basm', y }); y += LH; }
+  const blocks = PAGES[p].map(blk => { const toks = []; for (const [a, txt] of blk.v) { for (const w of txt.split(' ')) toks.push({ w, a }); toks.push({ m: a, a }); } return { ...blk, toks }; });
+  const special = p <= 2;
+  let FS, L = [];
+  if (special) {
+    FS = 31; const width = 330; let y = 330;
+    for (const blk of blocks) {
+      L.push({ type: 'head', y: 262, name: blk.name, special: true });
+      if (blk.s !== 1) { L.push({ type: 'basm', y, FS }); y += 47; }
+      for (const ln of wrap(blk.toks, FS, width)) { L.push({ type: 'line', y, toks: ln.toks, lw: ln.lw, x0: PW / 2 - width / 2, x1: PW / 2 + width / 2, center: true, s: blk.s, FS }); y += 47; }
     }
-    // tokens
-    const toks = [];
-    for (const [a, txt] of blk.v) { for (const w of txt.split(' ')) toks.push({ w, a }); toks.push({ m: a, a }); }
-    c.font = `${FS}px Sch`;
-    const meas = tk => tk.m ? 30 : c.measureText(tk.w).width;
-    let line = [], lw = 0; const sp = 9;
-    const flush = (last) => { if (!line.length) return; items.push({ type: 'line', y, toks: line, just: !last, s: blk.s }); y += LH; line = []; lw = 0; };
-    for (const tk of toks) {
-      const w = meas(tk);
-      if (lw + w + (line.length ? sp : 0) > X1 - X0 && line.length) flush(false);
-      line.push({ ...tk, wd: w }); lw += w + (line.length > 1 ? sp : 0);
+  } else {
+    for (FS = 34; FS >= 17; FS--) {
+      let n = 0; for (const blk of blocks) { if (blk.head) n += (blk.s !== 9 ? 2 : 1); n += wrap(blk.toks, FS, TX1 - TX0).length; }
+      if (n <= NL) break;
     }
-    flush(true);
-    y += 4;
+    let slot = 0;
+    for (const blk of blocks) {
+      if (blk.head) { L.push({ type: 'head', y: TY0 + SLOT * slot, name: blk.name }); slot++; if (blk.s !== 9) { L.push({ type: 'basm', y: TY0 + SLOT * (slot + .72), FS }); slot++; } }
+      const lines = wrap(blk.toks, FS, TX1 - TX0);
+      lines.forEach((ln, i) => { L.push({ type: 'line', y: TY0 + SLOT * (slot + .72), toks: ln.toks, lw: ln.lw, x0: TX0, x1: TX1, center: i === lines.length - 1 && ln.lw < (TX1 - TX0) * .62, s: blk.s, FS }); slot++; });
+    }
   }
-  // position words (RTL)
-  for (const it of items) if (it.type === 'line') {
-    const tot = it.toks.reduce((s, k) => s + k.wd, 0);
-    const gap = it.just && it.toks.length > 1 ? (X1 - X0 - tot) / (it.toks.length - 1) : 9;
-    let x = X1; for (const k of it.toks) { k.x1 = x; k.x0 = x - k.wd; x -= k.wd + gap; }
+  for (const it of L) if (it.type === 'line') {
+    const tot = it.toks.reduce((s, k) => s + k.wd, 0), n = it.toks.length;
+    let gap = it.center || n < 2 ? it.FS * .28 : (it.x1 - it.x0 - tot) / (n - 1);
+    let x = it.center ? (it.x0 + it.x1) / 2 + (tot + gap * (n - 1)) / 2 : it.x1;
+    for (const k of it.toks) { k.x1 = x; k.x0 = x - k.wd; x -= k.wd + gap; }
   }
-  return (layoutCache[p] = { items, FS, LH, X0, X1 });
+  return (layoutCache[p] = { items: L, special });
 }
-function hlFrac(p, ayas) { // pusat vertikal baris sorotan (0..1 dari atas)
-  const L = layoutPage(p); let ys = [];
-  for (const it of L.items) if (it.type === 'line' && it.toks.some(k => ayas.includes(it.s + ':' + k.a))) ys.push(it.y);
-  const m = ys.length ? (Math.min(...ys) + Math.max(...ys)) / 2 : PH / 2;
-  return m / PH;
+function hlFrac(p, ayas) {
+  const L = layoutPage(p); const ys = [];
+  for (const it of L.items) if (it.type === 'line' && it.toks.some(k => ayas.includes(it.s + ':' + k.a))) ys.push(it.y - it.FS * .3);
+  return (ys.length ? (Math.min(...ys) + Math.max(...ys)) / 2 : PH / 2) / PH;
+}
+function marker(c, cx, cy, n, FS) {
+  const r = FS * .42; c.save(); c.strokeStyle = '#B08D48'; c.lineWidth = 1.3; c.beginPath(); c.arc(cx, cy, r, 0, 7); c.stroke();
+  c.beginPath(); c.arc(cx, cy, r - 2.6, 0, 7); c.lineWidth = .7; c.stroke();
+  c.fillStyle = '#3b2f18'; c.font = `${Math.round(FS * .5)}px Sch`; c.textAlign = 'center'; c.direction = 'rtl'; c.fillText(AR(n), cx, cy + FS * .17); c.restore();
+}
+function banner(c, cx, y, w, name) {
+  c.save(); const h = 36;
+  const g = c.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#F3E7C6'); g.addColorStop(1, '#E6D3A1');
+  c.fillStyle = g; c.strokeStyle = '#B99A5B'; c.lineWidth = 1.6; c.beginPath(); c.roundRect(cx - w / 2, y, w, h, h / 2); c.fill(); c.stroke();
+  c.lineWidth = .7; c.beginPath(); c.roundRect(cx - w / 2 + 4, y + 4, w - 8, h - 8, (h - 8) / 2); c.stroke();
+  c.fillStyle = '#3e3018'; c.font = '22px Sch'; c.textAlign = 'center'; c.direction = 'rtl'; c.fillText('سُورَةُ ' + name, cx, y + 25); c.restore();
 }
 function drawPage(p, hl = [], amt = 0) {
   const cv = document.createElement('canvas'); cv.width = PW; cv.height = PH; const c = cv.getContext('2d');
-  const g = c.createLinearGradient(0, 0, PW, 0); g.addColorStop(0, '#F3E6C8'); g.addColorStop(.5, '#FBF1D8'); g.addColorStop(1, '#F1E2C2');
+  const odd = p % 2 === 1; // halaman kanan
+  const g = c.createLinearGradient(0, 0, PW, 0);
+  const sh = ['#E9E3D6', '#F8F5EE', '#FBF9F3']; // bayang lipatan dekat punggung
+  if (odd) { g.addColorStop(0, sh[0]); g.addColorStop(.08, sh[1]); g.addColorStop(1, sh[2]); } else { g.addColorStop(0, sh[2]); g.addColorStop(.92, sh[1]); g.addColorStop(1, sh[0]); }
   c.fillStyle = g; c.fillRect(0, 0, PW, PH);
-  c.strokeStyle = '#B99A5B'; c.lineWidth = 3; c.strokeRect(30, 40, PW - 60, PH - 92);
-  c.strokeStyle = '#D6BE86'; c.lineWidth = 1.2; c.strokeRect(38, 48, PW - 76, PH - 108);
-  c.fillStyle = '#7d6a45'; c.font = '18px Sch'; c.textAlign = 'center'; c.direction = 'rtl';
-  c.fillText(AR(p), PW / 2, PH - 22);
+  // bingkai emas ganda
+  c.strokeStyle = '#C2A262'; c.lineWidth = 2.4; c.strokeRect(FX0, FY0, FX1 - FX0, FY1 - FY0);
+  c.strokeStyle = '#D9C38F'; c.lineWidth = 1; c.strokeRect(FX0 + 6, FY0 + 6, FX1 - FX0 - 12, FY1 - FY0 - 12);
+  // baris kepala
   const L = layoutPage(p);
-  // sorotan
-  if (amt > 0) for (const it of L.items) if (it.type === 'line') {
-    const ks = it.toks.filter(k => hl.includes(it.s + ':' + k.a)); if (!ks.length) continue;
-    const x0 = Math.min(...ks.map(k => k.x0)) - 6, x1 = Math.max(...ks.map(k => k.x1)) + 6;
-    c.save(); c.shadowColor = `rgba(255,200,80,${.9 * amt})`; c.shadowBlur = 26;
-    c.fillStyle = `rgba(255,214,96,${.62 * amt})`; c.beginPath(); c.roundRect(x0, it.y - 33, x1 - x0, 42, 8); c.fill(); c.restore();
+  c.fillStyle = '#6e6250'; c.font = '15px Sch'; c.direction = 'rtl';
+  const sname = PAGES[p][0].name;
+  c.textAlign = 'right'; c.fillText(odd ? 'سُورَةُ ' + sname : 'الجُزْءُ ' + AR(juzOf(p)), FX1, FY0 - 9);
+  c.textAlign = 'left'; c.fillText(odd ? 'الجُزْءُ ' + AR(juzOf(p)) : 'سُورَةُ ' + sname, FX0, FY0 - 9);
+  // nomor halaman
+  c.strokeStyle = '#B99A5B'; c.lineWidth = 1.2; c.beginPath(); c.arc(PW / 2, PH - 22, 12, 0, 7); c.stroke();
+  c.fillStyle = '#4a3c22'; c.font = '15px Sch'; c.textAlign = 'center'; c.fillText(AR(p), PW / 2, PH - 17);
+  if (L.special) { // bingkai lengkung halaman 1-2
+    c.save(); c.strokeStyle = '#C2A262'; c.lineWidth = 2;
+    const ax0 = 120, ax1 = PW - 120, ay = 250, ab = 690;
+    c.beginPath(); c.moveTo(ax0, ab); c.lineTo(ax0, ay); c.quadraticCurveTo(PW / 2, 150, ax1, ay); c.lineTo(ax1, ab); c.closePath(); c.stroke();
+    c.lineWidth = .8; c.beginPath(); c.moveTo(ax0 + 7, ab - 7); c.lineTo(ax0 + 7, ay + 4); c.quadraticCurveTo(PW / 2, 162, ax1 - 7, ay + 4); c.lineTo(ax1 - 7, ab - 7); c.closePath(); c.stroke(); c.restore();
   }
   for (const it of L.items) {
-    if (it.type === 'head') {
-      c.save(); c.fillStyle = '#EFDDAF'; c.strokeStyle = '#B99A5B'; c.lineWidth = 2;
-      c.beginPath(); c.roundRect(70, it.y - 10, PW - 140, 46, 23); c.fill(); c.stroke();
-      c.fillStyle = '#4a3a1e'; c.font = '26px SchB'; c.textAlign = 'center'; c.direction = 'rtl';
-      c.fillText('سُورَةُ ' + it.name, PW / 2, it.y + 22); c.restore();
-    } else if (it.type === 'basm') {
-      c.fillStyle = '#222'; c.font = `${L.FS}px Sch`; c.textAlign = 'center'; c.direction = 'rtl';
-      c.fillText('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ', PW / 2, it.y);
-    } else {
-      for (const k of it.toks) {
-        if (k.m) {
-          const cx = (k.x0 + k.x1) / 2, cy = it.y - 10;
-          c.strokeStyle = '#A88A4E'; c.lineWidth = 1.6; c.beginPath(); c.arc(cx, cy, 13, 0, 7); c.stroke();
-          c.fillStyle = '#5a4824'; c.font = '17px Sch'; c.textAlign = 'center'; c.direction = 'rtl'; c.fillText(AR(k.m), cx, cy + 6);
-        } else {
-          c.fillStyle = '#1d1a16'; c.font = `${L.FS}px Sch`; c.textAlign = 'right'; c.direction = 'rtl'; c.fillText(k.w, k.x1, it.y);
-        }
-      }
+    if (it.type === 'head') banner(c, PW / 2, it.special ? it.y - 30 : it.y + 7, it.special ? 300 : TX1 - TX0 - 40, it.name);
+    else if (it.type === 'basm') { c.fillStyle = '#1f1b16'; c.font = `${it.FS}px Sch`; c.textAlign = 'center'; c.direction = 'rtl'; c.fillText('بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ', PW / 2, it.y); }
+    else for (const k of it.toks) {
+      if (k.m) marker(c, (k.x0 + k.x1) / 2, it.y - it.FS * .28, k.m, it.FS);
+      else { c.fillStyle = '#1b1814'; c.font = `${it.FS}px Sch`; c.textAlign = 'right'; c.direction = 'rtl'; c.fillText(k.w, k.x1, it.y); }
     }
+  }
+  // sorotan: cahaya kuning lembut menimpa teks
+  if (amt > 0) for (const it of L.items) if (it.type === 'line') {
+    const ks = it.toks.filter(k => hl.includes(it.s + ':' + k.a)); if (!ks.length) continue;
+    const x0 = Math.min(...ks.map(k => k.x0)) - 4, x1 = Math.max(...ks.map(k => k.x1)) + 4;
+    c.save(); c.filter = 'blur(7px)'; c.globalAlpha = amt;
+    c.fillStyle = 'rgba(255,226,120,.55)'; c.fillRect(x0, it.y - it.FS * .95, x1 - x0, it.FS * 1.25);
+    c.globalCompositeOperation = 'lighter'; c.fillStyle = 'rgba(255,200,70,.22)'; c.fillRect(x0 - 6, it.y - it.FS * 1.05, x1 - x0 + 12, it.FS * 1.45); c.restore();
   }
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
 }
@@ -130,18 +158,18 @@ const orbLight = new THREE.PointLight(0xffc56a, 0, 6, 1.6); scene.add(orbLight);
 
 // mushaf
 const PGW = 1.0, PGH = 1.42;
-const bend = x => 0.07 * Math.sin(Math.min(Math.abs(x) / 0.28, 1) * Math.PI / 2) - 0.012 * Math.abs(x);
+const bend = x => 0.05 * Math.abs(x) + (Math.abs(x) < .02 ? -.004 : 0);
 function pageGeom(side) { // side +1 kanan, -1 kiri
-  const g = new THREE.PlaneGeometry(PGW, PGH, 40, 1); g.rotateX(-Math.PI / 2); g.translate(side * PGW / 2, 0, 0);
+  const g = new THREE.PlaneGeometry(PGW, PGH, 40, 1); g.rotateX(-Math.PI / 2); g.translate(side * (PGW / 2 + .008), 0, 0);
   const pos = g.attributes.position; for (let i = 0; i < pos.count; i++) pos.setY(i, bend(pos.getX(i))); pos.needsUpdate = true; g.computeVertexNormals(); return g;
 }
 const mushaf = new THREE.Group(); scene.add(mushaf);
 const pmat = () => new THREE.MeshStandardMaterial({ roughness: .92, metalness: 0, transparent: true });
 const leftM = new THREE.Mesh(pageGeom(-1), pmat()), rightM = new THREE.Mesh(pageGeom(1), pmat());
 mushaf.add(leftM, rightM);
-const blockMat = new THREE.MeshStandardMaterial({ color: 0xe9dcbc, roughness: .9, transparent: true });
-const coverMat = new THREE.MeshStandardMaterial({ color: 0x2a1d12, roughness: .6, metalness: .2, transparent: true });
-for (const s of [-1, 1]) { const b = new THREE.Mesh(new THREE.BoxGeometry(PGW * .99, .07, PGH * .99), blockMat); b.position.set(s * PGW / 2, -.04, 0); mushaf.add(b); }
+const blockMat = new THREE.MeshStandardMaterial({ color: 0xe8e2d4, roughness: .9, transparent: true });
+const coverMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: .6, metalness: .2, transparent: true });
+for (const s of [-1, 1]) { const b = new THREE.Mesh(new THREE.BoxGeometry(PGW * 1.0, .05, PGH * 1.0), blockMat); b.position.set(s * (PGW / 2 + .01), -.034 + .025, 0); b.rotation.z = s * Math.atan(.05); mushaf.add(b); }
 const cover = new THREE.Mesh(new THREE.BoxGeometry(PGW * 2.08, .025, PGH * 1.04), coverMat); cover.position.y = -.09; mushaf.add(cover);
 // lembar balik (+ 2 bayangan motion blur)
 const flippers = [];
@@ -155,21 +183,21 @@ const BWD = [[11.1, .45, 597, 529], [11.8, .45, 529, 229], [12.5, .5, 229, 47]];
 // kitab hitam bersampul bintang
 function coverTex() {
   const cv = document.createElement('canvas'); cv.width = 800; cv.height = 1080; const c = cv.getContext('2d');
-  const g = c.createRadialGradient(400, 540, 50, 400, 540, 700); g.addColorStop(0, '#221c16'); g.addColorStop(1, '#0d0b09');
+  const g = c.createLinearGradient(0, 0, 800, 1080); g.addColorStop(0, '#1c1c1c'); g.addColorStop(1, '#101010');
   c.fillStyle = g; c.fillRect(0, 0, 800, 1080);
-  c.strokeStyle = '#C99A3B'; c.lineWidth = 7; c.strokeRect(70, 70, 660, 940);
-  c.translate(400, 540); c.fillStyle = '#C9952F'; c.shadowColor = 'rgba(230,170,60,.5)'; c.shadowBlur = 20;
-  for (const r of [0, Math.PI / 4]) { c.save(); c.rotate(r); c.fillRect(-105, -105, 210, 210); c.restore(); }
+  c.strokeStyle = '#C8932E'; c.lineWidth = 6; c.strokeRect(62, 62, 676, 956);
+  c.translate(400, 540); c.fillStyle = '#D2962C';
+  c.beginPath(); for (let i = 0; i < 16; i++) { const r = i % 2 ? 126 : 165, a = i * Math.PI / 8; c.lineTo(r * Math.sin(a), -r * Math.cos(a)); } c.closePath(); c.fill();
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
 }
 const ring = new THREE.Group(); scene.add(ring);
 const BOOK = { w: 1.0, h: .2, d: 1.35 };
 const book = new THREE.Group(); ring.add(book);
 {
-  const side = new THREE.MeshStandardMaterial({ color: 0x14100c, roughness: .55, metalness: .25 });
-  const top = new THREE.MeshStandardMaterial({ map: coverTex(), roughness: .5, metalness: .2 });
+  const side = new THREE.MeshStandardMaterial({ color: 0x1a1210, roughness: .6, metalness: .15 });
+  const top = new THREE.MeshStandardMaterial({ map: coverTex(), roughness: .7, metalness: .05 });
   const m = new THREE.Mesh(new THREE.BoxGeometry(BOOK.w, BOOK.h, BOOK.d), [side, side, top, side, side, side]); m.position.y = BOOK.h / 2; book.add(m);
-  const edge = new THREE.Mesh(new THREE.BoxGeometry(BOOK.w * .96, BOOK.h * .7, .01), new THREE.MeshStandardMaterial({ color: 0x3a2a1a })); edge.position.set(0, BOOK.h / 2, BOOK.d / 2 + .002); book.add(edge);
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(BOOK.w * .96, BOOK.h * .7, .01), new THREE.MeshStandardMaterial({ color: 0x2b1610, roughness: .8 })); edge.position.set(0, BOOK.h / 2, BOOK.d / 2 + .002); book.add(edge);
 }
 const R = 2.35;
 const disk = new THREE.Mesh(new THREE.CylinderGeometry(3.05, 3.05, .04, 160), new THREE.MeshStandardMaterial({ color: 0x0c0a08, roughness: .35, metalness: .5 }));
@@ -202,15 +230,15 @@ const zOf = f => -PGH / 2 + PGH * f;
 const Z597 = zOf(F597), Z47 = zOf(F47);
 const BQ = polar(thM(2)), BQout = BQ.clone().normalize();
 const CAM = [
-  [0, [0, 3.75, 3.65], [0, -.5, .2]],
-  [4.3, [.1, 3.35, 3.25], [.05, -.45, .15]],
+  [0, [0, 4.6, 2.75], [0, -.55, .3]],
+  [4.3, [.08, 4.15, 2.5], [.05, -.5, .28]],
   [5.3, [.48, 1.05, Z597 + 1.0], [.5, 0, Z597]],
   [6.15, [.5, .32, Z597 + .22], [.5, 0, Z597]],
   [10.35, [.48, .9, Z597 + .85], [.5, 0, Z597]],
-  [11.05, [0, 3.7, 3.6], [0, -.5, .2]],
-  [13.25, [0, 3.55, 3.45], [0, -.48, .2]],
-  [14.25, [.45, 1.5, Z47 + 1.35], [.45, -.12, Z47]],
-  [17.9, [.3, 1.75, Z47 + 1.6], [.4, -.14, Z47]],
+  [11.05, [0, 4.55, 2.72], [0, -.55, .3]],
+  [13.25, [0, 4.4, 2.65], [0, -.52, .3]],
+  [14.25, [.42, 2.15, Z47 + 1.05], [.45, -.2, Z47 + .05]],
+  [17.9, [.3, 2.45, Z47 + 1.25], [.4, -.22, Z47 + .05]],
   [19.9, [0, 6.4, 10.2], [0, .2, 0]],
   [25.9, [2.0, 5.4, 9.6], [0, .35, 0]],
   [30.2, [-1.4, 5.3, 9.4], [0, .35, 0]],
