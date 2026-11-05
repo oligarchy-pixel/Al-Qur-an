@@ -1,0 +1,22 @@
+{
+ "end": 42, "follow": 39.0,
+ "intro": {"t0": 0.6, "t1": 4.0, "to": 251, "flips": 8},
+ "modes": [[0, "mushaf"], [9.6, "ring"], [22.0, "mushaf"], [27.2, "ring"], [39.0, "follow"]],
+ "ayahs": [
+  {"t": 4.3, "page": 1, "hl": ["1:5"], "until": 9.4, "label": "QS. Al-Fatihah 1:5", "lab": "Maksudnya", "trans": ["\"Hanya kepada-Mu kami menyembah dan hanya", "kepada-Mu kami meminta pertolongan.\""]},
+  {"t": 22.2, "page": 35, "hl": ["2:222"], "until": 27.0, "label": "QS. Al-Baqarah 2:222", "lab": "Maksudnya", "trans": ["\"...Sesungguhnya Allah menyukai orang-orang", "yang bertaubat...\""]}
+ ],
+ "points": [
+  {"t": 12.4, "until": 17.2, "idx": 6, "no": "01", "kicker": "Poin pertama", "title": ["Ibadah mesti sah"], "sub": "Asasnya ilmu"},
+  {"t": 17.2, "until": 22.0, "idx": 30, "no": "02", "kicker": "Poin kedua", "title": ["Ibadah perlu", "diterima"], "sub": "Jalannya taubat"},
+  {"t": 27.4, "until": 31.6, "idx": 54, "no": "03", "kicker": "Poin ketiga", "title": ["Sedikit tetapi", "berterusan"], "sub": "Sahih al-Bukhari 6464"},
+  {"t": 31.6, "until": 35.8, "idx": 78, "no": "04", "kicker": "Poin keempat", "title": ["Jaga masa", "& pergaulan"], "sub": "Pilih yang kekal"}
+ ],
+ "titles": [
+  [0.3, 4.2, [["Kenapa ibadah kita"], ["sering ", ["terganggu?", "g"]]]],
+  [4.4, 9.3, [["Dalam Al-Fatihah,"], ["kita menyebut:"]]],
+  [9.9, 12.3, [["Ibadah memerlukan"], [["4 perkara.", "g"]]]],
+  [22.3, 26.9, [["Allah menyukai"], ["orang yang ", ["bertaubat.", "g"]]]],
+  [35.9, 38.8, [["Pilih yang ", ["kekal.", "g"]], ["Tinggalkan yang ", ["melalaikan.", "g"]]], {"center": true, "y": 150}]
+ ]
+}
