@@ -399,6 +399,17 @@ function followCard(t) {
 }
 function vignette() { const g = ox.createRadialGradient(W / 2, H / 2, 380, W / 2, H / 2, 900); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.6)'); ox.fillStyle = g; ox.fillRect(0, 0, W, H); }
 
+function chip(x, y, s, a, on) {
+  if (a <= 0) return; ox.save(); ox.font = `600 18px ${SANS}`; const w = ox.measureText(s).width + 36; ox.globalAlpha = a;
+  ox.fillStyle = on ? 'rgba(228,196,123,.16)' : 'rgba(20,18,14,.75)'; ox.strokeStyle = on ? 'rgba(228,196,123,.75)' : 'rgba(255,255,255,.14)'; ox.lineWidth = 1.2;
+  if (on) { ox.shadowColor = 'rgba(228,196,123,.5)'; ox.shadowBlur = 14; } ox.beginPath(); ox.roundRect(x, y, w, 44, 22); ox.fill(); ox.stroke(); ox.restore();
+  txt(s, x + w / 2, y + 28, { font: `600 18px ${SANS}`, al: 'center', col: on ? GOLD : WHITE, a });
+}
+function chipRow(items, y, t, end) {
+  ox.font = `600 18px ${SANS}`; const ws = items.map(([s]) => ox.measureText(s).width + 36), gap = 12;
+  let x = W / 2 - (ws.reduce((a, b) => a + b, 0) + gap * (items.length - 1)) / 2;
+  items.forEach(([s, t0], n) => { chip(x, y + 8 * (1 - ss(t0, t0 + .35, t)), s, win(t, t0, end, .35, .35), t > t0 + .2); x += ws[n] + gap; });
+}
 function drawOverlay(t) {
   ox.clearRect(0, 0, W, H); vignette(); if (CLEAN) return;
   const mode = modeAt(t);
@@ -413,8 +424,9 @@ function drawOverlay(t) {
   for (const T of CFG.titles || []) drawTitle(T, t);
   for (const [t0, t1, s, x, y, col, al] of CFG.labels || []) label(s, x, y, win(t, t0, t1, .4, .3), col === 'g' ? GOLD : GREY, al || 'left', 10);
   for (const [t0, t1, lab, lines, y] of CFG.cards || []) glassCard(30, y || 1040, 660, lab, lines, win(t, t0, t1, .5, .3));
+  for (const [end, y, items] of CFG.chips || []) chipRow(items, y, t, end);
   subFollow(t); bloom(t); followCard(t);
 }
 window.renderFrame = (t) => { drawBg(t); update3D(t); drawOverlay(t); };
-window.FLIPS_DEBUG = FLIPS.map(f => f.t0.toFixed(2) + ':' + f.a + '>' + f.b).join(' ');
+window.FLIPS_DEBUG = JSON.stringify({flips: FLIPS.map(f => +f.t0.toFixed(2)), ayah: AYAHS.map(a => +(a.t + a.ft + .4).toFixed(2))});
 window.READY = true;
