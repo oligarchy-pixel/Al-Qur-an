@@ -538,6 +538,7 @@ function vignette() { const g = ox.createRadialGradient(W / 2, H / 2, 380, W / 2
 function drawOverlay(t) {
   ox.clearRect(0, 0, W, H);
   vignette();
+  if (new URLSearchParams(location.search).get('clean')) return;
   calli(t);
   if (t > 16.55 && t < 20.9) { counter(1, '/604', t > 18.4, win(t, 16.7, 20.9, .4, .3), 'Halaman', 1000); label('QS. Al-Fatihah 1:5', 30, 190, win(t, 18.4, 20.9, .4, .3), GOLD2, 'left', 9); }
   // tiga syarat

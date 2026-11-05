@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:SchB;src:url(scheherazade-new-arabic-700-normal.woff2)}
+html,body{margin:0;background:#050506}canvas{display:block}</style></head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script type="module">
+const c=document.getElementById('c').getContext('2d'); const W=1080,H=1920;
+const load=s=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=s;});
+await document.fonts.load('100px SchB'); await document.fonts.load('bold 90px "Inter Display"');
+const bg=await load('cover_bg.png'), pf=await load('profile.jpg');
+c.fillStyle='#050506';c.fillRect(0,0,W,H);
+c.drawImage(bg,0,230,W,H);
+let g=c.createLinearGradient(0,0,0,900);g.addColorStop(0,'rgba(5,5,6,1)');g.addColorStop(.55,'rgba(5,5,6,.85)');g.addColorStop(1,'rgba(5,5,6,0)');c.fillStyle=g;c.fillRect(0,0,W,900);
+g=c.createLinearGradient(0,1250,0,H);g.addColorStop(0,'rgba(5,5,6,0)');g.addColorStop(.4,'rgba(5,5,6,.85)');g.addColorStop(1,'rgba(5,5,6,1)');c.fillStyle=g;c.fillRect(0,1250,W,670);
+const T=(s,x,y,f,col,ls='0px',sh=0)=>{c.save();c.font=f;c.fillStyle=col;c.textAlign='center';c.letterSpacing=ls;if(sh){c.shadowColor=col;c.shadowBlur=sh;}c.fillText(s,x,y);c.restore();};
+T('KAJIAN AL-QUR\'AN  ·  TAZKIRAH',W/2,300,'600 26px "Inter Display"','#AF9A69','6px');
+T('Kenapa ibadah',W/2,430,'bold 100px "Inter Display"','#F0EEEC','-3px');
+T('kita selalu',W/2,545,'bold 100px "Inter Display"','#F0EEEC','-3px');
+const gg=c.createLinearGradient(0,580,0,720);gg.addColorStop(0,'#FFE7A8');gg.addColorStop(.6,'#E4B85E');gg.addColorStop(1,'#B98A3E');
+T('TERPUTUS?',W/2,700,'900 138px "Inter Display"',gg,'-4px',0);
+c.save();c.globalAlpha=.35;T('TERPUTUS?',W/2,700,'900 138px "Inter Display"','#E4C47B','-4px',40);c.restore();
+// bawah
+T('اِسْتِقَامَة',W/2,1385,'150px SchB','#E4C47B','0px',28);
+T('4 kunci supaya ibadah',W/2,1468,'600 46px "Inter Display"','#F0EEEC','-1px');
+T('tidak terputus lagi',W/2,1526,'600 46px "Inter Display"','#F0EEEC','-1px');
+// akun
+c.save();c.font='bold 34px "Inter Display"';const tw=c.measureText('@alurziyadahku').width;const pw=tw+130,px=W/2-pw/2,py=1572;
+c.fillStyle='rgba(20,18,14,.8)';c.strokeStyle='rgba(228,196,123,.55)';c.lineWidth=2;c.beginPath();c.roundRect(px,py,pw,76,38);c.fill();c.stroke();
+c.beginPath();c.arc(px+40,py+38,28,0,7);c.clip();c.drawImage(pf,px+40-31,py+38-30,62,62);c.restore();
+c.save();c.strokeStyle='#E4C47B';c.lineWidth=2;c.beginPath();c.arc(px+40,py+38,28,0,7);c.stroke();c.restore();
+c.save();c.font='bold 34px "Inter Display"';c.fillStyle='#F0EEEC';c.textAlign='left';c.fillText('@alurziyadahku',px+84,py+50);c.restore();
+window.DONE=true;
+</script></body></html>
