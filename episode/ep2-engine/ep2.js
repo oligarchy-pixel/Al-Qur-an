@@ -230,17 +230,20 @@ const BLOOMS = MODES.slice(1).map(([t0]) => t0);
 // jadwal balik halaman (otomatis)
 const spreadR = p => (p % 2 ? p : p - 1);
 const FLIPS = []; let curR = 1;
-function flipRun(t0, t1, target, n) {
+const FR = rng(99);
+function flipRun(t0, t1, target, n, jitter = 0) {
   const a0 = curR, b = spreadR(target); if (a0 === b) return;
+  let prev = a0;
   for (let k = 0; k < n; k++) {
-    let from = spreadR(Math.round(lerp(a0, b, k / n))), to = spreadR(Math.round(lerp(a0, b, (k + 1) / n)));
-    if (k === n - 1) to = b; if (from === to) continue;
-    FLIPS.push({ t0: t0 + (t1 - t0) * k / n, d: (t1 - t0) / n * .92, a: from, b: to });
+    let to = k === n - 1 ? b : spreadR(Math.round(lerp(a0, b, (k + 1) / n) + (FR() - .5) * jitter * Math.abs(b - a0) / n));
+    to = clamp(to, 1, 603); to = b > a0 ? clamp(to, prev + 2, b) : clamp(to, b, prev - 2); if (to === prev) continue;
+    FLIPS.push({ t0: t0 + (t1 - t0) * k / n, d: (t1 - t0) / n * .9, a: prev, b: to }); prev = to;
   }
   curR = b;
 }
-if (CFG.intro) flipRun(CFG.intro.t0, CFG.intro.t1, CFG.intro.to, CFG.intro.flips || 8);
-for (const a of AYAHS) { const n = clamp(Math.ceil(Math.abs(spreadR(a.page) - curR) / 30), 1, 6); a.ft = a.flip || (.32 * n + .2); flipRun(a.t, a.t + a.ft, a.page, n); }
+// intro: path [[t_selesai, halaman, jumlah balikan], ...] — halaman acak (jitter) supaya terasa laju
+if (CFG.intro) { let t = CFG.intro.t0; for (const [t1, pg, n] of (CFG.intro.path || [[CFG.intro.t1, CFG.intro.to, CFG.intro.flips || 8]])) { flipRun(t, t1, pg, n, 1.6); t = t1; } }
+for (const a of AYAHS) { const n = clamp(Math.ceil(Math.abs(spreadR(a.page) - curR) / 45), 1, 6); a.ft = a.flip || (.2 * n + .15); flipRun(a.t, a.t + a.ft, a.page, n, 1.2); }
 function spreadAt(t) {
   let cur = 1;
   for (const f of FLIPS) {
@@ -413,4 +416,5 @@ function drawOverlay(t) {
   subFollow(t); bloom(t); followCard(t);
 }
 window.renderFrame = (t) => { drawBg(t); update3D(t); drawOverlay(t); };
+window.FLIPS_DEBUG = FLIPS.map(f => f.t0.toFixed(2) + ':' + f.a + '>' + f.b).join(' ');
 window.READY = true;

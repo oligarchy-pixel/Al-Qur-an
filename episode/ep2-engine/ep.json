@@ -1,6 +1,6 @@
 {
  "end": 42, "follow": 39.0,
- "intro": {"t0": 0.6, "t1": 4.0, "to": 251, "flips": 8},
+ "intro": {"t0": 0.4, "path": [[2.6, 499, 12], [3.7, 201, 6]]},
  "modes": [[0, "mushaf"], [9.6, "ring"], [22.0, "mushaf"], [27.2, "ring"], [39.0, "follow"]],
  "ayahs": [
   {"t": 4.3, "page": 1, "hl": ["1:5"], "until": 9.4, "label": "QS. Al-Fatihah 1:5", "lab": "Maksudnya", "trans": ["\"Hanya kepada-Mu kami menyembah dan hanya", "kepada-Mu kami meminta pertolongan.\""]},

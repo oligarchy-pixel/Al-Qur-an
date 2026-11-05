@@ -71,7 +71,7 @@ suara atau musik video referensi.
 
 ## Mulai Ep2: engine berbasis config (WAJIB untuk episode baru)
 Engine: `episode/ep2-engine/` (ep2.js + ep.json). Dari transkrip bertimestamp isi `ep.json`:
-- `intro`: mushaf berjalan dari halaman 1 ke ±200-300 di awal (penghitung HALAMAN n/604).
+- `intro`: mushaf berjalan LAJU dan acak: `path: [[2.6, 499, 12], [3.7, 201, 6]]` = 1 → ±500 → balik ke ±200, lalu fokus ke halaman ayat yang dibahas (penghitung HALAMAN n/604).
 - `ayahs[]`: setiap ayat yang dibahas → `{t: waktu ayat disebut, page: halaman Mushaf Madinah (quran-meta findPage), hl:['surah:ayat'], until, label:'QS. ...', trans:[terjemahan]}`.
   Halaman otomatis dibalik ke halaman ayat, kamera zoom ke ayat yang di-highlight.
 - `points[]`: setiap poin (pertama, kedua, ...) → `{t, until, idx: bangunan 0-95 (beri jarak ±24), no:'01', kicker:'Poin pertama', title:[..], sub}`.

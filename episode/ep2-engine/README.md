@@ -3,7 +3,7 @@
 Digerakkan sepenuhnya oleh `ep.json` (contoh demo memakai isi Ep1). Untuk episode baru cukup isi config dari transkrip.
 
 ## Mekanisme
-- **Mushaf berjalan**: `intro {t0,t1,to,flips}` membalik halaman 1 → `to` (mis. 251) dengan penghitung HALAMAN.
+- **Mushaf berjalan (laju, acak)**: `intro {t0, path:[[t_selesai, halaman, jumlah_balikan], ...]}`. Standar Ep2: `[[2.6, 499, 12], [3.7, 201, 6]]` = halaman acak 1 → ±500 (±0,17 dtk/balikan), mundur ke ±200, lalu langsung ke halaman ayat pertama.
 - **Ayat otomatis**: tiap entri `ayahs[] {t, page, hl:['s:a'], until, label, trans[]}` → halaman otomatis dibalik
   dari halaman sekarang ke `page` (jumlah balikan menyesuaikan jarak), lalu kamera zoom ke baris ayat yang di-highlight,
   label sumber + kartu terjemahan muncul. Halaman tepat Mushaf Madinah (data `quran-meta`, `mkpages_all.mjs` → `pages_all.json`).
