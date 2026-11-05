@@ -68,3 +68,13 @@ suara atau musik video referensi.
 - Fakta: wahyu terakhir 2:278 adalah pendapat Ibnu 'Abbas radhiyallahu 'anhuma; sebut sumbernya. Urutan turun di
   surah114.json adalah urutan Mesir/Al-Azhar, ada khilaf di beberapa surah.
 - Proses render panjang: run_in_background, kill ikut PID, jangan render ganda. Kabar ringkas + ETA jujur (cek `date`).
+
+## Mulai Ep2: engine berbasis config (WAJIB untuk episode baru)
+Engine: `episode/ep2-engine/` (ep2.js + ep.json). Dari transkrip bertimestamp isi `ep.json`:
+- `intro`: mushaf berjalan dari halaman 1 ke ±200-300 di awal (penghitung HALAMAN n/604).
+- `ayahs[]`: setiap ayat yang dibahas → `{t: waktu ayat disebut, page: halaman Mushaf Madinah (quran-meta findPage), hl:['surah:ayat'], until, label:'QS. ...', trans:[terjemahan]}`.
+  Halaman otomatis dibalik ke halaman ayat, kamera zoom ke ayat yang di-highlight.
+- `points[]`: setiap poin (pertama, kedua, ...) → `{t, until, idx: bangunan 0-95 (beri jarak ±24), no:'01', kicker:'Poin pertama', title:[..], sub}`.
+  Kamera zoom ke bangunan poin, bangunan naik + menyala, kartu nomor + judul poin muncul.
+- `modes`: 'mushaf' saat membahas ayat, 'ring' saat membahas poin, 'follow' di akhir; pergantian = bloom emas.
+- Foto profil (`profile.jpg`, bingkai lebar/"jauh") dipakai di kad Subscribe/Follow dan kad follow akhir.
