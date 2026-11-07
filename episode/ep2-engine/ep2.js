@@ -425,7 +425,8 @@ function drawOverlay(t) {
   for (const [t0, t1, s, x, y, col, al] of CFG.labels || []) label(s, x, y, win(t, t0, t1, .4, .3), col === 'g' ? GOLD : GREY, al || 'left', 10);
   for (const [t0, t1, lab, lines, y] of CFG.cards || []) glassCard(30, y || 1040, 660, lab, lines, win(t, t0, t1, .5, .3));
   for (const [end, y, items] of CFG.chips || []) chipRow(items, y, t, end);
-  subFollow(t); bloom(t); followCard(t);
+  for (const s0 of CFG.subs || [.2]) subFollow(t - s0 + .2);
+  bloom(t); followCard(t);
 }
 window.renderFrame = (t) => { drawBg(t); update3D(t); drawOverlay(t); };
 window.FLIPS_DEBUG = JSON.stringify({flips: FLIPS.map(f => +f.t0.toFixed(2)), ayah: AYAHS.map(a => +(a.t + a.ft + .4).toFixed(2))});

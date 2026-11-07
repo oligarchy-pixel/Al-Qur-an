@@ -1,0 +1,63 @@
+{
+ "end": 173, "follow": 170.0, "subs": [0.2, 160.2],
+ "intro": {"t0": 0.4, "path": [[2.6, 499, 12], [3.7, 201, 6]]},
+ "modes": [[0, "mushaf"], [28.8, "ring"], [67.9, "mushaf"], [76.9, "ring"], [82.6, "mushaf"], [97.5, "ring"], [170.0, "follow"]],
+ "ayahs": [
+  {"t": 10.7, "page": 1, "hl": ["1:6"], "until": 20.9, "label": "QS. Al-Fatihah 1:6", "lab": "Maksudnya", "trans": ["\"Tunjukilah kami jalan yang lurus.\""]},
+  {"t": 20.9, "page": 1, "hl": ["1:7"], "until": 28.75, "label": "QS. Al-Fatihah 1:7", "lab": "Maksudnya", "trans": ["\"(Iaitu) jalan orang-orang yang Engkau beri nikmat,", "bukan (jalan) mereka yang dimurkai dan bukan", "(pula jalan) mereka yang sesat.\""]},
+  {"t": 68.0, "page": 34, "hl": ["2:216"], "until": 76.85, "label": "QS. Al-Baqarah 2:216", "lab": "Maksudnya", "trans": ["\"...Boleh jadi kamu membenci sesuatu padahal ia baik", "bagimu... Allah mengetahui, sedang kamu tidak mengetahui.\""]},
+  {"t": 82.7, "page": 366, "hl": ["25:74"], "until": 97.45, "label": "QS. Al-Furqan 25:74", "lab": "Maksudnya", "trans": ["\"Wahai Tuhan kami, kurniakanlah kepada kami pasangan", "dan zuriat yang menjadi penyejuk mata...\""]}
+ ],
+ "points": [
+  {"t": 28.9, "until": 46.1, "idx": 4, "no": "01", "kicker": "Poin pertama", "title": ["Minta yang jelas", "membawa kebaikan"], "sub": "Adab besar dalam berdoa"},
+  {"t": 46.2, "until": 67.85, "idx": 20, "no": "02", "kicker": "Poin kedua", "title": ["Iringi doa", "dengan syarat"], "sub": "Belum tentu semua baik untuk kita"},
+  {"t": 77.0, "until": 82.55, "idx": 36, "no": "03", "kicker": "Poin ketiga", "title": ["Kesihatan untuk", "ketaatan"], "sub": "Doa yang lebih dalam"},
+  {"t": 97.6, "until": 111.8, "idx": 52, "no": "04", "kicker": "Poin keempat", "title": ["Ilmu yang", "bermanfaat"], "sub": "Juga makna jalan yang lurus"},
+  {"t": 111.9, "until": 124.4, "idx": 68, "no": "05", "kicker": "Poin kelima", "title": ["Ibadah & usaha", "yang lurus"], "sub": "Berterusan dan halal"},
+  {"t": 124.5, "until": 145.9, "idx": 84, "no": "06", "kicker": "Poin keenam", "title": ["Hadirkan hati", "ketika berdoa"], "sub": "Bukan sekadar lafaz di bibir"}
+ ],
+ "cards": [
+  [63.0, 67.8, "Contoh doa bersyarat", ["\"Ya Allah, kabulkanlah jika ia membawa kebaikan", "kepada agama dan kehidupan kami. Jika tidak,", "jauhkanlah ia.\""], 220]
+ ],
+ "chips": [
+  [46.1, 210, [["Petunjuk", 37.0], ["Kekuatan iman", 37.9], ["Keyakinan", 39.2]]],
+  [46.1, 266, [["Husnul khatimah", 40.4], ["Reda Allah", 41.8]]],
+  [58.0, 210, [["Rezeki", 50.4], ["Kedudukan", 51.6], ["Kesihatan", 52.6]]],
+  [58.0, 266, [["Pasangan", 53.6], ["Anak", 54.6]]],
+  [111.3, 210, [["Ibadah sah", 102.0], ["Dekat kepada Allah", 103.6]]],
+  [111.3, 266, [["Takut & cinta kepada-Nya", 105.5], ["Rendah diri", 108.0]]],
+  [124.3, 210, [["Halal", 117.0], ["Tak lalaikan solat", 118.3]]],
+  [124.3, 266, [["Amal soleh", 120.5], ["Silaturahim", 122.3]]],
+  [159.7, 250, [["Jalan lurus", 154.5], ["Petunjuk", 155.6], ["Ilmu", 157.0], ["Hati taat", 158.2]]]
+ ],
+ "titles": [
+  [0.3, 4.6, [["Mahu kajian seterusnya?"], ["Like, follow & ", ["subscribe.", "g"]]]],
+  [4.8, 10.6, [["Kenapa dalam Al-Fatihah"], ["kita ", ["berulang kali", "g"], " memohon?"]]],
+  [10.8, 15.5, [["Tunjukilah kami"], [["jalan yang lurus.", "g"]]]],
+  [15.6, 20.8, [["Petunjuk ke jalan"], ["yang membawa ", ["reda Allah.", "g"]]]],
+  [21.0, 28.7, [["Jalan orang yang ", ["diberi nikmat,", "g"]], ["bukan yang dimurkai & sesat."]], {"size": 29}],
+  [28.9, 33.0, [["Satu adab besar"], [["dalam berdoa.", "g"]]]],
+  [33.2, 36.5, [["Mintalah yang jelas"], ["membawa ", ["kebaikan.", "g"]]]],
+  [36.7, 46.1, [["Selamat di dunia"], ["dan di ", ["akhirat.", "g"]]]],
+  [46.3, 49.7, [["Jangan minta hanya"], ["kerana kita ", ["mahu.", "g"]]]],
+  [49.9, 58.0, [["Semua ini belum tentu"], ["menjadi ", ["kebaikan.", "g"]]]],
+  [58.2, 62.7, [["Iringilah doa"], ["dengan ", ["syarat.", "g"]]]],
+  [62.9, 67.8, [["Kabulkan jika baik,"], [["jauhkan jika tidak.", "g"]]]],
+  [68.1, 76.8, [["Ilmu kita terbatas,"], [["Allah lebih mengetahui.", "g"]]]],
+  [77.0, 82.5, [["Kesihatan: agar"], ["menambah ", ["ketaatan.", "g"]]]],
+  [82.8, 88.8, [["Pasangan: agar"], ["lebih rajin ", ["beribadah.", "g"]]]],
+  [89.0, 97.4, [["Keturunan: anak yang"], [["baik & taat.", "g"]]]],
+  [97.6, 101.3, [["Jalan yang lurus juga"], [["ilmu yang bermanfaat.", "g"]]]],
+  [101.4, 111.3, [["Ilmu yang mendekatkan"], ["kepada Allah, bukan ", ["meninggi diri.", "g"]]], {"size": 29}],
+  [111.9, 115.9, [["Ibadah yang lurus:"], [["berterusan.", "g"]]]],
+  [116.0, 124.3, [["Usaha yang lurus:"], ["halal, tak ", ["lalaikan solat.", "g"]]]],
+  [124.5, 131.5, [["Sebelum meminta,"], [["hadirkan hati.", "g"]]]],
+  [131.7, 137.1, [["Doa bukan sekadar"], ["lafaz di ", ["bibir.", "g"]]]],
+  [137.3, 145.8, [["Hati yang lalai tak seperti"], ["hati yang ", ["sedar.", "g"]]]],
+  [146.0, 150.5, [["Jangan hanya minta"], ["apa yang kita mahu."]], {"center": true, "y": 150}],
+  [150.7, 153.8, [["Mintalah yang membawa"], [["dekat kepada Allah.", "g"]]], {"center": true, "y": 150}],
+  [154.0, 159.7, [["Jalan lurus, petunjuk,"], [["ilmu & hati yang taat.", "g"]]], {"center": true, "y": 150}],
+  [159.9, 166.0, [["Tonton video penuh"], ["& ", ["subscribe.", "g"]]], {"center": true, "y": 150}],
+  [166.2, 169.8, [["Semoga Allah membimbing kita"], ["di ", ["jalan yang lurus.", "g"], " Amin."]], {"center": true, "y": 150}]
+ ]
+}
