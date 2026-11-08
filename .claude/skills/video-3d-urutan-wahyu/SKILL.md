@@ -78,3 +78,13 @@ Engine: `episode/ep2-engine/` (ep2.js + ep.json). Dari transkrip bertimestamp is
   Kamera zoom ke bangunan poin, bangunan naik + menyala, kartu nomor + judul poin muncul.
 - `modes`: 'mushaf' saat membahas ayat, 'ring' saat membahas poin, 'follow' di akhir; pergantian = bloom emas.
 - Foto profil (`profile.jpg`, bingkai lebar/"jauh") dipakai di kad Subscribe/Follow dan kad follow akhir.
+
+## ZONA AMAN REELS (WAJIB mulai Ep5, permintaan pengguna)
+Semua pembahasan (judul, label ayat, chip, kartu hadis/terjemahan, kartu poin, kad Subscribe, penghitung halaman)
+mesti berada di area yang dilingkari pengguna: **y 140-1030 pada kanvas 720x1280** (≈ 10%-81% tinggi layar),
+supaya tidak tertutup nama akun di atas dan caption/tombol di bawah.
+- Config episode: tambah `"safe": true`. Engine lalu otomatis: judul y 196, label ayat y 270,
+  kartu terjemahan menempel ke batas bawah zona (1030), kartu poin y 762-1030, kad Subscribe y 930, penghitung y 880.
+- Koordinat di config untuk mode safe: chip baris 1 `y: 300`, baris 2 `y: 356` (baris 3 `412`); kartu `cards[...][4] = 300`.
+- Semak dengan `&guide=1` (garis oranye zona) pada still sebelum render: tiada teks di luar garis.
+- Contoh: `episode/ep2-engine/contoh_safe_ep4.json`, pratinjau `episode/ep2-engine/still/Zona_Aman_Reels_preview.jpg`.

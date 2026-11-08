@@ -182,6 +182,9 @@ for (let k = 0; k < 3; k++) {
 // ===================== ENGINE EP2: mushaf otomatis + bangunan poin (digerakkan ep.json) =====================
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 const CLEAN = new URLSearchParams(location.search).get('clean');
+const GUIDE = new URLSearchParams(location.search).get('guide');
+// ZONA AMAN Reels (permintaan pengguna): semua pembahasan di y 140-1030 (kanvas 720x1280)
+const SAFE = CFG.safe !== false && CFG.safe !== undefined; const ZT = 140, ZB = 1030;
 
 // ---------- kitab + piringan ----------
 function coverTex() {
@@ -359,27 +362,28 @@ const segFont = (k, size) => k === 'ar' ? `${Math.round(size * 1.18)}px SchB` : 
 function drawTitle(T, t) {
   const [t0, t1, lines, o = {}] = T; if (t < t0 || t > t1) return;
   const ai = ss(t0, t0 + .35, t), ao = 1 - ss(t1 - .3, t1, t), a = Math.min(ai, ao); if (a <= 0) return;
-  const blur = 8 * (1 - a), dy = 6 * (1 - ai), size = o.size || 31, lh = size * 1.18, y0 = (o.y || 118) + dy;
+  const blur = 8 * (1 - a), dy = 6 * (1 - ai), size = o.size || 31, lh = size * 1.18, y0 = (SAFE ? 196 : (o.y || 118)) + dy;
   lines.forEach((ln, li) => { const segs = ln.map(s => typeof s === 'string' ? [s, ''] : s);
     const wd = segs.map(([s, k]) => { ox.font = segFont(k, size); ox.letterSpacing = k === 'ar' ? '0px' : '-0.6px'; return ox.measureText(s).width; });
     let x = o.center ? W / 2 - wd.reduce((p, q) => p + q, 0) / 2 : 30;
     segs.forEach(([s, k], n) => { txt(s, x, y0 + li * lh, { font: segFont(k, size), col: k ? GOLD : WHITE, a, blur, ls: k === 'ar' ? '0px' : '-0.6px' }); x += wd[n]; }); });
 }
-function counter(num, a, y = 1000) { if (a <= 0) return; label('Halaman', W / 2, y - 58, a * .8, GREY, 'center', 9); ox.font = `bold 66px ${SANS}`; ox.letterSpacing = '-2px'; const w = ox.measureText(String(num)).width; txt(String(num), W / 2 - 18, y, { font: `bold 66px ${SANS}`, col: WHITE, al: 'center', a, ls: '-2px' }); txt('/604', W / 2 - 18 + w / 2 + 4, y, { font: `600 19px ${SANS}`, col: GREY, a }); }
-function glassCard(x, y, w, lab, q, a) { if (a <= 0) return; const h = 46 + q.length * 25 + 18; ox.save(); ox.globalAlpha = a; ox.fillStyle = 'rgba(20,18,14,.66)'; ox.strokeStyle = 'rgba(255,255,255,.12)'; ox.beginPath(); ox.roundRect(x, y, w, h, 14); ox.fill(); ox.stroke(); ox.restore(); label(lab, x + 20, y + 28, a, GOLD2, 'left', 9); q.forEach((l, i) => txt(l, x + 20, y + 58 + i * 25, { font: `500 19px ${SANS}`, a })); }
+function counter(num, a, y = SAFE ? 880 : 1000) { if (a <= 0) return; label('Halaman', W / 2, y - 58, a * .8, GREY, 'center', 9); ox.font = `bold 66px ${SANS}`; ox.letterSpacing = '-2px'; const w = ox.measureText(String(num)).width; txt(String(num), W / 2 - 18, y, { font: `bold 66px ${SANS}`, col: WHITE, al: 'center', a, ls: '-2px' }); txt('/604', W / 2 - 18 + w / 2 + 4, y, { font: `600 19px ${SANS}`, col: GREY, a }); }
+function glassCard(x, y, w, lab, q, a) { if (a <= 0) return; const h = 46 + q.length * 25 + 18; if (y < 0) y = -y - h; ox.save(); ox.globalAlpha = a; ox.fillStyle = 'rgba(20,18,14,.66)'; ox.strokeStyle = 'rgba(255,255,255,.12)'; ox.beginPath(); ox.roundRect(x, y, w, h, 14); ox.fill(); ox.stroke(); ox.restore(); label(lab, x + 20, y + 28, a, GOLD2, 'left', 9); q.forEach((l, i) => txt(l, x + 20, y + 58 + i * 25, { font: `500 19px ${SANS}`, a })); }
 function pointCard(p, t) {
   const a = win(t, p.t + .7, p.until, .45, .35); if (a <= 0) return;
-  { const g = ox.createLinearGradient(0, 780, 0, 1280); g.addColorStop(0, 'rgba(4,4,4,0)'); g.addColorStop(.35, `rgba(4,4,4,${.72 * a})`); g.addColorStop(1, `rgba(4,4,4,${.9 * a})`); ox.fillStyle = g; ox.fillRect(0, 780, W, 500); } const dy = 14 * (1 - ss(p.t + .7, p.t + 1.2, t)), x = 30, y = 900 + dy;
+  { const g0 = SAFE ? 600 : 780; const g = ox.createLinearGradient(0, g0, 0, 1280); g.addColorStop(0, 'rgba(4,4,4,0)'); g.addColorStop(.3, `rgba(4,4,4,${.72 * a})`); g.addColorStop(1, `rgba(4,4,4,${.9 * a})`); ox.fillStyle = g; ox.fillRect(0, g0, W, 1280 - g0); } const dy = 14 * (1 - ss(p.t + .7, p.t + 1.2, t)), x = 30, y = (SAFE ? 762 : 900) + dy;
   label(p.kicker || 'Poin', x, y, a, GOLD, 'left', 11);
   const g = ox.createLinearGradient(0, y + 10, 0, y + 130); g.addColorStop(0, '#FFE7A8'); g.addColorStop(.6, '#E4B85E'); g.addColorStop(1, '#9C7330');
-  txt(p.no, x - 4, y + 118, { font: `900 120px ${SANS}`, col: g, a, ls: '-5px' });
-  ox.save(); ox.globalAlpha = a; ox.fillStyle = GOLD; ox.fillRect(x, y + 140, 46 * ss(p.t + .9, p.t + 1.4, t), 3); ox.restore();
-  (p.title || []).forEach((l, i) => txt(l, x, y + 186 + i * 40, { font: `bold 34px ${SANS}`, a, ls: '-0.8px' }));
-  if (p.sub) txt(p.sub, x, y + 196 + (p.title || []).length * 40, { font: `500 22px ${SANS}`, col: GOLD2, a });
+  txt(p.no, x - 4, y + (SAFE ? 100 : 118), { font: `900 ${SAFE ? 100 : 120}px ${SANS}`, col: g, a, ls: '-5px' });
+  ox.save(); ox.globalAlpha = a; ox.fillStyle = GOLD; ox.fillRect(x, y + (SAFE ? 118 : 140), 46 * ss(p.t + .9, p.t + 1.4, t), 3); ox.restore();
+  const ty = SAFE ? 158 : 186, tl = SAFE ? 36 : 40;
+  (p.title || []).forEach((l, i) => txt(l, x, y + ty + i * tl, { font: `bold ${SAFE ? 32 : 34}px ${SANS}`, a, ls: '-0.8px' }));
+  if (p.sub) txt(p.sub, x, y + ty + 8 + (p.title || []).length * tl, { font: `500 22px ${SANS}`, col: GOLD2, a });
 }
 function bloom(t) { let a = 0, k = 0; for (const p of BLOOMS) { a = Math.max(a, win(t, p - .5, p + .55, .5, .55)); k = Math.max(k, 1 - Math.abs(t - p) / .5); } if (a <= 0) return; const g = ox.createRadialGradient(W / 2, H * .45, 10, W / 2, H * .45, 900); g.addColorStop(0, `rgba(255,246,222,${a})`); g.addColorStop(.4, `rgba(251,237,204,${a * (.6 + .4 * k)})`); g.addColorStop(1, `rgba(214,170,90,${a * k * .9})`); ox.fillStyle = g; ox.fillRect(0, 0, W, H); }
 function subFollow(t) {
-  const a = win(t, .2, 3.5, .3, .35); if (a <= 0) return; const x = 150, y = 1100 + 14 * (1 - ss(.2, .5, t)), w = 420, h = 74;
+  const a = win(t, .2, 3.5, .3, .35); if (a <= 0) return; const x = 150, y = (SAFE ? 930 : 1100) + 14 * (1 - ss(.2, .5, t)), w = 420, h = 74;
   ox.save(); ox.globalAlpha = a; ox.fillStyle = '#fff'; ox.shadowColor = 'rgba(0,0,0,.4)'; ox.shadowBlur = 20; ox.beginPath(); ox.roundRect(x, y, w, h, 16); ox.fill(); ox.shadowBlur = 0; avatar(x + 38, y + 37, 25); ox.globalAlpha = a;
   ox.fillStyle = '#111'; ox.font = `bold 17px ${SANS}`; ox.fillText('alurziyadahku', x + 72, y + 32); ox.fillStyle = '#777'; ox.font = `500 12px ${SANS}`; ox.fillText('Kajian Al-Qur\'an', x + 72, y + 52);
   const s1 = t > 1.25, s2 = t > 2.25;
@@ -418,8 +422,8 @@ function drawOverlay(t) {
     const sp = spreadAt(t), a = ayahAt(t);
     const shown = a && t > a.t + a.ft ? a.page : sp.num;
     counter(shown, a ? 1 - ss(a.t + a.ft + .3, a.t + a.ft + .9, t) * .85 : 1);
-    if (a) { const la = win(t, a.t + a.ft + .4, a.until, .4, .3); if (a.label) label(a.label, 30, 190, la, GOLD, 'left', 10);
-      if (a.trans) glassCard(30, 1040, 660, a.lab || 'Maksudnya', a.trans, win(t, a.t + a.ft + 1.0, a.until, .5, .3)); }
+    if (a) { const la = win(t, a.t + a.ft + .4, a.until, .4, .3); if (a.label) label(a.label, 30, SAFE ? 270 : 190, la, GOLD, 'left', 10);
+      if (a.trans) glassCard(30, SAFE ? -ZB : 1040, 660, a.lab || 'Maksudnya', a.trans, win(t, a.t + a.ft + 1.0, a.until, .5, .3)); }
   }
   for (const p of POINTS) { pointCard(p, t); const tp = barTop[p.idx]; if (tp && ring.visible && t > p.t + .9 && t < p.until) { const [x, y, v] = proj(tp); const la = win(t, p.t + 1.0, p.until, .4, .3); if (v) { ox.save(); ox.globalAlpha = la; ox.fillStyle = 'rgba(14,12,10,.85)'; ox.strokeStyle = 'rgba(228,196,123,.6)'; ox.beginPath(); ox.roundRect(x - 26, y - 46, 52, 30, 7); ox.fill(); ox.stroke(); ox.restore(); txt(p.no, x, y - 25, { font: `bold 15px ${SANS}`, al: 'center', col: GOLD, a: la }); } } }
   for (const T of CFG.titles || []) drawTitle(T, t);
@@ -428,6 +432,7 @@ function drawOverlay(t) {
   for (const [end, y, items] of CFG.chips || []) chipRow(items, y, t, end);
   for (const s0 of CFG.subs || [.2]) subFollow(t - s0 + .2);
   bloom(t); followCard(t);
+  if (GUIDE) { ox.save(); ox.strokeStyle = 'rgba(255,110,60,.9)'; ox.lineWidth = 3; ox.setLineDash([10, 8]); ox.strokeRect(8, ZT, W - 16, ZB - ZT); ox.restore(); }
 }
 window.renderFrame = (t) => { drawBg(t); update3D(t); drawOverlay(t); };
 window.FLIPS_DEBUG = JSON.stringify({flips: FLIPS.map(f => +f.t0.toFixed(2)), ayah: AYAHS.map(a => +(a.t + a.ft + .4).toFixed(2))});

@@ -15,3 +15,6 @@ Digerakkan sepenuhnya oleh `ep.json` (contoh demo memakai isi Ep1). Untuk episod
 
 ## Jalankan (dari folder engine Ep1, dengan pub/ berisi ep2.js, ep2.html, ep.json, pages_all.json, addons/, profile.jpg)
 `PAGE=ep2.html node shot.js stills st 1 10 20` · `PAGE=ep2.html node shot.js video out.mp4 0 <frames> 1.5`
+
+## Zona aman Reels (`"safe": true`)
+Semua teks pembahasan di y 140-1030 (kanvas 720x1280). Chip y 300/356/412, kartu y 300. Cek dengan `&guide=1`.
