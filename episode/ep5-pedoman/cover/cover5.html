@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:SchB;src:url(scheherazade-new-arabic-700-normal.woff2)}
+html,body{margin:0;background:#050506}canvas{display:block}</style></head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script type="module">
+const c=document.getElementById('c').getContext('2d'); const W=1080,H=1920, SANS='"Inter Display", Inter, sans-serif';
+const load=s=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=s;});
+await document.fonts.load('100px SchB'); await document.fonts.load(`bold 90px ${SANS}`);
+const bg=await load('ep5bg_88.0.png'), pf=await load('profile.jpg');
+c.fillStyle='#050506';c.fillRect(0,0,W,H);
+// halaman Al-Fatihah dengan 1:6 bersinar
+const sc=.64; c.drawImage(bg,(W-W*sc)/2+40,640-150,W*sc,H*sc);
+// cahaya di belakang ayat
+const rg=c.createRadialGradient(W/2+20,1110,10,W/2+20,1110,420); rg.addColorStop(0,'rgba(255,214,120,.22)'); rg.addColorStop(1,'rgba(255,214,120,0)'); c.fillStyle=rg; c.fillRect(0,600,W,1000);
+let g=c.createLinearGradient(0,0,0,760);g.addColorStop(0,'rgba(5,5,6,1)');g.addColorStop(.75,'rgba(5,5,6,.92)');g.addColorStop(1,'rgba(5,5,6,0)');c.fillStyle=g;c.fillRect(0,0,W,760);
+g=c.createLinearGradient(0,1380,0,H);g.addColorStop(0,'rgba(5,5,6,0)');g.addColorStop(.3,'rgba(5,5,6,.9)');g.addColorStop(1,'rgba(5,5,6,1)');c.fillStyle=g;c.fillRect(0,1380,W,540);
+const T=(s,x,y,f,col,ls='0px',sh=0)=>{c.save();c.font=f;c.fillStyle=col;c.textAlign='center';c.letterSpacing=ls;if(sh){c.shadowColor=typeof col==='string'?col:'#E4C47B';c.shadowBlur=sh;}c.fillText(s,x,y);c.restore();};
+T('KAJIAN AL-QUR\'AN  ·  EP5',W/2,290,`600 26px ${SANS}`,'#AF9A69','6px');
+T('فَرُدُّوهُ إِلَى اللَّهِ وَالرَّسُولِ',W/2,400,'84px SchB','#E4C47B','0px',26);
+T('Ada masalah hidup?',W/2,515,`bold 88px ${SANS}`,'#F0EEEC','-3px');
+const gg=c.createLinearGradient(0,540,0,660);gg.addColorStop(0,'#FFE7A8');gg.addColorStop(.6,'#E4B85E');gg.addColorStop(1,'#B98A3E');
+c.save();c.globalAlpha=.35;T('BUKA AL-QURAN.',W/2,650,`900 108px ${SANS}`,'#E4C47B','-4px',40);c.restore();
+T('BUKA AL-QURAN.',W/2,650,`900 108px ${SANS}`,gg,'-4px');
+T('Panduan hidup seharian &',W/2,1478,`600 46px ${SANS}`,'#F0EEEC','-1px');
+T('timbangan di Hari Kiamat',W/2,1536,`600 46px ${SANS}`,'#E4C47B','-1px');
+c.save();c.font=`bold 34px ${SANS}`;const tw=c.measureText('@alurziyadahku').width;const pw=tw+130,px=W/2-pw/2,py=1574;
+c.fillStyle='rgba(20,18,14,.85)';c.strokeStyle='rgba(228,196,123,.55)';c.lineWidth=2;c.beginPath();c.roundRect(px,py,pw,76,38);c.fill();c.stroke();
+c.beginPath();c.arc(px+40,py+38,28,0,7);c.clip();c.fillStyle='#1a6b45';c.fillRect(px+10,py+8,60,60);c.drawImage(pf,px+40-31,py+38-30,62,62);c.restore();
+c.save();c.strokeStyle='#E4C47B';c.lineWidth=2;c.beginPath();c.arc(px+40,py+38,28,0,7);c.stroke();c.restore();
+c.save();c.font=`bold 34px ${SANS}`;c.fillStyle='#F0EEEC';c.textAlign='left';c.fillText('@alurziyadahku',px+84,py+50);c.restore();
+window.DONE=true;
+</script></body></html>

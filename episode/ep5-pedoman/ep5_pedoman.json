@@ -1,0 +1,60 @@
+{
+ "end": 173, "follow": 170.0, "safe": true, "subs": [0.6, 152.8],
+ "intro": {"t0": 0.4, "path": [[2.6, 499, 12], [3.7, 201, 6]]},
+ "modes": [[0, "mushaf"], [29.2, "ring"], [45.2, "mushaf"], [57.8, "ring"], [73.1, "mushaf"], [107.4, "ring"], [128.1, "mushaf"], [138.0, "ring"], [170.0, "follow"]],
+ "ayahs": [
+  {"t": 15.3, "page": 154, "hl": ["7:31"], "until": 29.15, "label": "QS. Al-A'raf 7:31", "lab": "Maksudnya", "trans": ["\"Wahai anak Adam, pakailah pakaianmu yang indah setiap", "kali ke masjid, makan dan minumlah, dan janganlah", "berlebih-lebihan...\""]},
+  {"t": 45.3, "page": 87, "hl": ["4:59"], "until": 57.75, "label": "QS. An-Nisa' 4:59", "lab": "Maksudnya", "trans": ["\"...Kemudian jika kamu berselisih dalam sesuatu perkara,", "kembalikanlah ia kepada Allah dan Rasul...\""]},
+  {"t": 73.2, "page": 2, "hl": ["2:5"], "until": 80.45, "label": "QS. Al-Baqarah 2:5", "lab": "Maksudnya", "trans": ["\"Mereka itulah yang mendapat petunjuk daripada Tuhan", "mereka, dan merekalah orang-orang yang beruntung.\""]},
+  {"t": 80.5, "page": 151, "hl": ["7:8"], "until": 92.15, "label": "QS. Al-A'raf 7:8", "lab": "Maksudnya", "trans": ["\"Timbangan pada hari itu adalah benar. Maka sesiapa", "yang berat timbangan kebaikannya, mereka itulah", "orang-orang yang beruntung.\""]},
+  {"t": 92.2, "page": 599, "hl": ["99:7", "99:8"], "until": 100.95, "label": "QS. Az-Zalzalah 99:7-8", "lab": "Maksudnya", "trans": ["\"Sesiapa yang mengerjakan kebaikan seberat zarah,", "nescaya dia akan melihatnya. Dan sesiapa yang mengerjakan", "kejahatan seberat zarah, nescaya dia akan melihatnya.\""]},
+  {"t": 101.0, "page": 151, "hl": ["7:9"], "until": 107.35, "label": "QS. Al-A'raf 7:9", "lab": "Maksudnya", "trans": ["\"Dan sesiapa yang ringan timbangan kebaikannya, mereka", "itulah orang-orang yang merugikan diri sendiri...\""]},
+  {"t": 128.2, "page": 561, "hl": ["66:8"], "until": 137.95, "label": "QS. At-Tahrim 66:8", "lab": "Maksudnya", "trans": ["\"Wahai orang-orang yang beriman, bertaubatlah", "kepada Allah dengan taubat nasuha...\""]}
+ ],
+ "points": [
+  {"t": 29.3, "until": 45.1, "idx": 4, "no": "01", "kicker": "Poin pertama", "title": ["Al-Quran pedoman", "hidup seharian"], "sub": "Bukan sekadar ilmu"},
+  {"t": 57.9, "until": 73.0, "idx": 26, "no": "02", "kicker": "Poin kedua", "title": ["Ada masalah?", "Kembali kepada Al-Quran"], "sub": "Jalan keluar yang paling baik"},
+  {"t": 107.5, "until": 128.0, "idx": 50, "no": "03", "kicker": "Poin ketiga", "title": ["Teliti yang zahir", "dan yang tersembunyi"], "sub": "Jaga perbuatan dan hati"},
+  {"t": 138.1, "until": 152.5, "idx": 74, "no": "04", "kicker": "Poin keempat", "title": ["Kembali, menilai,", "menjaga hati"], "sub": "Pengajaran daripada peringatan ini"}
+ ],
+ "cards": [],
+ "chips": [
+  [29.1, 300, [["Rumah tangga", 20.6], ["Makan & minum", 21.8]]],
+  [29.1, 356, [["Berpakaian", 23.0], ["Berhias", 24.0]]],
+  [45.1, 300, [["Beriman", 38.8], ["Bertakwa", 41.0]]],
+  [45.1, 356, [["Al-Quran sebagai rujukan", 43.0]]],
+  [128.0, 300, [["Tingkah laku", 115.6], ["Perbuatan", 116.6]]],
+  [128.0, 356, [["Isi hati", 118.0]]],
+  [152.5, 300, [["Pedoman Al-Quran", 142.0], ["Menilai perbuatan", 144.0]]],
+  [152.5, 356, [["Menjaga hati", 146.0]]]
+ ],
+ "titles": [
+  [0.3, 8.1, [["Bermanfaat? Like, follow"], ["& ", ["subscribe.", "g"]]]],
+  [8.3, 11.2, [["Mari renungkan"], [["satu perkara penting.", "g"]]]],
+  [11.4, 15.2, [["Ke mana kita kembali"], ["mencari ", ["panduan?", "g"]]]],
+  [15.4, 20.3, [["Al-Quran memberi petunjuk"], ["dalam ", ["hidup seharian.", "g"]]], {"size": 29}],
+  [20.5, 29.1, [["Perkara yang dekat"], ["dengan ", ["kehidupan kita.", "g"]]]],
+  [29.3, 38.4, [["Bukan sekadar ilmu,"], ["tetapi ", ["pedoman hidup.", "g"]]]],
+  [38.6, 45.1, [["Mengaku beriman?"], ["Jadikan Al-Quran ", ["rujukan.", "g"]]]],
+  [45.3, 52.7, [["Bila timbul masalah,"], [["kembalilah kepada Al-Quran.", "g"]]], {"size": 29}],
+  [52.9, 57.7, [["Al-Quran memberi"], [["jalan keluar terbaik.", "g"]]]],
+  [57.9, 68.0, [["Apa pun urusannya,"], ["jadikan Al-Quran ", ["pedoman.", "g"]]]],
+  [68.1, 73.0, [["Renungkan setiap kali"], [["memilih tindakan.", "g"]]]],
+  [73.2, 80.4, [["Mohon hidayah supaya"], [["beruntung dunia & akhirat.", "g"]]], {"size": 29}],
+  [80.6, 85.0, [["Timbangan pada"], [["Hari Kiamat.", "g"]]]],
+  [85.2, 92.1, [["Timbangan itu benar,"], [["tiada siapa dizalimi.", "g"]]]],
+  [92.3, 100.9, [["Kebaikan walau"], ["sebesar ", ["zarah.", "g"]]]],
+  [101.1, 107.3, [["Ringan timbangannya,"], [["rugi diri sendiri.", "g"]]]],
+  [107.5, 113.0, [["Mari kita"], [["renungkan.", "g"]]]],
+  [113.1, 123.4, [["Bukan hanya yang terlihat,"], ["tetapi juga ", ["isi hati.", "g"]]], {"size": 29}],
+  [123.6, 128.0, [["Jangan lakukan yang"], ["Allah ", ["tidak reda.", "g"]]]],
+  [128.2, 132.0, [["Jika tersilap,"], [["jangan bertangguh.", "g"]]]],
+  [132.1, 137.9, [["Segeralah bertaubat"], ["dan ", ["takutlah kepada-Nya.", "g"]]]],
+  [138.1, 147.0, [["Kembali kepada Al-Quran,"], [["nilai perbuatan, jaga hati.", "g"]]], {"size": 29}],
+  [147.2, 152.5, [["Akan disambung"], ["pada kesempatan lain, ", ["insya-Allah.", "g"]]], {"size": 29}],
+  [152.7, 157.0, [["Mahu sambungannya?"], ["Like, follow & ", ["subscribe.", "g"]]], {"center": true}],
+  [157.1, 163.0, [["Semoga Allah beri hidayah,"], [["beruntung dunia & akhirat.", "g"]]], {"center": true, "size": 29}],
+  [163.2, 166.9, [["Amin, ya"], [["Rabbal 'Alamin.", "g"]]], {"center": true}],
+  [167.1, 169.9, [["Kongsikan peringatan ini"], [["kepada orang terdekat.", "g"]]], {"center": true}]
+ ]
+}
