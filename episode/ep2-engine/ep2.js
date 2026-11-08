@@ -265,7 +265,7 @@ const OV_M = t => [[.03 * Math.sin(t * .6), 4.6 - .05 * Math.sin(t * .3), 2.75],
 const OV_R = t => { const f = .1 * t; return [[10 * Math.sin(f), 6.2, 10 * Math.cos(f)], [0, .35, 0]]; };
 function shotAyah(a, t) {
   const u = ss(a.t + a.ft, a.t + a.ft + .9, t), k = clamp((t - a.t - a.ft) / (a.until - a.t - a.ft));
-  const sx = .5 * a.side, close = [[sx, lerp(2.15, 1.85, k), a.z + lerp(1.3, 1.05, k)], [sx, -.15, a.z]];
+  const sx = .5 * a.side, close = [[sx, lerp(2.15, 1.85, k), a.z + lerp(1.3, 1.05, k)], [sx, -.15, a.z - .14]];
   const [p0, q0] = OV_M(t); return [p0.map((v, i) => lerp(v, close[0][i], eio(u))), q0.map((v, i) => lerp(v, close[1][i], eio(u)))];
 }
 function shotPoint(p, t) {
@@ -401,7 +401,7 @@ function vignette() { const g = ox.createRadialGradient(W / 2, H / 2, 380, W / 2
 
 function chip(x, y, s, a, on) {
   if (a <= 0) return; ox.save(); ox.font = `600 18px ${SANS}`; const w = ox.measureText(s).width + 36; ox.globalAlpha = a;
-  ox.fillStyle = on ? 'rgba(228,196,123,.16)' : 'rgba(20,18,14,.75)'; ox.strokeStyle = on ? 'rgba(228,196,123,.75)' : 'rgba(255,255,255,.14)'; ox.lineWidth = 1.2;
+  ox.fillStyle = on ? 'rgba(30,24,14,.92)' : 'rgba(20,18,14,.88)'; ox.strokeStyle = on ? 'rgba(228,196,123,.75)' : 'rgba(255,255,255,.14)'; ox.lineWidth = 1.2;
   if (on) { ox.shadowColor = 'rgba(228,196,123,.5)'; ox.shadowBlur = 14; } ox.beginPath(); ox.roundRect(x, y, w, 44, 22); ox.fill(); ox.stroke(); ox.restore();
   txt(s, x + w / 2, y + 28, { font: `600 18px ${SANS}`, al: 'center', col: on ? GOLD : WHITE, a });
 }
@@ -414,6 +414,7 @@ function drawOverlay(t) {
   ox.clearRect(0, 0, W, H); vignette(); if (CLEAN) return;
   const mode = modeAt(t);
   if (mode === 'mushaf') {
+    { const g = ox.createLinearGradient(0, 0, 0, 260); g.addColorStop(0, 'rgba(5,5,6,.92)'); g.addColorStop(.6, 'rgba(5,5,6,.6)'); g.addColorStop(1, 'rgba(5,5,6,0)'); ox.fillStyle = g; ox.fillRect(0, 0, W, 260); }
     const sp = spreadAt(t), a = ayahAt(t);
     const shown = a && t > a.t + a.ft ? a.page : sp.num;
     counter(shown, a ? 1 - ss(a.t + a.ft + .3, a.t + a.ft + .9, t) * .85 : 1);
