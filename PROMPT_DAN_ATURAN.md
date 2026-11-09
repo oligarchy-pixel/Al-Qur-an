@@ -16,7 +16,7 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 
 ## 3. ⛔ Tidak boleh ada teks yang tertimpa (PERINGATAN TERAKHIR pengguna, Ep9)
 - Panggung (stage) di-skala 0.9 dan digeser 52px ke bawah; jarak antar teks minimal 25px.
-- Sebelum render final WAJIB jalankan `overlap.js` di seluruh durasi (langkah 0.5 dtk). Hasil harus **0 baris**.
+- Sebelum render final WAJIB jalankan `overlap.js` di seluruh durasi (langkah 0.5 dtk). Hasil harus **0 baris** DAN preview frame harus dicek (overlap.js berhenti dengan PAGE ERROR bila halaman gagal). Jangan ada layar kosong > 2 dtk.
 - Baris teks baru di posisi yang sama → akhiri baris lama tepat saat baris baru muncul. Label grafik jangan di pita y 100–260 (wilayah judul).
 - Jika pengguna bilang "perbaiki bagian itu saja", ubah HANYA bagian itu.
 
@@ -72,3 +72,4 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 - Ep9: tambahkan lagi semua SFX, ganti MP3 dengan yang baru.
 - Ep9: perbaiki teks yang tertimpa di bar-chart — **peringatan terakhir, jangan terulang**; perbaiki bagian yang dikirim gambar saja.
 - Simpan semua skill, perintah, prompt, aset untuk video selanjutnya (arsip ini).
+- Ep10: lanjut sampai final, tambahkan apa yang patut, buat terlihat seperti editor profesional.

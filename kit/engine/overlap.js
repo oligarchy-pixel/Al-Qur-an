@@ -4,7 +4,9 @@ const { chromium } = require('playwright'); const path = require('path');
   const [t0, t1, st] = process.argv.slice(2).map(Number);
   const br = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--disable-gpu'] });
   const pg = await br.newPage({ viewport: { width: 1920, height: 1080 } });
+  pg.on('pageerror', e => { console.log('PAGE ERROR', e.message); process.exit(2); });
   await pg.goto('file://' + path.resolve(__dirname, 'index.html')); await pg.evaluate(() => document.fonts.ready);
+  const nI = await pg.evaluate(() => ITEMS.length); if (!nI) { console.log('PAGE ERROR: tidak ada ITEMS'); process.exit(2); }
   for (let t = t0; t <= t1; t += st) {
     const r = await pg.evaluate(t => {
       setTime(t);

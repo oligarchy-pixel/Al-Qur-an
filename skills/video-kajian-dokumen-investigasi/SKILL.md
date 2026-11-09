@@ -71,3 +71,9 @@ Pengguna memberi PERINGATAN TERAKHIR: tidak boleh ada satu pun teks yang tertimp
 
 ## 📦 ARSIP LENGKAP DI GITHUB (mulai episode baru dari sini)
 Repo `oligarchy-pixel/Al-Qur-an` (branch `claude/greeting-c94nj2`, nanti main): `README.md`, `PROMPT_DAN_ATURAN.md` (semua aturan + riwayat permintaan), `kit/engine/` (mesin terbaru Ep9 + overlap.js), `kit/covers/` (cover_ep.html, seri_latin_peny.html, shot*.js, bg/), `kit/fonts/`, `kit/shared/`, `episode/ep2..ep9/` (naskah adegan contoh), `transkrip/`, `hasil/` (semua cover & caption). Jika /home/claude/proj* atau /home/claude/covers tidak ada (container baru), salin dari repo: `cp kit/engine/* /home/claude/projN/`, `cp -r kit/covers /home/claude/covers`, `mkdir -p /home/claude/fonts && cp kit/fonts/* /home/claude/fonts/` (Bebas Neue juga di /home/claude/fonts/dl/), `cp -r kit/shared /home/claude/shared`.
+
+## Catatan Ep10 (mesin terbaru = proj10 / repo kit/engine)
+- `overlap.js` kini GAGAL KERAS bila halaman error (mis. nama konstanta bentrok seperti `G`/`R`/`B` dengan engine) → jangan pernah percaya hasil 0 tanpa melihat preview. Pakai nama warna lokal `CR/CG/CB`.
+- HUD pojok memudar otomatis saat camTour zoom (`HUDK` di engine.js) → tab pencarian tidak tertimpa tulisan pojok.
+- Jangan biarkan layar kosong > 2 dtk (mis. saat lafaz kurang terdengar): perpanjang teks sebelumnya atau tambah kartu pendukung.
+- Perbaikan kecil setelah render: render ulang potongan 30 dtk yang terkena saja (`node render.js vid A B out/full/cNN.mp4`), lalu ulang sfx/bed + concat + mux.

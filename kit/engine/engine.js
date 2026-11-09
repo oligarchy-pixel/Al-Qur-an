@@ -1,7 +1,7 @@
 // Mesin video dokumen investigasi (bangun ulang Ep2) — setTime(t) menggambar frame pada detik t.
 const S = document.getElementById('stage'), CAMEL = document.getElementById('cam');
 const ITEMS = [], SFX = [], CUTS = [], PUNCH = [], LIGHT = [], CAMS = [];
-const TOTAL = 581.3;
+const TOTAL = 591.1;
 let SC = null;
 const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 const eo = x => 1 - Math.pow(1 - clamp(x), 3);
@@ -95,6 +95,7 @@ window.setTime = function (t) {
   let sc = SC0(t), cx = 960, cy = 540, z = 1.02 + .035 * clamp((t - sc.t0) / Math.max(1, sc.t1 - sc.t0));
   // jalur kamera bertahap (tur data di tab pencarian)
   for (const c of CAMS) { if (t >= c.k[0][0] && t < c.k[c.k.length - 1][0]) { let j = 0; while (j < c.k.length - 2 && t >= c.k[j + 1][0]) j++; const A = c.k[j], B = c.k[j + 1], u = eio((t - A[0]) / Math.max(.01, B[0] - A[0])); cx = A[1] + (B[1] - A[1]) * u; cy = A[2] + (B[2] - A[2]) * u; z = A[3] + (B[3] - A[3]) * u; } }
+  const HUDK = Math.max(0, Math.min(1, 1 - (z - 1.03) / .12));
   for (const p of PUNCH) { if (t >= p.t0 - .05 && t < p.t1 + .4) { const k = eio((t - p.t0) / .35) * (1 - eio((t - p.t1) / .4)); z = z + (p.k - z) * k; cx = 960 + (p.ox - 960) * k; cy = 540 + (p.oy - 540) * k; } }
   const sh = Math.sin(t * 13.1) * .6 + Math.sin(t * 7.3) * .5;
   const dx = Math.sin(t * .31) * 7 + sh, dy = Math.cos(t * .23) * 5 + Math.cos(t * 11.7) * .5, rot = Math.sin(t * .17) * .28;
@@ -114,7 +115,7 @@ window.setTime = function (t) {
   const s = Math.floor(t); document.getElementById('tc').textContent = `00:${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
   document.getElementById('prog').style.width = (t / TOTAL * 1920) + 'px';
   const light = LIGHT.some(([a, b]) => t >= a && t < b);
-  document.getElementById('scan').style.opacity = light ? .3 : 1; document.getElementById('vig').style.opacity = light ? .35 : 1; document.getElementById('hud').style.opacity = light ? .55 : 1;
+  document.getElementById('scan').style.opacity = light ? .3 : 1; document.getElementById('vig').style.opacity = light ? .35 : 1; document.getElementById('hud').style.opacity = (light ? .55 : 1) * HUDK;
 };
 function SC0(t) { let s = { t0: 0, t1: TOTAL }; for (let i = 0; i < CUTS.length; i++) if (t >= CUTS[i].t) s = { t0: CUTS[i].t, t1: CUTS[i + 1] ? CUTS[i + 1].t : TOTAL }; return s; }
 window.getSFX = () => SFX.sort((a, b) => a.t - b.t);
@@ -173,7 +174,7 @@ function searchFind(t0, t1, o) {
   const res = o.results;
   const n = node(`<div style="width:1500px;height:860px;background:${IVORY};border-radius:14px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.7);color:${ESP};font-family:Inter">
    <div style="height:58px;background:#e8dfcc;display:flex;align-items:flex-end;padding:0 18px;gap:8px">
-     <div style="background:#efe7d6;padding:10px 22px;border-radius:10px 10px 0 0;font:600 18px Inter;color:#8a7a60">Kajian · Perbanyaklah Bertaubat</div>
+     <div style="background:#efe7d6;padding:10px 22px;border-radius:10px 10px 0 0;font:600 18px Inter;color:#8a7a60">Kajian · Minta Pertolongan Allah</div>
      <div class="tab2" style="background:${IVORY};padding:10px 22px;border-radius:10px 10px 0 0;font:600 18px Inter">Pencarian kitab</div>
      <div class="plus" style="font:700 30px Inter;color:#8a7a60;padding:0 10px 8px">+</div></div>
    <div style="height:70px;display:flex;align-items:center;padding:0 24px;gap:16px;border-bottom:1px solid #e3d8c2">

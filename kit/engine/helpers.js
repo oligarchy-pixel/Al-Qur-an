@@ -3,7 +3,7 @@ function mePol(css, t0, t1, rot = -4, w = 360) {
   const n = node(`<div style="width:${w}px;padding:14px 14px 54px;background:#f4f1ea;box-shadow:0 24px 60px rgba(0,0,0,.7);position:relative">
   <div style="position:absolute;left:50%;top:-30px;width:2px;height:34px;background:#999"></div><div style="position:absolute;left:calc(50% - 9px);top:-40px;width:18px;height:18px;border-radius:50%;background:#c33"></div>
   <img src="user_photo.jpg" style="display:block;width:${w - 28}px;height:${w - 28}px;object-fit:cover">
-  <div style="position:absolute;left:14px;right:14px;bottom:16px;font:600 12px 'DejaVu Sans Mono';color:#444;letter-spacing:.03em;text-align:center;white-space:nowrap">FILE N° 09 · PENYAMPAI · @alurziyadahku</div></div>`, css);
+  <div style="position:absolute;left:14px;right:14px;bottom:16px;font:600 12px 'DejaVu Sans Mono';color:#444;letter-spacing:.03em;text-align:center;white-space:nowrap">FILE N° 10 · PENYAMPAI · @alurziyadahku</div></div>`, css);
   n.dataset.rot = rot; sfx(t0, 'paper', .8);
   return item(t0, t1, n, (lt, t, it) => { const k = eo(lt / .55), sw = Math.sin(lt * 2.2) * 2.4 * Math.exp(-lt * .6); n.style.opacity = clamp(lt / .2) * clamp((it.t1 - t) / .25); n.style.transform = `translateY(${(1 - k) * -140}px) rotate(${rot + sw}deg)`; });
 }
