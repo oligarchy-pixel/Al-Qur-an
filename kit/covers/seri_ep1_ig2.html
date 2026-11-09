@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Bebas;src:url('file:///home/claude/fonts/dl/BebasNeue-Regular.ttf')}
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1350px;overflow:hidden;background:#070707;color:#fff}
+.bg{position:absolute;inset:0;background:
+ linear-gradient(115deg,transparent 0 30%,rgba(255,240,220,.07) 38%,transparent 46%),
+ linear-gradient(115deg,transparent 0 52%,rgba(255,240,220,.05) 58%,transparent 64%),
+ linear-gradient(115deg,transparent 0 70%,rgba(255,240,220,.04) 75%,transparent 80%),
+ radial-gradient(ellipse at 70% 30%,rgba(255,236,210,.08),transparent 55%),
+ linear-gradient(180deg,#0d0d0d,#050505)}
+.steps{position:absolute;inset:0;background:repeating-linear-gradient(155deg,transparent 0 120px,rgba(0,0,0,.35) 120px 128px,transparent 128px 240px);opacity:.6}
+.c{position:absolute;left:0;right:0;text-align:center}
+</style></head><body>
+<div class="bg"></div><div class="steps"></div>
+<div id="c"></div>
+<script>
+const q = new URLSearchParams(location.search), ep = q.get('ep') || '01', topik = q.get('t') || '', ar = q.get('ar') || '';
+const P = [['١', 'belajar & mengajarkan Al-Qur\'an', 'sebaik-baik kalian · HR. al-Bukhari'], ['٢', 'Al-Qur\'an adalah jamuan Allah', 'Ibnu Mas\'ud'], ['٣', 'mulut kita adalah jalan Al-Qur\'an', 'atsar'], ['٤', 'kehormatan & adab terhadap Al-Qur\'an', 'Tafsir al-Qurthubi']];
+document.getElementById('c').innerHTML = `
+ <div class="c" style="top:360px;font-family:Amiri;font-weight:700;font-size:42px">Ep ${ep}</div>
+ <div class="c" style="top:430px;font-family:Bebas;font-size:178px;line-height:.9"><span style="position:relative"><span style="position:absolute;left:-58px;top:-10px;font-family:Amiri;font-weight:700;font-size:136px">“</span>KEHORMATAN</span><br>AL-QUR'AN.</div>
+ <div class="c" style="top:775px;font-family:Amiri;font-size:46px;direction:rtl">بِإِذْنِ اللَّهِ · إِنْ شَاءَ اللَّهُ</div>
+ <div class="c" style="top:960px;display:flex;justify-content:center;align-items:center;gap:20px">
+   <div style="width:92px;height:92px;border-radius:50%;border:3px solid #fff;background:url(file:///home/claude/covers/user_photo.jpg) 45% 54%/150% auto no-repeat"></div>
+   <div style="text-align:left"><div style="font-family:Amiri;font-size:30px;color:#f2e6cf;line-height:1.2;direction:rtl;text-align:left">الْقُرْآنُ الْكَرِيمُ</div><div style="font-family:Inter;font-weight:800;font-size:32px">@alurziyadahku</div></div></div>`;
+</script></body></html>

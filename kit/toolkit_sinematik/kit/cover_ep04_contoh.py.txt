@@ -1,0 +1,10 @@
+from cover_ep import *
+P = '/home/claude/out/Post_04_AlFatihah_Basmalah/'
+LB = "HURMATUL QUR'AN · 04"
+BAS = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ'
+make('light', LB, 'Kurang 1 huruf saja,', 'bacaan Al-Fatihah', 'tidak sah!', [('mushaf', '7 ayat'), '+', ('pen', '156 huruf')],
+     ['الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ'], ['"Segala puji bagi Allah, Tuhan semesta alam"'],
+     'QS. Al-Fatihah: 2', P + 'Cover_04_Terang', ars=60, bigs=112, wide=True)
+make('dark', LB, 'Kurang 1 huruf saja,', 'bacaan Al-Fatihah', 'tidak sah!', [('mushaf', '7 ayat'), '+', ('pen', '156 huruf')],
+     ['الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ'], ['"Segala puji bagi Allah, Tuhan semesta alam"'],
+     'QS. Al-Fatihah: 2', P + 'Cover_04_Gelap', ars=58, bigs=110, wide=True)

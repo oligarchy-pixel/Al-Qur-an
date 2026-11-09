@@ -1,0 +1,9 @@
+from cover_ep import *
+P = '/home/claude/out/Post_03_Perjalanan_AlQuran/'
+LB = "HURMATUL QUR'AN · 03"
+make('light', LB, "Seluruh isi Al-Qur'an", 'tergambar dalam', 'Al-Fatihah', [('mushaf', '30 juz'), '=', ('book', 'Ummul Qur\'an')],
+     ['الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ'], ['"Segala puji bagi Allah, Tuhan semesta alam"'],
+     'QS. Al-Fatihah: 2', P + 'Cover_03_Terang', ars=60, bigs=112, wide=True)
+make('dark', LB, "Dulu Al-Qur'an", 'tanpa titik & baris', 'kok bisa?', [('paper', 'di kulit & batu'), '>', ('mushaf', 'mushaf hari ini')],
+     ['إِنَّا أَنْزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ'], ['"Sesungguhnya Kami menurunkannya pada malam Lailatul Qadar"'],
+     'QS. Al-Qadr: 1', P + 'Cover_03_Gelap', ars=58, bigs=110, wide=True)

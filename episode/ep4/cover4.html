@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+:root{--y:#e9f23a;--bp:#0b3d91;--red:#d7322b;--green:#2fae5b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:Inter,sans-serif;overflow:hidden}
+.ab{position:absolute}
+.ar{font-family:Amiri,serif;direction:rtl}
+.mono{font-family:'DejaVu Sans Mono',monospace;letter-spacing:.08em}
+.mk{background:var(--y);color:#111;padding:0 .1em}
+.cur{display:inline-block;width:.3em;height:.3em;border-radius:50%;background:var(--y);margin-left:.1em;vertical-align:.08em}
+.bp{background:var(--bp);background-image:linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px);background-size:40px 40px;border-radius:14px;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.tag{display:inline-flex;gap:10px;align-items:center;padding:6px 16px;border:2px solid #4f7cff;border-radius:10px;background:rgba(10,14,30,.9)}
+.stamp{border:7px solid var(--red);color:var(--red);font:900 54px Inter;letter-spacing:.12em;padding:8px 24px;border-radius:8px;transform:rotate(-8deg);display:inline-block;background:rgba(0,0,0,.4)}
+.lay{border-radius:12px;display:flex;align-items:center;justify-content:space-between;background:#0d0d0d}
+.pol{background:#f4f1ea;padding:14px 14px 54px;box-shadow:0 24px 60px rgba(0,0,0,.8);position:relative}
+</style></head><body><div id="c"></div>
+<script>
+const v = new URLSearchParams(location.search).get('v') || 'yt';
+const W = v === 'yt' ? 1920 : 1080, H = v === 'yt' ? 1080 : 1920;
+document.body.style.width = W + 'px'; document.body.style.height = H + 'px';
+const route = (w) => { const s = w / 1000, M = [["SYAFI'I", 'ayat Al-Fatihah', 'NYARING', '#e9f23a'], ['MALIKI', 'hanya di An-Naml', 'TIDAK DIBACA', '#ff8a5c'], ['HANAFI', 'bukan Al-Fatihah', 'PELAN', '#ffffff'], ['HANBALI', 'ayat Al-Fatihah', 'PELAN', '#7fe0a0']];
+  return `<div class="bp" style="width:${w}px;height:${Math.round(360 * s)}px;position:relative">
+  <div class="tag" style="position:absolute;left:${20 * s}px;top:${18 * s}px;transform:scale(${s});transform-origin:0 0"><span class="mono" style="color:#9fb8ff;font-size:18px">10</span><span style="font:800 24px Inter">/tree</span></div>
+  <svg viewBox="0 0 1000 360" width="${w}" height="${360 * s}" style="position:absolute;left:0;top:0">
+   <rect x="330" y="30" width="340" height="70" rx="10" fill="rgba(233,242,58,.15)" stroke="#e9f23a" stroke-width="4"/><text x="500" y="78" text-anchor="middle" font-family="Amiri" font-size="40" fill="#fff" direction="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</text>
+   <path d="M500 100 V130 M125 130 H875" stroke="#fff" stroke-width="3" fill="none"/>
+   ${M.map((m, i) => { const x = 125 + i * 250; return `<path d="M${x} 130 V160" stroke="#fff" stroke-width="3"/><rect x="${x - 112}" y="160" width="224" height="170" rx="12" fill="rgba(0,0,0,.25)" stroke="${m[3]}" stroke-width="4"/><text x="${x}" y="208" text-anchor="middle" font-family="Inter" font-weight="900" font-size="30" fill="${m[3]}">${m[0]}</text><text x="${x}" y="250" text-anchor="middle" font-family="Inter" font-weight="600" font-size="19" fill="#fff">${m[1]}</text><text x="${x}" y="300" text-anchor="middle" font-family="Inter" font-weight="900" font-size="22" fill="${m[3]}">${m[2]}</text>`; }).join('')}
+  </svg></div>`; };
+const layers = (w) => { const s = w / 900, box = (ar, a, b, col) => `<div class="lay" style="flex:1;flex-direction:column;justify-content:center;height:${250 * s}px;border:${4 * s}px solid ${col}"><div class="ar" style="font-size:${86 * s}px;color:${col};line-height:1.25;margin-bottom:${22 * s}px">${ar}</div><div style="font:800 ${28 * s}px Inter">${a}</div><div class="mono" style="font-size:${24 * s}px;color:${col}">${b}</div></div>`;
+  return `<div style="width:${w}px"><div style="display:flex;align-items:flex-end;gap:${20 * s}px;margin-bottom:${14 * s}px"><div style="font:900 ${110 * s}px Inter;color:#e9f23a;line-height:.9">156</div><div style="font:800 ${30 * s}px Inter;padding-bottom:${10 * s}px">huruf Al-Fatihah · <span style="color:#ff8a5c">kurang sehuruf = tidak sah</span></div></div>
+  <div style="display:flex;gap:${16 * s}px">${box('مَلِكِ', 'ma dibaca pendek', '155 huruf', '#ffffff')}${box('مَالِكِ', 'ma dibaca panjang', '156 huruf', '#e9f23a')}</div></div>`; };
+const pol = (w, rot) => `<div class="pol" style="width:${w}px;transform:rotate(${rot}deg)"><div style="position:absolute;left:50%;top:-30px;width:2px;height:34px;background:#fff"></div><div style="position:absolute;left:calc(50% - 9px);top:-40px;width:18px;height:18px;border-radius:50%;background:#c33"></div>
+  <img src="file:///home/claude/proj4/user_photo.jpg" style="display:block;width:${w - 28}px;height:${w - 28}px;object-fit:cover">
+  <div class="mono" style="position:absolute;left:12px;right:12px;bottom:16px;font-size:${Math.round(w / 32)}px;color:#222;text-align:center;white-space:nowrap">FILE N° 04 · PENYAMPAI · @alurziyadahku</div></div>`;
+const sub = (sz) => `<div style="display:flex;align-items:center;gap:${sz * .5}px"><div style="width:${sz * 2.3}px;height:${sz * 2.3}px;border-radius:50%;background:url(file:///home/claude/proj4/user_photo.jpg) 45% 54%/150% auto no-repeat;border:${sz * .13}px solid #e9f23a;flex:none"></div>
+  <div style="font:800 ${sz}px Inter">@alurziyadahku</div><div style="position:relative;background:#d7322b;color:#fff;font:900 ${sz}px Inter;padding:${sz * .4}px ${sz * .8}px;border-radius:${sz * .3}px">SUBSCRIBE
+  <svg style="position:absolute;right:-${sz * .6}px;bottom:-${sz * 1.1}px" width="${sz * 1.6}" height="${sz * 1.6}" viewBox="0 0 28 28"><path d="M2 2 L2 24 L8 18 L13 27 L17 25 L12 16 L21 16Z" fill="#fff" stroke="#000" stroke-width="2"/></svg></div></div>`;
+const hud = (pad, fs) => `<div class="ab mono" style="left:${pad}px;top:${pad * .7}px;font-size:${fs}px"><span style="color:#e9f23a">●</span> ANALISIS LANGSUNG</div>
+  <div class="ab mono" style="right:${pad}px;top:${pad * .7}px;font-size:${fs}px">FILE 04 · <span class="ar" style="font-size:${fs * 1.3}px">بِسْمِ اللَّهِ</span></div>
+  <div class="ab" style="left:0;bottom:0;height:6px;width:100%;background:#e9f23a"></div>`;
+let h = `<div style="position:relative;width:${W}px;height:${H}px;background:#000;overflow:hidden">`;
+if (v === 'yt') {
+  h += hud(60, 22) + `
+  <div class="ab ar" style="left:70px;top:105px;font-size:84px;line-height:1.5;text-align:left">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+  <div class="ab" style="left:70px;top:285px;font:900 128px Inter;line-height:.98;letter-spacing:-.03em">RAHASIA<br><span class="mk">BISMILLAH</span><span class="cur"></span></div>
+  <div class="ab" style="left:70px;top:560px;width:860px;font:800 44px Inter;line-height:1.2">dibaca <span style="color:#e9f23a">nyaring</span>, <span style="color:#e9f23a">pelan</span>,<br>atau <span style="color:#ff8a5c">tidak dibaca</span>? kata 4 mazhab</div>
+  <div class="ab" style="left:70px;top:700px">${layers(820)}</div>
+  <div class="ab" style="left:980px;top:110px">${route(880)}</div>
+  <div class="ab" style="left:990px;top:600px;transform:scale(.8);transform-origin:0 0"><div class="stamp">4 MAZHAB</div></div>
+  <div class="ab" style="left:1490px;top:470px">${pol(360, 4)}</div>
+  <div class="ab" style="left:990px;top:975px">${sub(34)}</div>`;
+} else {
+  h += hud(56, 24) + `
+  <div class="ab ar" style="left:60px;top:150px;font-size:88px;line-height:1.5;text-align:left">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+  <div class="ab" style="left:60px;top:350px;font:900 136px Inter;line-height:.98;letter-spacing:-.03em">RAHASIA<br><span class="mk">BISMILLAH</span><span class="cur"></span></div>
+  <div class="ab" style="left:60px;top:650px;width:960px;font:800 50px Inter;line-height:1.2">dibaca <span style="color:#e9f23a">nyaring</span>, <span style="color:#e9f23a">pelan</span>,<br>atau <span style="color:#ff8a5c">tidak dibaca</span>? kata 4 mazhab</div>
+  <div class="ab" style="left:60px;top:820px">${route(960)}</div>
+  <div class="ab" style="left:60px;top:1200px">${layers(560)}</div>
+  <div class="ab" style="left:660px;top:1215px">${pol(360, 4)}</div>
+  <div class="ab" style="left:70px;top:1560px"><div class="stamp">4 MAZHAB</div></div>
+  <div class="ab" style="left:60px;top:1740px">${sub(36)}</div>`;
+}
+document.getElementById('c').innerHTML = h + '</div>';
+</script></body></html>

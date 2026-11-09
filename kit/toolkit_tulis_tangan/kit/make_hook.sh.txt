@@ -1,0 +1,14 @@
+#!/bin/bash
+# Pembuka 3,3 dtk dari entri H di hookgen.py, lalu (opsional) ditempel di depan video HD.
+# HOOK=5 CLIP=/home/claude/out/hook5.mp4 [MAIN=/path/video_HD.mp4 OUT=/path/video_HD_Hook.mp4] bash make_hook.sh
+set -e
+cd "$(dirname "$0")"
+export SCRIPT=hookgen TR="$(pwd)/empty_tr.txt"
+python3 render.py vid 0 99 hv.mp4 > /dev/null
+python3 build_audio.py > /dev/null
+ffmpeg -v error -y -i hv.mp4 -i sfx.wav -filter_complex "[1:a]atrim=0:3.3,afade=t=out:st=3.0:d=0.3,aresample=48000[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 256k -ar 48000 -ac 2 -t 3.3 -movflags +faststart "$CLIP"
+if [ -n "$MAIN" ]; then
+  printf "file %s\nfile %s\n" "$CLIP" "$MAIN" > hk_list.txt
+  ffmpeg -v error -y -f concat -safe 0 -i hk_list.txt -c copy -movflags +faststart "$OUT"
+  ffprobe -v error -show_entries format=duration,size -of compact "$OUT"
+fi

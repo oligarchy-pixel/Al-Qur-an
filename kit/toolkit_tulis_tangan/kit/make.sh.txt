@@ -1,0 +1,16 @@
+#!/bin/bash
+# SCRIPT=ep TR=/path/transkrip.txt AUDIO=/path/rekaman.mp3 OUT=/path/hasil.mp4 bash make.sh
+set -e
+cd "$(dirname "$0")"
+TOTAL=$(python3 -c "import importlib,os;print(importlib.import_module(os.environ['SCRIPT']).TOTAL)")
+N=$(python3 -c "print(int($TOTAL*30))"); H=$((N/2))
+rm -f p0.mp4 p1.mp4
+python3 render.py vid 0 $H p0.mp4 > l0.txt 2>&1 &
+python3 render.py vid $H $N p1.mp4 > l1.txt 2>&1 &
+python3 build_audio.py
+ffmpeg -v error -y -i "$AUDIO" -i sfx.wav -filter_complex "[0:a]aresample=44100,aformat=channel_layouts=stereo,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=44100[v];[1:a]volume=0.72[s];[v][s]amix=inputs=2:duration=longest:normalize=0,alimiter=limit=0.95,atrim=0:$TOTAL[a]" -map "[a]" -c:a aac -b:a 256k -ar 48000 mix.m4a
+wait
+printf "file p0.mp4\nfile p1.mp4\n" > parts.txt
+ffmpeg -v error -y -f concat -i parts.txt -c copy v.mp4
+ffmpeg -v error -y -i v.mp4 -i mix.m4a -map 0:v -map 1:a -c copy -shortest -movflags +faststart "$OUT"
+ffprobe -v error -show_entries format=duration,size:stream=width,height -of compact "$OUT"

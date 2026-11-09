@@ -1,0 +1,16 @@
+#!/bin/bash
+# Kartu pembuka ayat/hadis/doa (opener.py), lalu ditempel di depan video HD.
+# OP=05 CLIP=/home/claude/out/hooks/Opener05.mp4 MAIN=/path/video_HD.mp4 OUT=/path/Reels.mp4 bash make_opener.sh
+set -e
+cd "$(dirname "$0")"
+export SCRIPT=opener TR="$(pwd)/empty_tr.txt"
+N=$(python3 -c "import opener;print(int(opener.TOTAL*30))"); T=$(python3 -c "import opener;print(opener.TOTAL)")
+python3 render.py vid 0 $N ov.mp4 > /dev/null
+python3 build_audio.py > /dev/null
+ffmpeg -v error -y -i ov.mp4 -i sfx.wav -filter_complex "[1:a]atrim=0:$T,afade=t=out:st=$(python3 -c "print($T-0.3)"):d=0.3,aresample=48000[a]" \
+  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 256k -ar 48000 -ac 2 -t $T -movflags +faststart "$CLIP"
+if [ -n "$MAIN" ]; then
+  printf "file %s\nfile %s\n" "$CLIP" "$MAIN" > op_list.txt
+  ffmpeg -v error -y -f concat -safe 0 -i op_list.txt -c copy -movflags +faststart "$OUT"
+  ffprobe -v error -show_entries format=duration,size -of compact "$OUT"
+fi

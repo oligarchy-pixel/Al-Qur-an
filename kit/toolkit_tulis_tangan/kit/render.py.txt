@@ -1,0 +1,74 @@
+import sys, subprocess, os, importlib
+import engine
+from engine import BG, W, H, FPS
+import subs
+
+script = importlib.import_module(os.environ.get('SCRIPT', 'script'))
+ELS = sorted(script.ELS, key=lambda e: (e.z, e.t0))
+TOTAL = script.TOTAL
+
+
+from PIL import Image
+SHIFT = 72
+BG2 = Image.new('RGB', (W, H + SHIFT))
+BG2.paste(BG, (0, SHIFT))
+BG2.paste(BG.crop((0, 0, W, SHIFT)), (0, 0))
+
+
+def frame(t):
+    big = BG2.copy()
+    for e in ELS:
+        if e.active(t):
+            e.draw(big, t)
+    fr = big.crop((0, SHIFT, W, H + SHIFT))
+    cam = getattr(script, 'CAM', None)
+    if cam:
+        fr = camera(fr, t, cam)
+    subs.draw_sub(fr, t)
+    return fr
+
+
+def cam_at(t, cam):
+    from engine import eio
+    if t <= cam[0][0]:
+        return cam[0][1:]
+    for (t0, z0, x0, y0), (t1, z1, x1, y1) in zip(cam, cam[1:]):
+        if t0 <= t <= t1:
+            u = eio((t - t0) / max(1e-3, t1 - t0))
+            return (z0 + (z1 - z0) * u, x0 + (x1 - x0) * u, y0 + (y1 - y0) * u)
+    return cam[-1][1:]
+
+
+def camera(fr, t, cam):
+    z, fx, fy = cam_at(t, cam)
+    if z <= 1.001:
+        return fr
+    fy -= SHIFT
+    w, h = W / z, H / z
+    x0 = min(max(fx - w / 2, 0), W - w)
+    y0 = min(max(fy - h / 2, 0), H - h)
+    return fr.transform((W, H), Image.EXTENT, (x0, y0, x0 + w, y0 + h), Image.BICUBIC)
+
+
+def render_range(f0, f1, out):
+    p = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}',
+                          '-r', str(FPS), '-i', '-', '-vf', 'scale=1080:1920:flags=lanczos+accurate_rnd+full_chroma_int,unsharp=5:5:0.6:5:5:0.0',
+                          '-c:v', 'libx264', '-preset', 'medium', '-crf', '16', '-profile:v', 'high', '-level', '4.2',
+                          '-maxrate', '14M', '-bufsize', '28M', '-g', '60', '-pix_fmt', 'yuv420p',
+                          '-color_primaries', 'bt709', '-color_trc', 'bt709', '-colorspace', 'bt709', out], stdin=subprocess.PIPE)
+    for f in range(f0, f1):
+        p.stdin.write(frame(f / FPS).tobytes())
+        if f % 900 == 0:
+            print(out, f, flush=True)
+    p.stdin.close()
+    p.wait()
+
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'png':
+        os.makedirs('prev', exist_ok=True)
+        for a in sys.argv[2:]:
+            frame(float(a)).save(f'prev/p_{float(a):07.2f}.png')
+    else:
+        f0, f1, out = int(sys.argv[2]), int(sys.argv[3]), sys.argv[4]
+        render_range(f0, f1, out)

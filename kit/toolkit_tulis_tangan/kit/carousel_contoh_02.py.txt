@@ -1,0 +1,66 @@
+from feed import *
+OUT = '/home/claude/out/feed/'
+LAB = "HURMATUL QUR'AN · 02"; N = 6
+s = Slide(); s.chrome(LAB, 1, N)
+s.text("15 kehormatan Al-Qur'an", 540, 230, 'kb', 62, NAVY)
+s.text('yang sering terlupa,', 540, 325, 'kb', 62, NAVY)
+s.text('sudah berapa?', 540, 465, 'kb', 96, GREEN, rot=-3)
+s.ellipse(540, 470, 350, 95, RED, 8)
+s.panel(90, 620, 990, 900, EMER, GOLDL)
+s.text('أَفْضَلُ عِبَادَةِ أُمَّتِي قِرَاءَةُ الْقُرْآنِ', 540, 730, 'ar', 62, CREAM)
+s.text('"Ibadah umatku yang paling afdal adalah membaca Al-Qur\'an"', 540, 830, 'kr', 28, CREAM)
+s.sticky('Hadis', 860, 622, 24, 5)
+s.panel(200, 990, 880, 1090, CREAM, NAVY, r=50, bw=4)
+s.text('cek satu per satu', 540, 1040, 'kb', 42, NAVY)
+for i, ic in enumerate(['kaaba', 'mushaf', 'eye', 'pen', 'loop']):
+    s.icon(ic, 260 + i*140, 1185, 80)
+s.save(OUT + 'Feed2_Kehormatan_1.jpg')
+L = [
+ ('kaaba', 'Menghadap kiblat', 'arah yang paling mulia'),
+ ('face', 'Berhenti saat menguap', 'menguap itu dari syaitan'),
+ ('shield', "Membaca ta'awwudz", "a'udzubillah sebelum memulai"),
+ ('speech', 'Tidak memotong bacaan', 'untuk bercakap dengan orang'),
+ ('wave', 'Tartil, tajwid & memahami', 'terdengar oleh telinga sendiri'),
+ ('book', 'Sesuai tertib surah', 'Al-Fatihah, Al-Baqarah, dst.'),
+ ('rehal', 'Mushaf di tempat suci & tinggi', 'jangan diletakkan di lantai'),
+ ('drop_r', 'Tidak menyapu dengan air liur', 'pakai air yang suci'),
+ ('flame', 'Mushaf rusak', 'dibakar atau dikubur'),
+ ('eye', 'Memberi hak mata', 'membaca sambil melihat mushaf'),
+ ('brain', 'Tidak menafsir sendiri', 'rujuk Rasulullah, sahabat & ulama'),
+ ('music', 'Tidak berlebihan melagukan', 'berlagu boleh, jangan lewat batas'),
+ ('pen', 'Memperbagus tulisan', 'tulis Al-Qur\'an dengan indah'),
+ ('market', 'Tidak membaca di pasar', 'tempat ribut & jual beli'),
+ ('loop', 'Selepas khatam, mulai lagi', 'Al-Fatihah & Al-Baqarah 1–5'),
+]
+groups = [(0, 4), (4, 8), (8, 12), (12, 15)]
+fills = [LBLUE, LGREEN, LYEL, LRED]
+for gi, (a, b) in enumerate(groups):
+    s = Slide(); s.chrome(LAB, gi+2, N)
+    s.text(f'Kehormatan {a+1}–{b}', 540, 195, 'kb', 56, NAVY)
+    for j, k in enumerate(range(a, b)):
+        ic, t1, t2 = L[k]
+        y = 345 + j*245
+        s.panel(70, y-105, 1010, y+105, WHITE, NAVY, r=22, bw=3, inner=False)
+        s.card(225, y, 170, 170, fills[(k) % 4])
+        s.icon(ic, 225, y, 120)
+        s.num(k+1, 100, y-80, r=36)
+        s.text(t1, 335, y-30, 'kb', 44 if len(t1) < 25 else 38, NAVY, anchor='l')
+        s.text(t2, 335, y+38, 'kr', 32, GREEN, anchor='l')
+    s.save(OUT + f'Feed2_Kehormatan_{gi+2}.jpg')
+s = Slide(); s.chrome(LAB, 6, N, swipe=False)
+s.text("Al-Qur'an bisa...", 540, 210, 'kb', 64, NAVY)
+for x, ic, fl, t1, t2, col in [(300, 'heart', LGREEN, 'membawa syafaat', 'jika dihormati', GREEN), (780, 'warning', LRED, 'membawa celaka', 'jika diremehkan', RED)]:
+    s.card(x, 450, 380, 300, fl)
+    s.icon(ic, x, 420, 150)
+    s.text(t1, x, 555, 'kb', 36, NAVY)
+    s.text(t2, x, 650, 'kb', 38, col)
+d = ImageDraw.Draw(s.im); 
+for yy in range(300, 690, 22): d.line([(540, yy), (540, yy+11)], fill=(190,190,198,255), width=3)
+s.panel(90, 730, 990, 900, EMER, GOLDL)
+s.text('فَمَنْ وَقَّرَ الْقُرْآنَ فَقَدْ وَقَّرَ اللَّهَ', 540, 790, 'ar', 52, CREAM)
+s.text('"Siapa menghormati Al-Qur\'an, berarti menghormati Allah"', 540, 862, 'kr', 28, CREAM)
+s.sticky('Hadis', 860, 732, 24, 4)
+s.put(stamp_sprite('SIMPAN & BAGIKAN', RED, 44), 540, 1010, -5)
+s.panel(200, 1110, 880, 1210, CREAM, NAVY, r=50, bw=4)
+s.text('Tonton video lengkapnya', 540, 1160, 'kb', 40, NAVY)
+s.save(OUT + 'Feed2_Kehormatan_6.jpg')

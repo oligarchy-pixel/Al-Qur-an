@@ -1,0 +1,62 @@
+from feed import *
+OUT = '/home/claude/out/Post_05_Hukum_Basmalah/'
+LAB = "HURMATUL QUR'AN · 05"; N = 6
+BAS = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ'
+# 1 cover
+s = Slide(); s.chrome(LAB, 1, N)
+s.text('Membaca bismillah', 540, 230, 'kb', 60, NAVY)
+s.text('ternyata bisa', 540, 325, 'kb', 60, NAVY)
+s.text('HARAM?', 540, 470, 'kb', 120, RED, rot=-3)
+s.ellipse(540, 478, 280, 100, NAVY, 8)
+s.panel(90, 620, 990, 900, EMER, GOLDL)
+s.text(BAS, 540, 730, 'ar', 62, CREAM)
+s.text('"Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang"', 540, 830, 'kr', 27, CREAM)
+s.sticky('QS. An-Naml : 30', 820, 622, 24, 5)
+s.panel(180, 990, 900, 1090, CREAM, NAVY, r=50, bw=4)
+s.text('hukum & adab basmalah', 540, 1040, 'kb', 38, NAVY)
+for i, ic in enumerate(['book', 'shield', 'moon', 'shirt']):
+    s.icon(ic, 300 + i*160, 1185, 90)
+s.save(OUT + 'Carousel_05_slide1.jpg')
+# 2-5 isi
+AD = [
+ ('book', LGREEN, 'Empat hukum basmalah', BAS, 'QS. An-Naml : 30',
+  ['Wajib: membaca Al-Fatihah dalam salat', 'Sunah: wudu, mandi, makan, minum', 'Makruh & haram: perkara tak mulia, dosa']),
+ ('shield', LBLUE, 'Masuk jamban', 'بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ', 'doa masuk jamban',
+  ['Bukan Bismillahir Rahmanir Rahim', 'Penghalang pandangan jin dari aurat', 'Belum hafal? bismillah saja cukup']),
+ ('moon', LYEL, 'Hendak tidur', 'بِاسْمِكَ اللَّهُمَّ أَحْيَا وَبِاسْمِكَ أَمُوتُ', 'doa sebelum tidur',
+  ['Diajarkan Nabi kita Muhammad', 'Harapan wafat husnul khatimah', 'Mudah mengucap kalimat tauhid']),
+ ('shirt', LGREEN, 'Kendaraan & berpakaian', 'بِسْمِ اللَّهِ تَوَكَّلْتُ', 'bismillah disesuaikan',
+  ['Kendaraan: bismillah, alhamdulillah', 'Setiap langkah dicatat kebaikan', 'Berpakaian: bismillah + doanya']),
+]
+for k, (ic, fl, title, ar, src, pts) in enumerate(AD):
+    s = Slide(); s.chrome(LAB, k+2, N)
+    s.num(k+1, 130, 215)
+    s.text(title, 190, 215, 'kb', 54 if len(title) < 26 else 46, NAVY, anchor='l')
+    s.card(540, 450, 360, 300, fl, rot=[-2, 2, -1.5, 1.5][k])
+    s.icon(ic, 540, 450, 210)
+    s.panel(90, 650, 990, 820, EMER, GOLDL)
+    s.text(ar, 540, 735, 'ar', 50 if len(ar) < 40 else 42, CREAM)
+    s.sticky(src, 830, 652, 22, 4)
+    for j, p in enumerate(pts):
+        y = 900 + j*105
+        s.panel(90, y-42, 990, y+42, WHITE, NAVY, r=42, bw=3, inner=False)
+        s.text('✓' if False else '', 0, 0, 'kb', 1, NAVY)
+        s.text(p, 175, y, 'kb', 34, NAVY, anchor='l')
+        d = ImageDraw.Draw(s.im)
+        d.line([(120, y), (135, y+14), (160, y-16)], fill=GREEN+(255,), width=7, joint='curve')
+    s.save(OUT + f'Carousel_05_slide{k+2}.jpg')
+# 6 penutup
+s = Slide(); s.chrome(LAB, 6, N, swipe=False)
+s.text('Bismillah,', 540, 220, 'kb', 64, NAVY)
+s.text('sesuaikan keadaannya', 540, 310, 'kb', 64, GREEN)
+s.panel(90, 400, 990, 680, EMER, GOLDL)
+s.text('بِسْمِ اللَّهِ', 540, 505, 'ar', 80, CREAM)
+s.text('"Dengan nama Allah"', 540, 610, 'kr', 32, CREAM)
+for i, t in enumerate(['jamban', 'tidur', 'kendaraan', 'pakaian']):
+    x = 180 + i*240
+    s.panel(x-112, 760, x+112, 830, LGREEN, GREEN, r=35, bw=3, inner=False)
+    s.text(t, x, 795, 'kb', 27, GREEN)
+s.put(stamp_sprite('SIMPAN & BAGIKAN', RED, 44), 540, 960, -5)
+s.panel(200, 1090, 880, 1190, CREAM, NAVY, r=50, bw=4)
+s.text('Tonton video lengkapnya', 540, 1140, 'kb', 40, NAVY)
+s.save(OUT + 'Carousel_05_slide6.jpg')

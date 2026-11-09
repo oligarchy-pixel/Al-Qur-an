@@ -1,0 +1,240 @@
+import re, functools
+from PIL import Image, ImageDraw
+from engine import font, is_ar, NAVY, WHITE, shadowed, paste, clamp, eo, sfx
+
+import os
+TR = os.environ.get('TR', '/mnt/user-data/attachments/5bb7061d-5a17-5e5c-8084-0fb8f687c2b4/7c95822c-video_terang_ke2.txt')
+
+REPL = [
+    ('الإمام أبو عبد الله محمد بن أحمد الأنصاري القرطبي', "Imam Abu 'Abdillah Muhammad bin Ahmad Al-Anshari Al-Qurthubi"),
+    ('الإمام محمد بن إسماعيل البخاري', "Imam Muhammad bin Isma'il Al-Bukhari"),
+    ('الإمام مسلم بن الحجاج', 'Imam Muslim bin Al-Hajjaj'),
+    ('أبو ذر الغفاري رضي الله عنه', "Abu Dzar Al-Ghifari radhiyallahu 'anhu"),
+    ('يزيد بن عبد الملك', "Yazid bin 'Abdul Malik"),
+    ('الأسماء الحسنى', "Al-Asma'ul Husna"),
+    ('إن شاء الله', 'Insya Allah'),
+    ('حُرْمَةَ الْقُرْآنِ', "hurmatal Qur'an"),
+    ('Allah سبحانه وتعالى', "Allah Subhanahu wa Ta'ala"),
+    ('الْحَمْدُ لِلَّهِ', 'Alhamdulillah'),
+    ('علوم القرآن', "'Ulumul Qur'an"),
+    ('القرآن الكريم', "Al-Qur'an Al-Karim"),
+    ('القرآن', "Al-Qur'an"),
+    ('أَعُوذُ بِاللَّهِ', "a'udzubillah"),
+    ('بَسْمَلَة', 'basmalah'),
+    ('بِسْمِ اللَّهِ', 'bismillah'),
+    ('لَا إِلَهَ إِلَّا اللَّهُ', 'la ilaha illallah'),
+    ('الله سبحانه وتعالى', "Allah Subhanahu wa Ta'ala"),
+    ('رسول الله صلى الله عليه وسلم', 'Rasulullah ﷺ'),
+    ('رسول الله', 'Rasulullah'),
+    ('القرطبي', 'Al-Qurthubi'),
+    ('Insyaالله', 'Insya Allah'),
+    ('keaguannya', 'keagungannya'),
+    ('menembus', 'menebus'),
+    ('semulianya jihad', 'semulia-mulia arah'),
+    ('dengan teriak-teriak', 'dengan tartil'),
+    ('تَحْوِيدَةٍ', 'تُؤَدَةٍ'),
+    ('وَأَنَا ذَلِكَ', 'وَأَنَا عَلَى ذَلِكَ'),
+    ('surah-surah aa seperti', 'surah-surah seperti'),
+    ('الله Subhanahu', 'Allah Subhanahu'),
+    ('كِتَابِ اللَّهِ', 'كِتَابِ اللَّهِ'),
+    ('munajid', 'munajin'),
+    ('الله', 'Allah'),
+    ('،', ','),
+    ("syiwa'", 'siwak'),
+]
+
+
+def load_segments():
+    segs = []
+    for line in open(TR, encoding='utf-8'):
+        m = re.match(r'\[(\d+):(\d+\.\d)\s*-\s*(\d+):(\d+\.\d)\]\s*(.*)', line.strip())
+        if not m:
+            continue
+        a = int(m.group(1)) * 60 + float(m.group(2))
+        b = int(m.group(3)) * 60 + float(m.group(4))
+        txt = m.group(5).strip()
+        latin = re.search(r'[A-Za-z]', txt) is not None
+        for k, v in REPL:
+            if latin or is_ar(v):
+                txt = txt.replace(k, v)
+        if not latin and b - a < 0.5:
+            continue
+        segs.append([a, b, txt])
+    return segs
+
+
+SEGS = load_segments()
+
+
+def seg_words(seg):
+    a, b, txt = seg
+    words = txt.split()
+    wts = [len(w) + 2.5 for w in words]
+    tot = sum(wts)
+    span = max(0.2, (b - a) - 0.12)
+    out = []
+    acc = 0
+    for w, wt in zip(words, wts):
+        ts = a + span * acc / tot
+        acc += wt
+        te = a + span * acc / tot
+        out.append((w, ts, te))
+    return out
+
+
+WORDS = [seg_words(s) for s in SEGS]
+
+
+def seg_at(t):
+    best = min(range(len(SEGS)), key=lambda i: abs(SEGS[i][0] - t))
+    return best
+
+
+def W(t, kw, nth=0, end=False):
+    """time of word containing kw in segment starting near t"""
+    i = seg_at(t)
+    hits = [w for w in WORDS[i] if kw.lower() in w[0].lower()]
+    if not hits:
+        raise ValueError(f'kw {kw!r} not in seg {SEGS[i]}')
+    w = hits[min(nth, len(hits) - 1)]
+    return w[2] if end else w[1]
+
+
+# ------------------------------------------------------------------ chunks
+FS_L = 23
+FS_A = 25
+MAXW = 560
+
+
+def tok_font(w):
+    return font('ar', FS_A) if is_ar(w) else font('kb', FS_L)
+
+
+def tok_w(w):
+    f = tok_font(w)
+    if is_ar(w):
+        return f.getlength(w, direction='rtl', language='ar')
+    return f.getlength(w)
+
+
+def build_chunks():
+    chunks = []
+    for words in WORDS:
+        cur = []
+        cw = 0
+        for (w, ts, te) in words:
+            ww = tok_w(w) + 7
+            if cur and (cw + ww > MAXW or (len(cur) >= 7)):
+                chunks.append(cur)
+                cur, cw = [], 0
+            cur.append((w, ts, te))
+            cw += ww
+            if w.endswith((',', '.', '?')) and cw > 300 and len(cur) >= 3:
+                chunks.append(cur)
+                cur, cw = [], 0
+        if cur:
+            # avoid tiny trailing orphan
+            if len(cur) == 1 and chunks and chunks[-1][-1][2] >= cur[0][1] - 0.05 and len(chunks[-1]) <= 5 \
+                    and (sum(tok_w(x[0]) + 7 for x in chunks[-1]) + tok_w(cur[0][0]) < MAXW + 40):
+                chunks[-1] = chunks[-1] + cur
+            else:
+                chunks.append(cur)
+    out = []
+    for c in chunks:
+        out.append(dict(t0=c[0][1], t1=c[-1][2], toks=c, ar=all(is_ar(w[0]) for w in c)))
+    for i in range(len(out) - 1):
+        out[i]['hide'] = min(out[i + 1]['t0'], out[i]['t1'] + 0.9)
+    out[-1]['hide'] = out[-1]['t1'] + 1.5
+    return out
+
+
+CHUNKS = build_chunks()
+
+GRAYC = (178, 182, 198)
+
+
+@functools.lru_cache(maxsize=64)
+def chunk_sprite(ci, k):
+    c = CHUNKS[ci]
+    S = 2
+    toks = [w for w, _, _ in c['toks']]
+    widths = [tok_w(w) for w in toks]
+    sp = 7
+    tw = sum(widths) + sp * (len(toks) - 1)
+    h = 52 if c['ar'] or any(is_ar(w) for w in toks) else 44
+    w = int(tw + 40)
+    im = Image.new('RGBA', (w * S, h * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((2, 2, w * S - 3, h * S - 3), radius=12 * S, fill=(253, 253, 252, 255), outline=NAVY + (255,), width=int(2.6 * S))
+    order = list(range(len(toks)))
+    xs = []
+    if c['ar']:
+        x = w - 20
+        for i in order:
+            x -= widths[i]
+            xs.append(x)
+            x -= sp
+    else:
+        xs = [0] * len(toks)
+        x = 20
+        i = 0
+        while i < len(toks):
+            if is_ar(toks[i]):
+                j = i
+                while j + 1 < len(toks) and is_ar(toks[j + 1]):
+                    j += 1
+                runw = sum(widths[i:j + 1]) + sp * (j - i)
+                xr = x + runw
+                for k2 in range(i, j + 1):
+                    xr -= widths[k2]
+                    xs[k2] = xr
+                    xr -= sp
+                x += runw + sp
+                i = j + 1
+            else:
+                xs[i] = x
+                x += widths[i] + sp
+                i += 1
+    for i, wd in enumerate(toks):
+        col = NAVY if i < k else GRAYC
+        f = font('ar', FS_A * S) if is_ar(wd) else font('kb', FS_L * S)
+        kw = dict(direction='rtl', language='ar') if is_ar(wd) else {}
+        bb = d.textbbox((0, 0), wd, font=f, **kw)
+        y = h * S / 2 - (bb[1] + bb[3]) / 2 + (0 if is_ar(wd) else 1 * S)
+        if is_ar(wd):
+            y = h * S / 2 - f.getmetrics()[0] * 0.62
+        d.text((xs[i] * S, y), wd, font=f, fill=col + (255,), **kw)
+    im = im.resize((w, h), Image.LANCZOS)
+    return shadowed(im, (2, 3), 3, 45)
+
+
+SUB_Y = 1035
+
+
+def draw_sub(fr, t):
+    ci = None
+    for i, c in enumerate(CHUNKS):
+        if c['t0'] - 0.05 <= t < c['hide']:
+            ci = i
+    if ci is None:
+        return
+    c = CHUNKS[ci]
+    k = sum(1 for (_, ts, _) in c['toks'] if t >= ts - 0.04)
+    sp = chunk_sprite(ci, k)
+    prev_gap = c['t0'] - (CHUNKS[ci - 1]['hide'] if ci > 0 else -9)
+    a = 1.0
+    s = 1.0
+    if prev_gap > 0.05:
+        e = eo((t - c['t0'] + 0.05) / 0.18)
+        a, s = e, 0.92 + 0.08 * e
+    if t > c['hide'] - 0.15 and (ci == len(CHUNKS) - 1 or CHUNKS[ci + 1]['t0'] > c['hide'] + 0.02):
+        a *= clamp((c['hide'] - t) / 0.15)
+    paste(fr, sp, 360, SUB_Y, a, s)
+
+
+def register_sub_sfx():
+    last = -9
+    for c in CHUNKS:
+        if c['t0'] - last > 0.25:
+            sfx(c['t0'], 'subtick', 0, 0.5)
+            last = c['t0']

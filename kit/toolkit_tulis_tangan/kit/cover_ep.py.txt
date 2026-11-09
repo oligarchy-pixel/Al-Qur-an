@@ -1,0 +1,118 @@
+import sys, math, os
+sys.path.insert(0, '/home/claude/vid')
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
+from engine import font, draw_icon, shadowed, text_on, NAVY, RED, YEL
+W, H = 1080, 1920
+GOLDL = (204, 160, 70); GOLDB = (232, 192, 96); CREAM = (250, 244, 226)
+TH = {
+ 'light': dict(bg='light', ink=NAVY, key=(18, 104, 72), ell=RED, pill_f=(255,255,255), pill_b=(18,104,72), pill_t=(18,104,72),
+               pan_f=(240, 249, 244), pan_b=(18, 104, 72), ar=(14, 70, 50), tr=NAVY, card_f=(255,255,255), card_b=NAVY, ic=NAVY,
+               btn_f=(18,104,72), btn_t=(255,255,255), foot=(150,156,170), sym=GOLDL),
+ 'dark': dict(bg='dark', ink=CREAM, key=GOLDB, ell=(232,112,96), pill_f=(14,52,42), pill_b=GOLDL, pill_t=GOLDL,
+              pan_f=(16, 62, 50), pan_b=GOLDL, ar=CREAM, tr=(226,232,222), card_f=(18, 66, 54), card_b=GOLDL, ic=CREAM,
+              btn_f=GOLDB, btn_t=(14,40,34), foot=(120,150,140), sym=GOLDB),
+}
+def make(theme, label, l1, l2, big, scene, ar, tr, src, out, saw=False, ars=50, bigs=124, scale=1.0, wide=False):
+    Y = dict(lab=243, orn=300, l1=405, l2=525, ls=92, big=680, card=905, cw=240, ch=230, xs2=[300, 780], xs3=[190, 540, 890], pan=1075, px0=70, px1=1010, trw=880, arw=860, sym=96, btn_gap=70, btn_min=1560)
+    if wide:
+        Y.update(lab=330, orn=380, l1=470, l2=560, ls=76, big=690, card=880, cw=210, ch=190, xs2=[215, 865], pan=1010, px0=50, px1=1030, trw=860, arw=900, sym=80, btn_gap=60, btn_min=1440)
+    T = TH[theme]
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    dots = ((xx.astype(int) % 54) == 27) & ((yy.astype(int) % 54) == 27)
+    if theme == 'light':
+        glow = np.exp(-(((xx-W/2)/(W*.55))**2 + ((yy-H*.45)/(H*.45))**2))
+        b = np.zeros((H, W, 3), np.float32); b[:] = 255; b[dots] = (214, 220, 226)
+        b -= (1 - glow)[..., None] * np.array([6, 4, 2])
+    else:
+        glow = np.exp(-(((xx-W/2)/(W*.6))**2 + ((yy-H*.42)/(H*.5))**2))
+        b = np.zeros((H, W, 3), np.float32); b[:] = (9, 30, 26); b += glow[..., None] * np.array([12, 34, 26]); b[dots] += (22, 40, 34)
+    bgim = Image.fromarray(np.clip(b, 0, 255).astype(np.uint8)).convert('RGBA').filter(ImageFilter.GaussianBlur(0.6))
+    im = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    def put(sp, cx, cy, rot=0):
+        if rot: sp = sp.rotate(rot, Image.BICUBIC, expand=True)
+        im.alpha_composite(sp, (int(cx - sp.width/2), int(cy - sp.height/2)))
+    def text(t, cx, cy, fn, size, col, rot=0):
+        S = 2; f = font(fn, size*S)
+        kw = dict(direction='rtl', language='ar') if fn in ('ar','arb') else {}
+        bb = f.getbbox(t, **kw)
+        L = Image.new('RGBA', (bb[2]-bb[0]+40*S, bb[3]-bb[1]+40*S), (0,0,0,0))
+        ImageDraw.Draw(L).text((20*S-bb[0], 20*S-bb[1]), t, font=f, fill=col+(255,), **kw)
+        put(L.resize((L.width//S, L.height//S), Image.LANCZOS), cx, cy, rot)
+    def tw(t, fn, size): return font(fn, size).getlength(t, **(dict(direction='rtl', language='ar') if fn in ('ar','arb') else {}))
+    def panel(x0, y0, x1, y1, fill, border, r=28, bw=3, inner=True, sh=40):
+        S = 2; p = Image.new('RGBA', ((x1-x0)*S, (y1-y0)*S), (0,0,0,0)); d = ImageDraw.Draw(p)
+        d.rounded_rectangle((2,2,p.width-3,p.height-3), radius=r*S, fill=fill+(255,), outline=border+(255,), width=bw*S)
+        if inner: d.rounded_rectangle((14*S,14*S,p.width-14*S,p.height-14*S), radius=max(4,r-8)*S, outline=GOLDL+(170,), width=1*S)
+        put(shadowed(p.resize((x1-x0, y1-y0), Image.LANCZOS), (0,10), 18, sh), (x0+x1)/2, (y0+y1)/2)
+    def ellipse(cx, cy, rx, ry, col, wdt):
+        S = 3; L = Image.new('RGBA', (W*S, H*S), (0,0,0,0)); d = ImageDraw.Draw(L)
+        pts = [(S*(cx + rx*(1+.04*math.sin(i/70*7))*math.cos(math.radians(-120+385*i/70))),
+                S*(cy + ry*(1+.04*math.sin(i/70*7))*math.sin(math.radians(-120+385*i/70)))) for i in range(71)]
+        d.line(pts, fill=col+(255,), width=wdt*S, joint='curve'); im.alpha_composite(L.resize((W, H), Image.LANCZOS))
+    def sticky(t, cx, cy, size, rot):
+        S = 2; f = font('kb', size*S); w = int(f.getlength(t)/S + size*1.6); h = int(size*2.0)
+        st = Image.new('RGBA', (w*S, h*S), YEL+(255,)); d = ImageDraw.Draw(st)
+        d.rectangle((0,0,w*S,8*S), fill=(229,206,102,255)); text_on(d, (w/2, h/2+2), t, 'kb', size, (60,50,30,255))
+        put(shadowed(st.resize((w, h), Image.LANCZOS), (3,6), 6, 70), cx, cy, rot)
+    def card(cx, cy, ic, lab, rot, arabic=None):
+        S = 2; w, h = Y['cw'], Y['ch']
+        c = Image.new('RGBA', (w*S, h*S), (0,0,0,0)); d = ImageDraw.Draw(c)
+        d.rounded_rectangle((2,2,w*S-3,h*S-3), radius=18*S, fill=T['card_f']+(255,), outline=T['card_b']+(255,), width=4*S)
+        if arabic: text_on(d, (w/2, h*0.4), arabic, 'ar', int(h*0.3), T['ar']+(255,))
+        else: draw_icon(d, ic, w*S/2, (h*0.4)*S, (h*0.27)*S, T['ic'], 9*S)
+        text_on(d, (w/2, h - 34), lab, 'kb', 25 if wide else 27, T['ink']+(255,))
+        put(shadowed(c.resize((w, h), Image.LANCZOS), (4,8), 8, 70), cx, cy, rot)
+    d = ImageDraw.Draw(im)
+    o = Y['orn']
+    for x0, x1 in ((90, 470), (610, 990)) if wide else ((140, 400), (680, 940)): d.line([(x0, o), (x1, o)], fill=GOLDL+(255,), width=2)
+    d.polygon([(540, o-14), (554, o), (540, o+14), (526, o)], fill=GOLDL+(255,))
+    lw = tw(label, 'kb', 30) + 80
+    panel(int(540-lw/2), Y['lab']-33, int(540+lw/2), Y['lab']+33, T['pill_f'], T['pill_b'], r=33, bw=3, inner=False, sh=30)
+    text(label, 540, Y['lab'], 'kb', 30, T['pill_t'])
+    l1s = Y['ls'] if tw(l1, 'kb', Y['ls']) < 960 else Y['ls'] - 12
+    text(l1, 540, Y['l1'], 'kb', l1s, T['ink'])
+    if saw:
+        z = Y['ls'] - 8; w1 = tw(l2, 'kb', z); w2 = tw('ﷺ', 'ar', z + 12); left = 540 - (w1 + 12 + w2)/2
+        text(l2, left + w1/2, Y['l2'], 'kb', z, T['ink']); text('ﷺ', left + w1 + 12 + w2/2, Y['l2'] + 5, 'ar', z + 12, T['ink'])
+    else:
+        text(l2, 540, Y['l2'], 'kb', Y['ls'] if tw(l2, 'kb', Y['ls']) < 960 else Y['ls'] - 12, T['ink'])
+    text(big, 540, Y['big'], 'kb', bigs, T['key'], rot=-3)
+    ellipse(540, Y['big'] + 8, min(470, tw(big, 'kb', bigs)/2 + 70), bigs*0.74, T['ell'], 7)
+    # adegan
+    n = len(scene); xs = {2: [330, 750], 3: [200, 540, 880]}[n if n in (2, 3) else 2]
+    syms = []
+    for i, it in enumerate(scene):
+        if isinstance(it, str): syms.append(it); continue
+    cards = [it for it in scene if not isinstance(it, str)]
+    xs = Y['xs2'] if len(cards) == 2 else Y['xs3']
+    for i, it in enumerate(cards):
+        card(xs[i], Y['card'], it[0], it[1], [-3, 3, -2][i], it[2] if len(it) > 2 else None)
+    for i, sy in enumerate(syms):
+        text(sy, (xs[i] + xs[i+1])/2, Y['card'] - 5, 'kb', Y['sym'], T['sym'])
+    # hadis
+    y0 = Y['pan']; y1 = y0 + (175 if len(ar) == 1 else 260) + 60 * len(tr) + 30 - (30 if wide and len(ar) == 2 else 0) + (15 if wide and len(ar) == 1 else 0)
+    panel(Y['px0'], y0, Y['px1'], y1, T['pan_f'], T['pan_b'], r=30, bw=4, sh=70)
+    y = y0 + 90
+    for ln in ar:
+        s_ = ars
+        while tw(ln, 'ar', s_) > Y['arw']: s_ -= 2
+        text(ln, 540, y, 'ar', s_, T['ar']); y += 92
+    d = ImageDraw.Draw(im); d.line([(380, y - 20), (700, y - 20)], fill=GOLDL+(255,), width=2)
+    y += 20
+    for ln in tr:
+        s_ = 29
+        while tw(ln, 'kr', s_) > Y['trw']: s_ -= 1
+        text(ln, 540, y, 'kr', s_, T['tr']); y += 50
+    sticky(src, Y['px1'] - 30 - tw(src, 'kb', 24)/2 - 30, y0 + 4, 24, 4)
+    by = max(y1 + Y['btn_gap'], Y['btn_min'])
+    panel(250, by, 830, by + 88, T['btn_f'], T['btn_f'], r=44, bw=2, inner=False, sh=60)
+    text('simak sampai akhir', 540, by + 43, 'kb', 40, T['btn_t'])
+    text("Kajian Hurmatul Qur'an", 540, by + 190, 'kr', 32, T['foot'])
+    if scale != 1.0:
+        lay = im.resize((int(W*scale), int(H*scale)), Image.LANCZOS)
+        im2 = Image.new('RGBA', (W, H), (0,0,0,0)); im2.alpha_composite(lay, ((W - lay.width)//2, (H - lay.height)//2 - 10)); im = im2
+    out_im = bgim.copy(); out_im.alpha_composite(im)
+    out_im.convert('RGB').save(out + '.jpg', quality=95)
+    return y1, by
+

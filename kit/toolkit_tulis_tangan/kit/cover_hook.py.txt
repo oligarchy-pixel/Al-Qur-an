@@ -1,0 +1,90 @@
+import sys, math
+sys.path.insert(0, '/home/claude/vid')
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
+from engine import (font, draw_icon, card_sprite, stamp_sprite, chip_sprite, shadowed, text_on,
+                    NAVY, GREEN, RED, YEL, GOLD, WHITE, LGREEN, LBLUE, LYEL, LRED, GRAY)
+W, H = 1080, 1920
+yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+base = np.zeros((H, W, 3), np.float32); base[:] = (241, 240, 232)
+grid = ((xx.astype(int) % 54) == 0) | ((yy.astype(int) % 54) == 0)
+base[grid] = (225, 224, 214)
+d_ = np.sqrt(((xx - W/2)/(W*.62))**2 + ((yy - H*.47)/(H*.58))**2)
+base *= (1 - .09*np.clip((d_-.45)/.75, 0, 1)**1.6)[..., None]
+base += np.random.default_rng(3).normal(0, 1.4, (H, W, 1))
+im = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8)).convert('RGBA')
+
+def put(sp, cx, cy, rot=0):
+    if rot: sp = sp.rotate(rot, Image.BICUBIC, expand=True)
+    im.alpha_composite(sp, (int(cx - sp.width/2), int(cy - sp.height/2)))
+
+def text(t, cx, cy, fn, size, col, rot=0):
+    S = 2
+    f = font(fn, size*S)
+    kw = dict(direction='rtl', language='ar') if fn in ('ar','arb') else {}
+    bb = f.getbbox(t, **kw)
+    layer = Image.new('RGBA', (bb[2]-bb[0]+40*S, bb[3]-bb[1]+40*S), (0,0,0,0))
+    ImageDraw.Draw(layer).text((20*S-bb[0], 20*S-bb[1]), t, font=f, fill=col+(255,), **kw)
+    layer = layer.resize((layer.width//S, layer.height//S), Image.LANCZOS)
+    put(layer, cx, cy, rot)
+
+def sticky(t, cx, cy, size, rot, col=YEL, sub=None):
+    S = 2; f = font('kb', size*S)
+    w = int(f.getlength(t)/S + size*1.6); h = int(size*(2.9 if sub else 2.0))
+    s = Image.new('RGBA', (w*S, h*S), col+(255,)); d = ImageDraw.Draw(s)
+    d.rectangle((0,0,w*S,8*S), fill=tuple(c-18 for c in col)+(255,))
+    text_on(d, (w/2, size*1.05 if sub else h/2+2), t, 'kb', size, (60,50,30,255))
+    if sub: text_on(d, (w/2, h-size*0.75), sub, 'kr', int(size*0.62), (80,70,50,255))
+    s = shadowed(s.resize((w, h), Image.LANCZOS), (4,6), 6, 80)
+    put(s, cx, cy, rot)
+
+def ellipse(cx, cy, rx, ry, col, wdt):
+    S = 3
+    L = Image.new('RGBA', (W*S, H*S), (0,0,0,0)); d = ImageDraw.Draw(L)
+    pts = [(S*(cx + rx*(1+.04*math.sin(i/70*7))*math.cos(math.radians(-120+385*i/70))),
+            S*(cy + ry*(1+.04*math.sin(i/70*7))*math.sin(math.radians(-120+385*i/70)))) for i in range(71)]
+    d.line(pts, fill=col+(255,), width=wdt*S, joint='curve')
+    im.alpha_composite(L.resize((W, H), Image.LANCZOS))
+
+
+dr = ImageDraw.Draw(im)
+def box(x0, y0, x1, y1, fill=WHITE, border=NAVY):
+    S = 2
+    b = Image.new('RGBA', ((x1-x0)*S, (y1-y0)*S), (0,0,0,0))
+    ImageDraw.Draw(b).rounded_rectangle((2,2,b.width-3,b.height-3), radius=22*S, fill=fill+(255,), outline=border+(255,), width=4*S)
+    b = shadowed(b.resize((x1-x0, y1-y0), Image.LANCZOS), (4,6), 7, 60)
+    put(b, (x0+x1)/2, (y0+y1)/2)
+
+
+EMER=(14, 61, 46); GOLDL=(222, 186, 98); CREAM=(250, 244, 226)
+def panel(x0, y0, x1, y1, fill, border, r=26, bw=4):
+    S = 2
+    b = Image.new('RGBA', ((x1-x0)*S, (y1-y0)*S), (0,0,0,0))
+    d = ImageDraw.Draw(b)
+    d.rounded_rectangle((2,2,b.width-3,b.height-3), radius=r*S, fill=fill+(255,), outline=border+(255,), width=bw*S)
+    d.rounded_rectangle((14*S,14*S,b.width-14*S,b.height-14*S), radius=max(4,r-8)*S, outline=border+(150,), width=1*S)
+    b = shadowed(b.resize((x1-x0, y1-y0), Image.LANCZOS), (6,10), 12, 90)
+    put(b, (x0+x1)/2, (y0+y1)/2)
+
+panel(290, 250, 790, 320, EMER, GOLDL, r=34, bw=3)
+text("KAJIAN HURMATUL QUR'AN", 540, 285, 'kb', 30, GOLDL)
+text("Pegang Al-Qur'an", 540, 445, 'kb', 104, NAVY)
+text('tanpa wudhu,', 540, 575, 'kb', 104, NAVY)
+text('boleh?', 540, 735, 'kb', 150, GREEN, rot=-3)
+ellipse(540, 742, 260, 105, RED, 8)
+panel(90, 880, 990, 1200, EMER, GOLDL)
+text('لَا يَمَسُّهُ إِلَّا الْمُطَهَّرُونَ', 540, 1000, 'ar', 66, CREAM)
+text('"Tidak menyentuhnya kecuali orang-orang yang suci"', 540, 1105, 'kr', 30, CREAM)
+sticky("QS. Al-Waqi'ah : 79", 820, 880, 24, 5)
+S = 2
+L = Image.new('RGBA', (560*S, 220*S), (0,0,0,0)); d = ImageDraw.Draw(L)
+draw_icon(d, 'hand', 120*S, 110*S, 85*S, NAVY, 7*S)
+draw_icon(d, 'mushaf', 300*S, 110*S, 95*S, NAVY, 7*S)
+L = shadowed(L.resize((560, 220), Image.LANCZOS), (4,6), 6, 60)
+put(L, 470, 1340)
+text('?', 660, 1335, 'kb', 170, RED, rot=8)
+panel(170, 1480, 910, 1580, CREAM, NAVY, r=48, bw=4)
+text('+ 3 adab lain yang sering dilupakan', 540, 1528, 'kb', 38, NAVY)
+text('simak sampai akhir', 540, 1680, 'kr', 34, GRAY)
+im.convert('RGB').save('/home/claude/cover/Cover_Hook_Premium.png')
+im.convert('RGB').save('/home/claude/cover/Cover_Hook_Premium.jpg', quality=95)

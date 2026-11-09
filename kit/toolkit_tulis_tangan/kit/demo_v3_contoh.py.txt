@@ -1,0 +1,114 @@
+from engine import *
+from subs import W, register_sub_sfx
+
+ELS = []
+SCENES = []
+CUR = None
+TOTAL = 190.1
+
+
+def scene(t0, t1, wh=True):
+    global CUR
+    CUR = {'t0': t0, 't1': t1, 'els': []}
+    SCENES.append(CUR)
+    if wh:
+        sfx(t0, 'whoosh', 0, 0.55)
+
+
+def A(el):
+    if el.out is None:
+        el.out = CUR['t1']
+    CUR['els'].append(el)
+    ELS.append(el)
+    el.register()
+    return el
+
+
+def DIM(t, *keep):
+    for el in CUR['els']:
+        if el.dim is None and el.t0 < t and el not in keep:
+            el.dim = t
+
+
+def head(t, n, tt=None):
+    A(Ticks(t, n, total=4, x0=240, x1=480))
+    A(Txt(tt or t + 0.15, f'Kehormatan ke-{n}', 360, 262, 30))
+
+
+def rasul(t, cx, cy, size=26, color=NAVY, extra=''):
+    txt = 'Rasulullah' + extra
+    w1 = tsprite(txt, 'kb', size, color).w
+    w2 = tsprite('ﷺ', 'ar', int(size * 1.25), color).w
+    left = cx - (w1 + 4 + w2) / 2
+    A(Txt(t, txt, left, cy, size, color=color, ax='l'))
+    A(Txt(t + 0.3, 'ﷺ', left + w1 + 4, cy + 2, int(size * 1.25), fn='ar', color=color, ax='l', mode='pop'))
+
+
+AR = dict(fn='ar')
+G = dict(fill=LGREEN, col=GREEN, border=GREEN)
+R = dict(fill=LRED, col=RED, border=RED)
+
+
+from subs import W as Wd
+def AA(lst):
+    for e in lst: A(e)
+CAM = []
+
+# ===================== 1: hadis kepada Abu Dzar
+scene(152.4, 167.45)
+rasul(Wd(152.4, 'Rasulullah'), 360, 210, 26, extra=' bersabda')
+AA([LineArt(Wd(152.4, 'sahabat'), 'stick', 360, 330, 60, dur=0.8)])
+A(Txt(Wd(152.4, 'Abu'), 'Abu Dzar Al-Ghifari', 360, 420, 28, color=GREEN))
+A(Txt(Wd(152.4, 'radhiyallahu'), "radhiyallahu 'anhu", 360, 460, 18, fn='kr', color=GRAY))
+HT1 = 'يَا أَبَا ذَرٍّ، لَأَنْ تَغْدُوَ فَتَتَعَلَّمَ آيَةً مِنْ كِتَابِ اللَّهِ'
+HT2 = 'خَيْرٌ لَكَ مِنْ أَنْ تُصَلِّيَ مِئَةَ رَكْعَةٍ'
+th = Wd(152.4, 'يَا')
+A(Txt(th, HT1, 360, 560, 30, dur=3.6, **AR))
+A(Txt(Wd(152.4, 'خَيْرٌ'), HT2, 360, 640, 30, dur=2.6, **AR))
+A(Sticky(Wd(152.4, 'خَيْرٌ'), 560, 705, 'Hadis', rot=4))
+A(Brace(Wd(162.6, 'مِئَةَ') + 0.3, 170, 550, 680, '1 ayat  >  100 rakaat', color=GREEN))
+CAM += [(152.4, 1.0, 360, 640), (th - 0.3, 1.0, 360, 640), (th + 0.8, 1.18, 360, 600), (167.0, 1.18, 360, 640), (167.4, 1.0, 360, 640)]
+
+A(PageTurn(167.5))
+# ===================== 2: dari rumah ke pengajian
+scene(167.5, 177.55)
+A(PinNote(167.6, 610, 190, 'خَيْرٌ لَكَ', sub='Hadis · Abu Dzar', size=28, out=TOTAL - 3.0))
+A(Txt(167.6, 'Wahai Abu Dzar...', 280, 220, 32))
+tr_ = Wd(167.5, 'rumah')
+A(LineArt(tr_ - 0.4, 'house', 140, 520, 85, dur=0.8))
+A(Txt(tr_, 'rumah', 140, 630, 22, fn='kr'))
+tp = Wd(167.5, 'pengajian')
+A(LineArt(tp - 0.6, 'mosque', 580, 520, 85, dur=0.9))
+A(Txt(tp, 'pengajian', 580, 630, 22, fn='kr', color=GREEN))
+A(Walker(Wd(167.5, 'pergi'), [(190, 600), (300, 640), (420, 610), (520, 600)], dur=2.6))
+ts = Wd(167.5, 'satu')
+A(NumberMorph(ts, 360, 760, '0', '1', ts + 0.25, size=96, new_col=GREEN))
+A(Txt(ts + 0.4, 'ayat', 360, 840, 34, color=GREEN))
+A(Burst(ts + 0.5, 360, 770, n=12, r=110))
+CAM += [(167.5, 1.0, 360, 640), (tr_ - 0.2, 1.0, 360, 640), (tr_ + 0.5, 1.12, 360, 600), (ts - 0.3, 1.12, 360, 640), (ts + 0.4, 1.12, 360, 660), (177.2, 1.12, 360, 660), (177.5, 1.0, 360, 640)]
+
+A(PageTurn(177.6))
+# ===================== 3: 100 rakaat vs 1 ayat
+scene(177.6, 187.25)
+A(Txt(177.65, 'salat sunah di rumah', 360, 240, 30))
+A(Counter(177.7, 360, 330, 100, ' rakaat', size=58, color=NAVY, dur=1.6))
+A(IconRow(178.0, 'sajadah', 20, 110, 610, 430, size=36, gap=0.07, rows=2, rgap=70))
+tb = Wd(177.6, 'Jadi')
+A(Balance(tb - 1.4, 360, 690, '1 ayat', '100 rakaat', tb - 0.6, side='left', s=170))
+A(Stamp(tb + 0.3, 360, 930, 'LEBIH BAIK', col=GREEN, rot=-6, size=34))
+for _e in CUR['els']:
+    _e.out = tb + 2.6
+AA(big_word(tb + 2.7, 'خَيْرٌ', 360, 600, size=130, sub='lebih baik'))
+A(Burst(tb + 3.4, 360, 600, n=14, r=150))
+CAM += [(177.6, 1.0, 360, 640), (tb - 1.6, 1.0, 360, 640), (tb - 0.6, 1.1, 360, 760), (tb + 2.4, 1.1, 360, 760), (tb + 3.2, 1.12, 360, 640), (187.1, 1.12, 360, 640), (187.25, 1.0, 360, 640)]
+
+# ===================== 4: amin
+scene(187.3, TOTAL)
+A(LineArt(187.3, 'ground', 360, 760, 330, dur=0.5, snd=False))
+A(LineArt(187.4, 'mountains', 160, 700, 90, dur=0.6))
+A(LineArt(187.6, 'tree', 330, 700, 70, dur=0.4))
+A(LineArt(187.8, 'moon', 560, 380, 40, dur=0.5))
+A(LineArt(187.9, 'stick', 470, 700, 70, dur=0.4))
+A(Spotlight(188.4, 470, 690, r=80, label='kita'))
+A(Txt(188.9, 'آمِينَ يَا رَبَّ الْعَالَمِينَ', 360, 920, 40, dur=0.9, **AR))
+register_sub_sfx()

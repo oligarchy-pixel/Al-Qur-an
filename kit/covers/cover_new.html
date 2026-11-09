@@ -1,0 +1,60 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+:root{--y:#e9f23a;--iv:#f7f2e7;--gd:#b8913f;--es:#2b2219}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:Inter,sans-serif;overflow:hidden}
+.ab{position:absolute}.ar{font-family:Amiri,serif;direction:rtl}
+.mono{font-family:'DejaVu Sans Mono',monospace;letter-spacing:.08em}
+.mk{background:var(--y);color:#000;padding:0 .1em}
+.tag{display:inline-flex;gap:10px;align-items:center;padding:6px 16px;border:2px solid #4f7cff;border-radius:10px;background:#0b1022;margin-right:12px}
+.tile{border:3px solid var(--y);border-radius:16px;background:rgba(233,242,58,.06);text-align:center}
+</style></head><body><div id="c"></div>
+<script>
+const v = new URLSearchParams(location.search).get('v') || 'yt';
+const W = v === 'yt' ? 1920 : 1080, H = v === 'yt' ? 1080 : 1920;
+document.body.style.width = W + 'px'; document.body.style.height = H + 'px';
+const Y = '#e9f23a';
+const IC = { iman: `<path d="M0 34 C-60 -6 -30 -60 0 -26 C30 -60 60 -6 0 34Z" fill="none" stroke="${Y}" stroke-width="7"/><path d="M0 -70 V-50 M-40 -56 L-30 -42 M40 -56 L30 -42" stroke="${Y}" stroke-width="6"/>`,
+  Islam: `<path d="M18 -50 A52 52 0 1 0 18 50 A40 40 0 1 1 18 -50Z" fill="none" stroke="${Y}" stroke-width="7"/><path d="M40 -10 l8 16 l17 2 l-13 11 l4 17 l-16 -9 l-16 9 l4 -17 l-13 -11 l17 -2Z" fill="${Y}"/>`,
+  sehat: `<path d="M-70 0 H-34 L-18 -40 L4 44 L22 -16 L32 0 H70" fill="none" stroke="${Y}" stroke-width="7" stroke-linejoin="round"/>`,
+  melihat: `<path d="M-66 0 Q0 -60 66 0 Q0 60 -66 0Z" fill="none" stroke="${Y}" stroke-width="7"/><circle r="20" fill="${Y}"/>` };
+const tile = (k, w) => `<div class="tile" style="width:${w}px;padding:${w * .1}px 0 ${w * .08}px"><svg width="${w * .55}" height="${w * .48}" viewBox="-80 -70 160 140">${IC[k]}</svg><div style="font:900 ${w * .12}px Inter;margin-top:${w * .04}px">nikmat ${k}</div></div>`;
+// panel rincian sumber (gaya tab pencarian Gading & Emas)
+const panel = (w) => { const s = w / 620; return `<div style="width:${w}px;background:var(--iv);color:var(--es);border-radius:${16 * s}px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.7)">
+  <div style="height:${48 * s}px;background:#e8dfcc;display:flex;align-items:flex-end;padding:0 ${14 * s}px;gap:${6 * s}px"><div style="background:var(--iv);padding:${8 * s}px ${16 * s}px;border-radius:${8 * s}px ${8 * s}px 0 0;font:700 ${15 * s}px Inter">Pencarian kitab</div></div>
+  <div style="padding:${22 * s}px ${26 * s}px">
+   <div class="mono" style="font-size:${13 * s}px;color:#8a7a60">RINCIAN SUMBER</div>
+   <div style="font:800 ${30 * s}px Inter;margin-top:${6 * s}px">Hasyiyah Ibnu 'Abidin</div>
+   <div class="ar" style="font-size:${28 * s}px;color:var(--gd)">حَاشِيَةُ ابْنِ عَابِدِينَ</div>
+   ${[['PENULIS', "Ibnu 'Abidin (w. 1252 H)"], ['LETAK', 'jilid 1 · halaman 7'], ['AR-RAHMAN', 'pemberi nikmat yang besar'], ['AR-RAHIM', 'pemberi nikmat yang halus']].map(r => `<div style="margin-top:${10 * s}px"><div class="mono" style="font-size:${12 * s}px;color:#8a7a60">${r[0]}</div><div style="font:600 ${19 * s}px Inter">${r[1]}</div></div>`).join('')}
+   <div class="ar" style="margin-top:${16 * s}px;padding:${12 * s}px ${16 * s}px;background:#fff;border-right:${6 * s}px solid var(--gd);font-size:${30 * s}px;line-height:1.7">الرَّحْمَٰنُ الْمُنْعِمُ بِجَلَائِلِ النِّعَمِ</div></div></div>`; };
+const lens = (d) => `<div style="width:${d}px;height:${d}px;border-radius:50%;border:${d * .045}px solid ${Y};background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.95),#fffaf0 60%);box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 0 30px rgba(184,145,63,.25);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative">
+  <div class="ar" style="font-size:${d * .15}px;color:#2b2219;line-height:1.7;text-align:center;padding-top:${d * .04}px">بِجَلَائِلِ<br><span style="background:linear-gradient(transparent 55%,${Y} 55%)">النِّعَمِ</span></div></div>
+  <div style="position:absolute;width:${d * .16}px;height:${d * .55}px;background:linear-gradient(90deg,#c9a14a,#7a5a1a);border-radius:${d * .05}px;transform:rotate(-45deg);right:${-d * .12}px;bottom:${-d * .42}px"></div>`;
+const brand = (sz) => `<div style="display:flex;align-items:center;gap:${sz * .5}px"><div style="width:${sz * 2.3}px;height:${sz * 2.3}px;border-radius:50%;background:url(file:///home/claude/covers/user_photo.jpg) 45% 54%/150% auto no-repeat;border:${sz * .13}px solid ${Y}"></div><div style="font:800 ${sz}px Inter">@alurziyadahku</div><div style="background:#d7322b;color:#fff;font:900 ${sz * .9}px Inter;padding:${sz * .35}px ${sz * .7}px;border-radius:${sz * .3}px">SUBSCRIBE</div></div>`;
+const tags = (s) => `<div style="transform:scale(${s});transform-origin:0 0;white-space:nowrap">${[['15', '/search'], ['03', '/mosaic'], ['06', '/mindmap'], ['22', '/blueprint']].map(t => `<span class="tag"><span class="mono" style="color:#7fa0ff;font-size:18px">${t[0]}</span><span style="font:800 24px Inter">${t[1]}</span></span>`).join('')}</div>`;
+let h = `<div style="position:relative;width:${W}px;height:${H}px;background:radial-gradient(ellipse at 70% 40%,#1a1708,#000 70%);overflow:hidden"><div class="ab" style="left:0;bottom:0;height:6px;width:100%;background:${Y}"></div>`;
+if (v === 'yt') {
+  h += `<div class="ab mono" style="left:70px;top:50px;font-size:22px"><span style="color:${Y}">●</span> ANALISIS LANGSUNG · FILE 08</div>
+  <div class="ab ar" style="left:70px;top:110px;font-size:100px;text-align:left;line-height:1.5">الرَّحْمَٰنِ الرَّحِيمِ</div>
+  <div class="ab" style="left:70px;top:300px;font:900 120px Inter;line-height:.95;letter-spacing:-.03em">RAHASIA<br><span class="mk">AR-RAHMAN</span></div>
+  <div class="ab" style="left:70px;top:560px;width:860px;font:800 42px Inter;line-height:1.25">bukan sekadar <span style="color:${Y}">"Maha Pengasih"</span>,<br>ini makna aslinya <span style="color:#ff6a5c">menurut ulama</span></div>
+  <div class="ab" style="left:70px;top:720px;display:flex;gap:18px">${['iman', 'Islam', 'sehat', 'melihat'].map(k => tile(k, 200)).join('')}</div>
+  <div class="ab" style="left:1060px;top:90px;transform:rotate(2deg)">${panel(620)}</div>
+  <div class="ab" style="left:1470px;top:560px">${lens(330)}</div>
+  <div class="ab" style="left:1000px;top:985px">${brand(32)}</div>
+  <div class="ab" style="left:70px;top:985px">${tags(.8)}</div>`;
+} else {
+  h += `<div class="ab mono" style="left:60px;top:70px;font-size:24px"><span style="color:${Y}">●</span> ANALISIS LANGSUNG · FILE 08</div>
+  <div class="ab ar" style="left:60px;top:140px;font-size:108px;text-align:left;line-height:1.5">الرَّحْمَٰنِ الرَّحِيمِ</div>
+  <div class="ab" style="left:60px;top:340px;font:900 128px Inter;line-height:.95;letter-spacing:-.03em">RAHASIA<br><span class="mk">AR-RAHMAN</span></div>
+  <div class="ab" style="left:60px;top:620px;width:960px;font:800 46px Inter;line-height:1.25">bukan sekadar <span style="color:${Y}">"Maha Pengasih"</span>,<br>ini makna aslinya <span style="color:#ff6a5c">menurut ulama</span></div>
+  <div class="ab" style="left:60px;top:800px;transform:rotate(-2deg)">${panel(640)}</div>
+  <div class="ab" style="left:660px;top:1130px">${lens(300)}</div>
+  <div class="ab" style="left:60px;top:1530px;display:flex;gap:16px">${['iman', 'Islam', 'sehat', 'melihat'].map(k => tile(k, 225)).join('')}</div>
+  <div class="ab" style="left:60px;top:1815px">${brand(32)}</div>`;
+}
+document.getElementById('c').innerHTML = h + '</div>';
+</script></body></html>

@@ -1,0 +1,88 @@
+import sys, math
+sys.path.insert(0, '/home/claude/vid')
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
+from engine import (font, draw_icon, card_sprite, stamp_sprite, chip_sprite, shadowed, text_on,
+                    NAVY, GREEN, RED, YEL, GOLD, WHITE, LGREEN, LBLUE, LYEL, LRED, GRAY)
+W, H = 1080, 1920
+yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+base = np.zeros((H, W, 3), np.float32); base[:] = (241, 240, 232)
+grid = ((xx.astype(int) % 54) == 0) | ((yy.astype(int) % 54) == 0)
+base[grid] = (225, 224, 214)
+d_ = np.sqrt(((xx - W/2)/(W*.62))**2 + ((yy - H*.47)/(H*.58))**2)
+base *= (1 - .09*np.clip((d_-.45)/.75, 0, 1)**1.6)[..., None]
+base += np.random.default_rng(3).normal(0, 1.4, (H, W, 1))
+im = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8)).convert('RGBA')
+
+def put(sp, cx, cy, rot=0):
+    if rot: sp = sp.rotate(rot, Image.BICUBIC, expand=True)
+    im.alpha_composite(sp, (int(cx - sp.width/2), int(cy - sp.height/2)))
+
+def text(t, cx, cy, fn, size, col, rot=0):
+    S = 2
+    f = font(fn, size*S)
+    kw = dict(direction='rtl', language='ar') if fn in ('ar','arb') else {}
+    bb = f.getbbox(t, **kw)
+    layer = Image.new('RGBA', (bb[2]-bb[0]+40*S, bb[3]-bb[1]+40*S), (0,0,0,0))
+    ImageDraw.Draw(layer).text((20*S-bb[0], 20*S-bb[1]), t, font=f, fill=col+(255,), **kw)
+    layer = layer.resize((layer.width//S, layer.height//S), Image.LANCZOS)
+    put(layer, cx, cy, rot)
+
+def sticky(t, cx, cy, size, rot, col=YEL, sub=None):
+    S = 2; f = font('kb', size*S)
+    w = int(f.getlength(t)/S + size*1.6); h = int(size*(2.9 if sub else 2.0))
+    s = Image.new('RGBA', (w*S, h*S), col+(255,)); d = ImageDraw.Draw(s)
+    d.rectangle((0,0,w*S,8*S), fill=tuple(c-18 for c in col)+(255,))
+    text_on(d, (w/2, size*1.05 if sub else h/2+2), t, 'kb', size, (60,50,30,255))
+    if sub: text_on(d, (w/2, h-size*0.75), sub, 'kr', int(size*0.62), (80,70,50,255))
+    s = shadowed(s.resize((w, h), Image.LANCZOS), (4,6), 6, 80)
+    put(s, cx, cy, rot)
+
+def ellipse(cx, cy, rx, ry, col, wdt):
+    S = 3
+    L = Image.new('RGBA', (W*S, H*S), (0,0,0,0)); d = ImageDraw.Draw(L)
+    pts = [(S*(cx + rx*(1+.04*math.sin(i/70*7))*math.cos(math.radians(-120+385*i/70))),
+            S*(cy + ry*(1+.04*math.sin(i/70*7))*math.sin(math.radians(-120+385*i/70)))) for i in range(71)]
+    d.line(pts, fill=col+(255,), width=wdt*S, joint='curve')
+    im.alpha_composite(L.resize((W, H), Image.LANCZOS))
+
+
+dr = ImageDraw.Draw(im)
+def box(x0, y0, x1, y1, fill=WHITE, border=NAVY):
+    S = 2
+    b = Image.new('RGBA', ((x1-x0)*S, (y1-y0)*S), (0,0,0,0))
+    ImageDraw.Draw(b).rounded_rectangle((2,2,b.width-3,b.height-3), radius=22*S, fill=fill+(255,), outline=border+(255,), width=4*S)
+    b = shadowed(b.resize((x1-x0, y1-y0), Image.LANCZOS), (4,6), 7, 60)
+    put(b, (x0+x1)/2, (y0+y1)/2)
+
+
+sticky("Kajian Al-Qur'an", 195, 150, 26, 6)
+for i in range(4):
+    x = 760 + i*55
+    dr.line([(x, 125), (x, 175)], fill=(GREEN if i == 3 else NAVY)+(255,), width=7)
+text('حُرْمَةُ الْقُرْآنِ', 540, 290, 'ar', 80, NAVY)
+ellipse(540, 288, 275, 100, GREEN, 6)
+text("Hurmatul Qur'an", 540, 435, 'kb', 74, NAVY)
+text("Kehormatan Al-Qur'an yang wajib kita jaga", 540, 503, 'kr', 31, GREEN)
+
+items = [
+  ('لَا يَمَسُّهُ إِلَّا الْمُطَهَّرُونَ', 'Tidak menyentuhnya kecuali orang-orang yang suci', "QS. Al-Waqi'ah : 79", LGREEN, GREEN),
+  ('خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', "Sebaik-baik kalian adalah yang belajar Al-Qur'an dan mengajarkannya", 'HR. Al-Bukhari & Muslim', WHITE, NAVY),
+  ('فَمَنْ وَقَّرَ الْقُرْآنَ فَقَدْ وَقَّرَ اللَّهَ', "Siapa menghormati Al-Qur'an, berarti ia menghormati Allah", 'Hadis', WHITE, NAVY),
+]
+y = 570
+for i, (ar, tr, src, fill, bc) in enumerate(items):
+    box(70, y, 1010, y + 230, fill, bc)
+    text(ar, 540, y + 95, 'ar', 50 if i == 0 else 44, NAVY)
+    text(tr, 540, y + 180, 'kr', 27 if len(tr) < 52 else 24, NAVY)
+    sticky(src, 860 if i != 1 else 230, y + 2, 21, [5, -4, 4][i])
+    y += 265
+put(stamp_sprite('4 ADAB SEBELUM MEMBACA', RED, 34), 540, 1405, -4)
+cards = [('drop', 'suci', LBLUE), ('siwak', 'mulut bersih', LGREEN), ('person_g', 'duduk tegak', LYEL), ('shirt', 'menutup aurat', LRED)]
+for i, (ic, lb, fl) in enumerate(cards):
+    sp = card_sprite(205, 215, ic, lb, None, fl, NAVY, 25, NAVY, 110, NAVY, 44)
+    put(sp, 150 + i*260, 1600, [-3, 2, -2, 3][i])
+    text(str(i+1), 150 + i*260, 1475, 'kb', 30, GRAY)
+text('Pembukaan', 540, 1800, 'kb', 38, GRAY)
+im.convert('RGB').save('/home/claude/cover/Cover_Hurmatul_Quran_Gabungan.png')
+im.convert('RGB').save('/home/claude/cover/Cover_Hurmatul_Quran_Gabungan.jpg', quality=95)

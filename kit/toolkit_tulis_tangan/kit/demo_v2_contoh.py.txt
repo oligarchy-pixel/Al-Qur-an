@@ -1,0 +1,133 @@
+from engine import *
+from subs import W, register_sub_sfx
+
+ELS = []
+SCENES = []
+CUR = None
+TOTAL = 305.1
+
+
+def scene(t0, t1, wh=True):
+    global CUR
+    CUR = {'t0': t0, 't1': t1, 'els': []}
+    SCENES.append(CUR)
+    if wh:
+        sfx(t0, 'whoosh', 0, 0.55)
+
+
+def A(el):
+    if el.out is None:
+        el.out = CUR['t1']
+    CUR['els'].append(el)
+    ELS.append(el)
+    el.register()
+    return el
+
+
+def DIM(t, *keep):
+    for el in CUR['els']:
+        if el.dim is None and el.t0 < t and el not in keep:
+            el.dim = t
+
+
+def head(t, n, tt=None):
+    A(Ticks(t, n, total=4, x0=240, x1=480))
+    A(Txt(tt or t + 0.15, f'Kehormatan ke-{n}', 360, 262, 30))
+
+
+def rasul(t, cx, cy, size=26, color=NAVY, extra=''):
+    txt = 'Rasulullah' + extra
+    w1 = tsprite(txt, 'kb', size, color).w
+    w2 = tsprite('ﷺ', 'ar', int(size * 1.25), color).w
+    left = cx - (w1 + 4 + w2) / 2
+    A(Txt(t, txt, left, cy, size, color=color, ax='l'))
+    A(Txt(t + 0.3, 'ﷺ', left + w1 + 4, cy + 2, int(size * 1.25), fn='ar', color=color, ax='l', mode='pop'))
+
+
+AR = dict(fn='ar')
+G = dict(fill=LGREEN, col=GREEN, border=GREEN)
+R = dict(fill=LRED, col=RED, border=RED)
+
+
+from subs import W as Wd
+CAM = []
+def ar_word_span(text, word, cx, size):
+    f = font('ar', size); full = f.getlength(text, direction='rtl', language='ar')
+    ww = f.getlength(word, direction='rtl', language='ar')
+    left = cx - full / 2
+    idx = text.split(' ').index(word)
+    after = ' '.join(text.split(' ')[idx + 1:])
+    off = f.getlength(after, direction='rtl', language='ar') + (f.getlength(' ') if after else 0)
+    return left + off, left + off + ww
+def lat_span(text, sub, cx, size):
+    f = font('kr', size); full = f.getlength(text); i = text.index(sub)
+    x0 = cx - full / 2 + f.getlength(text[:i]); return x0, x0 + f.getlength(sub)
+
+# ===================== A: Kehormatan ke-1
+scene(268.9, 281.65)
+head(268.9, 1)
+A(Sticky(Wd(268.9, 'tafsir'), 150, 345, 'Tafsir Al-Qurthubi', rot=-5))
+A(Icon2(Wd(268.9, 'Imam'), 'book', 600, 262, 64, fx='float'))
+AT = 'أَنْ لَا يَمَسَّهُ إِلَّا طَاهِرٌ'
+ta = Wd(268.9, 'أَنْ')
+A(Txt(ta, AT, 450, 345, 36, dur=1.3, **AR))
+x0, x1 = ar_word_span(AT, 'طَاهِرٌ', 450, 36)
+A(Marker(ta + 1.4, x0 - 4, x1 + 4, 352, h=40))
+LT = 'tidak menyentuh mushaf kecuali dalam keadaan suci'
+A(Txt(Wd(274.6, 'tidak'), LT, 360, 460, 23, fn='kr', maxw=700))
+m0, m1 = lat_span(LT, 'kecuali dalam keadaan suci', 360, 23)
+A(Marker(Wd(274.6, 'kecuali'), m0 - 4, m1 + 4, 462, h=30, col=(150, 220, 160), alpha=130))
+A(Icon2(Wd(274.6, 'bahawa'), 'reader_g', 360, 700, 240, fx='float'))
+A(Icon2(Wd(274.6, 'bahawa') + 0.4, 'sparkle', 545, 600, 60, fx='twinkle'))
+A(Icon2(Wd(274.6, 'bahawa') + 0.6, 'sparkle', 175, 780, 46, fx='twinkle'))
+A(Mark(Wd(274.6, 'suci'), 'check', 520, 830, 26))
+A(Burst(Wd(274.6, 'suci') + 0.1, 360, 700, n=14, r=150))
+tb_ = Wd(274.6, 'bahawa')
+CAM += [(268.9, 1.3, 360, 300), (270.8, 1.3, 360, 320), (272.2, 1.0, 360, 640), (tb_, 1.0, 360, 640), (tb_ + 1.0, 1.2, 360, 640), (280.8, 1.2, 360, 640), (281.6, 1.0, 360, 640)]
+
+A(PageTurn(281.7))
+# ===================== B: suci dari apa?
+scene(281.7, 292.35)
+A(Txt(281.75, 'suci dari apa saja?', 360, 230, 36, mode='pop'))
+tk, tb, tn = Wd(281.7, 'kecil'), Wd(281.7, 'besar'), Wd(285.0, 'najis')
+A(Card2(tk, 125, 440, 180, 190, icon='drop', label='hadas kecil', isize=80, fill=LBLUE, fx='drip'))
+A(Mark(tk + 0.5, 'check', 185, 355, 18)); A(Burst(tk + 0.4, 125, 440, n=8, r=80))
+A(Card2(tb, 360, 440, 180, 190, icon='tap', label='hadas besar', isize=85, fill=LBLUE, fx='wiggle'))
+A(Mark(tb + 0.5, 'check', 420, 355, 18)); A(Burst(tb + 0.4, 360, 440, n=8, r=80))
+A(Card2(tn, 595, 440, 180, 190, icon='sparkle', label='dari najis', isize=80, fill=LGREEN, fx='twinkle'))
+A(Mark(tn + 0.4, 'check', 655, 355, 18)); A(Burst(tn + 0.3, 595, 440, n=8, r=80))
+DIM(286.1)
+A(Icon2(Wd(286.1, 'menyentuh'), 'ablution', 215, 760, 230))
+A(Card2(Wd(286.1, 'tangan'), 520, 690, 200, 170, icon='hand', label='tangan bersih', isize=75, fill=LGREEN, fx='wiggle'))
+A(Mark(Wd(286.1, 'tangan') + 0.5, 'check', 600, 620, 20))
+A(Card2(Wd(286.1, 'kotor'), 520, 900, 200, 160, icon='hand', label='kotor / najis', isize=70, fill=LRED))
+A(Mark(Wd(286.1, 'najis'), 'cross', 520, 890, 40))
+A(Txt(Wd(286.1, 'jangan'), 'jangan sampai kotor!', 215, 935, 26, color=RED, mode='pop'))
+CAM += [(281.7, 1.0, 360, 640), (tk - 0.2, 1.0, 360, 640), (tk + 0.4, 1.15, 300, 480), (tb + 0.4, 1.15, 360, 480), (tn + 0.3, 1.15, 420, 480),
+        (286.0, 1.0, 360, 640), (287.2, 1.0, 360, 640), (288.2, 1.12, 360, 790), (291.6, 1.12, 360, 790), (292.3, 1.0, 360, 640)]
+
+A(PageTurn(292.4))
+# ===================== C: Al-Waqi'ah 79 + rangkuman
+scene(292.4, TOTAL)
+A(Icon2(292.45, 'hands_dua', 360, 215, 90, fx='float'))
+A(Txt(292.6, 'Allah berfirman', 360, 300, 30))
+A(Sticky(Wd(292.4, 'Al-Waqiah'), 560, 345, "Al-Waqi'ah : 79", rot=5))
+A(Box(Wd(292.4, 'Surah'), 60, 380, 660, 580, fill=WHITE))
+QT = 'لَا يَمَسُّهُ إِلَّا الْمُطَهَّرُونَ'
+tq = Wd(292.4, 'لَا')
+A(Txt(tq, QT, 360, 460, 44, dur=1.5, **AR))
+q0, q1 = ar_word_span(QT, 'الْمُطَهَّرُونَ', 360, 44)
+A(Marker(tq + 1.6, q0 - 4, q1 + 4, 468, h=48))
+A(Burst(tq + 1.9, (q0 + q1) / 2, 460, n=12, r=110))
+A(Txt(Wd(292.4, 'Tidak'), 'tidak menyentuhnya kecuali orang-orang yang suci', 360, 540, 21, fn='kr', maxw=600))
+tr = 302.75
+A(Box(tr, 110, 650, 610, 960, fill=LYEL, col=GOLD))
+A(Txt(tr + 0.15, 'Kesimpulan', 360, 700, 32, mode='pop'))
+A(Icon2(tr + 0.3, 'mushaf', 250, 820, 110, fx='beat'))
+A(Txt(tr + 0.5, 'sentuh mushaf', 440, 790, 26, ax='c'))
+A(Txt(tr + 0.8, 'hanya saat suci', 440, 840, 26, color=GREEN))
+A(Mark(tr + 1.3, 'check', 440, 905, 24))
+A(Icon2(tr + 0.6, 'lamp', 560, 700, 70, fx='twinkle'))
+CAM += [(292.4, 1.0, 360, 640), (tq - 0.2, 1.0, 360, 640), (tq + 0.6, 1.2, 360, 500), (tq + 3.0, 1.14, 360, 500), (tr - 0.2, 1.0, 360, 640),
+        (tr + 1.0, 1.1, 360, 720), (TOTAL, 1.1, 360, 720)]
+register_sub_sfx()

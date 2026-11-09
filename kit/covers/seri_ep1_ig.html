@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Bebas;src:url('file:///home/claude/fonts/dl/BebasNeue-Regular.ttf')}
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1350px;overflow:hidden;background:#070707;color:#fff}
+.bg{position:absolute;inset:0;background:
+ linear-gradient(115deg,transparent 0 30%,rgba(255,240,220,.07) 38%,transparent 46%),
+ linear-gradient(115deg,transparent 0 52%,rgba(255,240,220,.05) 58%,transparent 64%),
+ linear-gradient(115deg,transparent 0 70%,rgba(255,240,220,.04) 75%,transparent 80%),
+ radial-gradient(ellipse at 70% 30%,rgba(255,236,210,.08),transparent 55%),
+ linear-gradient(180deg,#0d0d0d,#050505)}
+.steps{position:absolute;inset:0;background:repeating-linear-gradient(155deg,transparent 0 120px,rgba(0,0,0,.35) 120px 128px,transparent 128px 240px);opacity:.6}
+.c{position:absolute;left:0;right:0;text-align:center}
+</style></head><body>
+<div class="bg"></div><div class="steps"></div>
+<div id="c"></div>
+<script>
+const q = new URLSearchParams(location.search), ep = q.get('ep') || '01', topik = q.get('t') || '', ar = q.get('ar') || '';
+const P = [['١', 'belajar & mengajarkan Al-Qur\'an', 'sebaik-baik kalian · HR. al-Bukhari'], ['٢', 'Al-Qur\'an adalah jamuan Allah', 'Ibnu Mas\'ud'], ['٣', 'mulut kita adalah jalan Al-Qur\'an', 'atsar'], ['٤', 'kehormatan & adab terhadap Al-Qur\'an', 'Tafsir al-Qurthubi']];
+document.getElementById('c').innerHTML = `
+ <div class="c" style="top:95px;font-family:Amiri;font-weight:700;font-size:40px">Ep ${ep}</div>
+ <div class="c" style="top:160px;font-family:Bebas;font-size:160px;line-height:.9"><span style="position:relative"><span style="position:absolute;left:-52px;top:-10px;font-family:Amiri;font-weight:700;font-size:124px">“</span>MENGENAL</span><br>AL-QUR'AN.</div>
+ <div class="c" style="top:470px;font-family:Amiri;font-size:40px;direction:rtl">بِإِذْنِ اللَّهِ</div>
+ <div class="c" style="top:555px"><span style="display:inline-block;border:2px solid #fff;padding:6px 26px;font-family:Bebas;font-size:44px;letter-spacing:.06em">HURMATUL QUR'AN · <span style="font-family:Amiri;font-size:36px;direction:rtl;unicode-bidi:isolate">حُرْمَةُ الْقُرْآنِ</span></span></div>
+ <div style="position:absolute;left:190px;width:700px;top:660px">${P.map(p => `<div style="display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.35)"><div style="flex:none;width:40px;height:40px;border-radius:50%;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-family:Amiri;font-weight:700;font-size:27px">${p[0]}</div><div><div style="font-family:Inter;font-weight:700;font-size:25px;line-height:1.2">${p[1]}</div><div style="font-family:Amiri;font-size:20px;color:#f2e6cf;margin-top:1px">${p[2]}</div></div></div>`).join('')}</div>
+ <div class="c" style="top:1090px;display:flex;justify-content:center;align-items:center;gap:22px">
+   <div style="width:88px;height:88px;border-radius:50%;border:3px solid #fff;background:url(file:///home/claude/covers/user_photo.jpg) 45% 54%/150% auto no-repeat"></div>
+   <div style="text-align:left"><div style="font-family:Amiri;font-size:22px;letter-spacing:.14em;color:#f2e6cf">PENYAMPAI</div><div style="font-family:Inter;font-weight:800;font-size:32px">@alurziyadahku</div></div></div>`;
+</script></body></html>

@@ -1,0 +1,69 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+:root{--em:#0f4d3a;--gold:#b8913f;--gold2:#d9b86a;--paper:#f6efdf;--ink:#2b2219}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1350px;overflow:hidden;font-family:Amiri,serif;color:var(--ink)}
+.ar{font-family:Amiri,serif;direction:rtl}
+.pg{position:relative;width:1080px;height:1350px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#fbf6ea,#efe4cc 85%)}
+.pg.dark{background:radial-gradient(ellipse at 50% 40%,#14604a,#0b3a2c 85%);color:#f6efdf}
+.cap{letter-spacing:.3em;text-transform:uppercase;font-weight:700}
+.c{position:absolute;left:110px;right:110px;text-align:center}
+.mk{background:linear-gradient(transparent 55%,rgba(217,184,106,.6) 55%);padding:0 .1em}
+</style></head><body><div id="c"></div>
+<script>
+const N = +(new URLSearchParams(location.search).get('s') || 1), TOT = 7;
+const W = 1080, H = 1350;
+const pat = c => `<svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.08"><defs><pattern id="g" width="90" height="90" patternUnits="userSpaceOnUse"><g fill="none" stroke="${c}" stroke-width="1.4"><rect x="27" y="27" width="36" height="36"/><rect x="27" y="27" width="36" height="36" transform="rotate(45 45 45)"/><path d="M0 45 H27 M63 45 H90 M45 0 V27 M45 63 V90"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`;
+function frame() { const m = 40, L = 110, g = 14; const c = (x, y, sx, sy) => `<path d="M${x} ${y + sy * L} V${y} H${x + sx * L}"/><path d="M${x + sx * g} ${y + sy * L} V${y + sy * g} H${x + sx * L}"/><path d="M${x + sx * g} ${y + sy * 60} Q${x + sx * 40} ${y + sy * 40} ${x + sx * 60} ${y + sy * g}"/><circle cx="${x + sx * g}" cy="${y + sy * g}" r="7" fill="#b8913f"/>`;
+  return `<svg width="${W}" height="${H}" style="position:absolute;inset:0"><g fill="none" stroke="#b8913f" stroke-width="3"><rect x="${m}" y="${m}" width="${W - 2 * m}" height="${H - 2 * m}" stroke-width="2.5"/><rect x="${m + 18}" y="${m + 18}" width="${W - 2 * m - 36}" height="${H - 2 * m - 36}" stroke-width="1.2"/>${c(m, m, 1, 1)}${c(W - m, m, -1, 1)}${c(W - m, H - m, -1, -1)}${c(m, H - m, 1, -1)}</g></svg>`; }
+const star = c => `<svg width="40" height="40" viewBox="-50 -50 100 100"><g fill="none" stroke="${c}" stroke-width="3"><rect x="-26" y="-26" width="52" height="52"/><rect x="-26" y="-26" width="52" height="52" transform="rotate(45)"/><circle r="12"/></g><circle r="5" fill="${c}"/></svg>`;
+const divider = (c = '#b8913f') => `<div style="display:flex;justify-content:center;align-items:center;gap:18px;margin:26px 0"><div style="width:150px;height:2px;background:${c}"></div>${star(c)}<div style="width:150px;height:2px;background:${c}"></div></div>`;
+const qmark = (c) => `<div style="font-size:260px;line-height:.6;color:${c};font-weight:700;height:120px">“</div>`;
+const head = (dark) => `<div class="c cap" style="top:100px;font-size:22px;color:${dark ? '#d9b86a' : 'var(--em)'}">Seri Kajian Al-Qur'an · Jilid 03 · نُزُولُ الْقُرْآنِ</div>`;
+const foot = (dark) => `<div style="position:absolute;left:110px;right:110px;bottom:96px;display:flex;justify-content:space-between;align-items:center;font-size:26px;color:${dark ? '#f6efdf' : 'var(--em)'}">
+  <span style="letter-spacing:.06em">@alurziyadahku</span><span class="cap" style="font-size:22px;color:${dark ? '#d9b86a' : '#7a6440'}">${String(N).padStart(2, '0')} / ${String(TOT).padStart(2, '0')}</span>
+  <span style="letter-spacing:.1em">${N < TOT ? 'geser →' : 'simpan ✦'}</span></div>`;
+const S = {
+  1: { dark: 1, body: `<div class="c" style="top:220px">
+      <div class="ar" style="font-size:150px;font-weight:700;color:#d9b86a;line-height:1.4">نُزُولُ الْقُرْآنِ</div>${divider('#d9b86a')}
+      <div style="font-size:84px;font-weight:700;line-height:1.12">Al-Qur'an yang kamu baca hari ini,</div>
+      <div style="font-size:84px;font-weight:700;line-height:1.12;color:#d9b86a;margin-top:10px">dulunya tidak bertitik & tidak berbaris.</div>
+      <div style="font-size:40px;font-style:italic;margin-top:46px;opacity:.95">Bagaimana ia sampai ke tanganmu?</div></div>` },
+  2: { body: `<div class="c" style="top:250px">${qmark('#b8913f')}
+      <div class="ar" style="font-size:96px;font-weight:700;color:var(--em);line-height:1.6">إِنَّا أَنْزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ</div>${divider()}
+      <div style="font-size:58px;line-height:1.3">“Sesungguhnya Kami menurunkannya pada <span class="mk">malam yang mulia</span>.”</div>
+      <div class="cap" style="font-size:26px;color:#7a6440;margin-top:44px">QS. Al-Qadr : 1</div></div>` },
+  3: { body: `<div class="c" style="top:250px">${qmark('#b8913f')}
+      <div style="font-size:60px;line-height:1.32;margin-top:20px">Pada malam qadr itu Allah menurunkan Al-Qur'an dari <span class="mk">Lauh Mahfuzh</span> sekaligus, ke <span class="mk">Baitul 'Izzah</span> di langit pertama.</div>${divider()}
+      <div style="font-size:44px;font-weight:700;color:var(--em)">'Abdullah bin 'Abbas</div><div style="font-size:28px;font-style:italic;color:#7a6440;margin-top:6px">radhiyallahu 'anhuma</div></div>` },
+  4: { dark: 1, body: `<div class="c" style="top:230px">${qmark('#d9b86a')}
+      <div class="ar" style="font-size:80px;font-weight:700;color:#d9b86a;line-height:1.6">أَعْظَمُ النَّاسِ فِي الْمَصَاحِفِ أَجْرًا أَبُو بَكْرٍ</div>${divider('#d9b86a')}
+      <div style="font-size:56px;line-height:1.3">Setiap umat Muslim membaca Al-Qur'an sampai hari kiamat, <span style="color:#d9b86a">Abu Bakar ash-Shiddiq dapat pahala.</span></div>
+      <div style="font-size:42px;font-weight:700;margin-top:44px">Sayyidina 'Ali bin Abi Thalib</div><div style="font-size:28px;font-style:italic;color:#d9b86a;margin-top:6px">karramallahu wajhah</div></div>` },
+  5: { body: `<div class="c" style="top:290px">${qmark('#b8913f')}
+      <div style="font-size:68px;line-height:1.3;margin-top:20px">Susunannya, titiknya, baris harakatnya…<br>semua itu adalah <span class="mk">jasa</span> para pendahulu kita.</div>${divider()}
+      <div style="font-size:44px;font-weight:700;color:var(--em);letter-spacing:.1em">ALUR ZIYADAHKU</div><div style="font-size:28px;font-style:italic;color:#7a6440;margin-top:6px">kajian Turunnya Al-Qur'an</div></div>` },
+  6: { body: `<div class="c" style="top:230px">
+      <div class="ar" style="font-size:140px;font-weight:700;color:var(--em);line-height:1.5">أُمُّ الْقُرْآنِ</div>${divider()}
+      <div style="font-size:64px;line-height:1.3">“Seluruh isi Al-Qur'an dari awal sampai akhir <span class="mk">tergambar</span> di dalam Surah Al-Fatihah.”</div>
+      <div style="font-size:36px;font-style:italic;color:#7a6440;margin-top:40px">— karena itu ia disebut ibu, induknya Al-Qur'an</div></div>` },
+  8: { body: `<div class="c" style="top:190px">
+      <div class="ar" style="font-size:120px;font-weight:700;color:var(--em);line-height:1.45">نُزُولُ الْقُرْآنِ</div>${divider()}
+      <div style="font-size:200px;line-height:.5;color:#b8913f;font-weight:700;height:70px;margin-top:80px">“</div>
+      <div style="font-size:76px;line-height:1.22;margin-top:10px">Al-Qur'an yang kamu baca hari ini, dulunya <span style="color:var(--em);font-weight:700;text-decoration:underline;text-decoration-color:#d9b86a;text-decoration-thickness:6px;text-underline-offset:12px">tidak bertitik</span> &amp; <span style="color:var(--em);font-weight:700;text-decoration:underline;text-decoration-color:#d9b86a;text-decoration-thickness:6px;text-underline-offset:12px">tidak berbaris</span>.</div>
+      <div style="font-size:38px;font-style:italic;color:#5a4a33;margin-top:34px;line-height:1.35">Susunannya, titiknya, harakatnya… semua itu jasa para pendahulu kita.</div></div>
+      <div style="position:absolute;left:0;right:0;bottom:150px;display:flex;justify-content:center;align-items:center;gap:26px">
+      <div style="width:130px;height:130px;border-radius:50%;padding:6px;background:linear-gradient(#d9b86a,#b8913f)"><div style="width:100%;height:100%;border-radius:50%;border:4px solid var(--em);background:url(file:///home/claude/proj3/user_photo.jpg) 45% 54%/150% auto no-repeat"></div></div>
+      <div style="text-align:left"><div style="font-size:46px;font-weight:700;letter-spacing:.12em;color:var(--ink)">ALUR ZIYADAHKU</div><div style="font-size:28px;color:var(--em);letter-spacing:.06em">@alurziyadahku · kajian Turunnya Al-Qur'an</div></div></div>` },
+  7: { body: `<div style="position:absolute;left:290px;top:190px;width:500px;height:560px;border-radius:250px 250px 10px 10px;padding:14px;background:linear-gradient(#d9b86a,#b8913f);box-shadow:0 18px 40px rgba(60,40,10,.35)">
+      <div style="width:100%;height:100%;border-radius:236px 236px 4px 4px;overflow:hidden;border:6px solid var(--em)"><img src="file:///home/claude/proj3/user_photo.jpg" style="width:100%;height:100%;object-fit:cover;object-position:48% 60%"></div></div>
+      <div class="c" style="top:800px"><div class="cap" style="font-size:22px;color:#7a6440">Tonton kajian lengkapnya</div>
+      <div style="font-size:76px;font-weight:700;color:var(--em);line-height:1.15;margin-top:10px">Turunnya Al-Qur'an</div>
+      <div style="font-size:34px;font-style:italic;margin-top:12px">disampaikan oleh <b style="font-style:normal;letter-spacing:.08em">ALUR ZIYADAHKU</b></div>
+      <div style="display:inline-block;margin-top:34px;background:var(--em);color:#f6efdf;font-size:34px;font-weight:700;letter-spacing:.12em;padding:14px 40px;border-radius:40px">SIMPAN · BAGIKAN · IKUTI</div></div>` },
+};
+const s = S[N];
+document.getElementById('c').innerHTML = `<div class="pg ${s.dark ? 'dark' : ''}">${pat(s.dark ? '#d9b86a' : '#0f4d3a')}${frame()}${N >= 7 ? '' : head(s.dark)}${s.body}${N === 8 ? '' : foot(s.dark)}</div>`;
+</script></body></html>

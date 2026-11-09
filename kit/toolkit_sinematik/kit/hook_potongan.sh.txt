@@ -1,0 +1,13 @@
+#!/bin/bash
+# Pembuka dari potongan adegan video sendiri (pilihan pengguna sejak episode 05; tanpa hook buatan & tanpa cover).
+# MAIN=video_HD.mp4 T0=364.05 T1=371.8 OUT=Reels_NN_Judul_HD.mp4 bash hook_potongan.sh
+# T0/T1 dipilih di jeda suara (cek dengan silencedetect / RMS) agar tidak memotong kata.
+set -e
+cd "$(dirname "$0")"
+D=$(python3 -c "print(round($T1-$T0,3))"); F=$(python3 -c "print(round($T1-$T0-0.35,3))")
+ffmpeg -v error -y -ss $T0 -to $T1 -i "$MAIN" -vf "fade=t=out:st=$F:d=0.3:c=0xEFEEE6" -af "afade=t=in:d=0.05,afade=t=out:st=$F:d=0.25" \
+  -c:v libx264 -preset medium -crf 16 -profile:v high -level 4.2 -pix_fmt yuv420p -r 30 -video_track_timescale 15360 \
+  -color_primaries bt709 -color_trc bt709 -colorspace bt709 -c:a aac -b:a 256k -ar 48000 -ac 2 hookclip.mp4
+printf "file %s\nfile %s\n" "$(pwd)/hookclip.mp4" "$MAIN" > hkp_list.txt
+ffmpeg -v error -y -f concat -safe 0 -i hkp_list.txt -c copy -movflags +faststart "$OUT"
+ffprobe -v error -show_entries format=duration,size -of compact "$OUT"

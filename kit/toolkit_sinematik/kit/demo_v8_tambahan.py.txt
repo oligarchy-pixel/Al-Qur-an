@@ -1,0 +1,43 @@
+"""Video contoh animasi v7 lanjutan (8-13), berlabel nomor."""
+from engine import *
+from cine_fx2 import *
+ELS = []; SCENES = []
+SEG = [('8 · satu tarikan kamera', 7.0), ('9 · malam berlentera', 4.6), ('10 · lingkaran membuka', 3.0),
+       ('11 · kabut & daun gugur', 4.4), ('12 · zoom menembus', 3.6), ('13 · gulungan dibuka', 4.6)]
+TOTAL = sum(d for _, d in SEG) + 0.2
+SCENES.append({'t0': 0, 't1': TOTAL, 'els': []})
+
+
+def A(el, out=None):
+    if el.out is None:
+        el.out = out
+    ELS.append(el); el.register(); return el
+
+
+t = 0
+for i, (lab, D) in enumerate(SEG):
+    o = t + D - 0.05
+    c = A(Chip(t + 0.02, 360, 1010, lab, fill=(32, 96, 88), col=WHITE, border=(32, 96, 88), size=30, sfx_on=False), o); c.z = 200
+    if i == 0:
+        A(OneTake(t, dur=D - 0.6), o)
+    elif i == 1:
+        A(NightFest(t), o)
+        A(Txt(t + 0.6, 'لَيْلَةُ الْقَدْرِ', 360, 560, 70, fn='ar', color=(250, 220, 150), dur=1.0), o)
+        A(Txt(t + 1.6, 'malam yang mulia', 360, 660, 32, color=CREAM, mode='fade'), o)
+    elif i == 2:
+        A(Txt(t + 0.05, 'sebelum', 360, 520, 50, mode='fade'), t + 1.5)
+        A(Txt(t + 1.5, 'sesudah', 360, 520, 50, color=GREEN, mode='fade'), o)
+        A(Iris(t + 0.6, dur=1.6, cy=520))
+    elif i == 3:
+        A(Txt(t + 0.1, 'suasana yang hidup', 360, 500, 44), o)
+        A(LineArt(t + 0.2, 'mountains', 360, 760, 160, dur=0.8), o)
+        A(Ambient(t, leaves=12), o)
+    elif i == 4:
+        A(Card(t + 0.05, 360, 520, 240, 220, icon='surga', label='masuk ke surga', isize=120), t + 2.6)
+        A(ZoomThrough(t + 1.2, 360, 500, dur=1.4))
+        A(Txt(t + 2.7, 'adegan berikutnya...', 360, 520, 40, color=GREEN, mode='fade'), o)
+    else:
+        A(Scroll(t + 0.2, 360, 520, 600, 260, children=[
+            Txt(t + 0.6, 'إِنَّا أَنْزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ', 360, 500, 42, fn='ar', color=GREEN, dur=1.2),
+            Txt(t + 1.9, 'QS. Al-Qadr: 1', 360, 590, 24, fn='kr', mode='fade')]), o)
+    t += D

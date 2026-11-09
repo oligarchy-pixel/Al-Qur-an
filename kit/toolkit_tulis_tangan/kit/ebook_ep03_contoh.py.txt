@@ -1,0 +1,143 @@
+from ebook_build import *
+
+TITLE = "Hurmatul Qur'an 03: Perjalanan Al-Qur'an & Ummul Qur'an"
+LB = "HURMATUL QUR'AN · 03"
+
+FAT = [  # (no, ikon, isi Al-Qur'an, lafaz Al-Fatihah, sumber ayat)
+ (1, 'sparkle', "Tentang Allah dan pujian-pujian kepada-Nya", 'الْحَمْدُ لِلَّهِ', 'QS. Al-Fatihah: 2'),
+ (2, 'tree', "Tentang makhluk: langit, bumi, laut, syurga, neraka, jin, manusia, seluruh ciptaan Allah", 'رَبِّ الْعَالَمِينَ', 'QS. Al-Fatihah: 2'),
+ (3, 'gift', "Tentang pemberian Allah: ampunan, rahmat, nikmat, rezeki, keselamatan, segala keperluan kita", 'الرَّحْمَٰنِ الرَّحِيمِ', 'QS. Al-Fatihah: 3'),
+ (4, 'scale', "Tentang kubur, hari kiamat, syurga, neraka, mizan, hisab dan hari akhir", 'مَالِكِ يَوْمِ الدِّينِ', 'QS. Al-Fatihah: 4'),
+ (5, 'mosque', "Tentang syari'at, thariqat dan hakikat", 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', 'QS. Al-Fatihah: 5'),
+ (6, 'hands_dua', "Tentang doa-doa, bermacam-macam doa di dalam Al-Qur'an", 'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', 'QS. Al-Fatihah: 6'),
+ (7, 'people', "Tentang para nabi dan rasul, para auliya', dan orang-orang yang dikasihi Allah", 'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ', 'QS. Al-Fatihah: 7'),
+ (8, 'warning', "Tentang orang-orang kafir dan orang-orang yang sesat", 'غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ', 'QS. Al-Fatihah: 7'),
+]
+
+
+def fat_rows(items):
+    out = ''
+    for n, ic, isi, lafaz, src in items:
+        out += f'''<div class="card" style="display:flex;gap:3.5mm;align-items:center;padding:2.6mm 3.5mm">
+<div class="num" style="width:9mm;height:9mm;font-size:11pt">{n}</div>
+<div style="flex:1"><p style="margin:0 0 1mm;font-size:9.6pt">{isi}</p>
+<div class="ar" style="font-size:15pt;line-height:1.6;text-align:right">{esc(lafaz)} <span style="font-family:Kalam;font-size:7.5pt;color:var(--gray)">({src})</span></div></div>
+{icon(ic, 'icoS')}</div>'''
+    return out
+
+
+def pages():
+    P = []
+    P.append(f'''<section class="page cover">
+<div class="label">{LB}</div>
+<div class="orn"><span></span></div>
+<div class="ar" style="margin-top:6mm"><span class="bigring">أُمُّ الْقُرْآنِ</span></div>
+<h1>Perjalanan<br>Al-Qur'an</h1>
+<div class="sub">dari Lailatul Qadar sampai mushaf di tangan kita,<br>dan rahsia Al-Fatihah sebagai Ummul Qur'an</div>
+<div class="icons" style="margin-top:8mm">{icon('moon')}{icon('paper')}{icon('pen')}{icon('mushaf')}</div>
+<div class="foot">E-book pendamping video kajian · Episode 03</div>
+</section>''')
+    toc = [("Turunnya Al-Qur'an", 3), ("Sebelum dibukukan", 4), ("Masa Abu Bakar Ash-Shiddiq", 5), ("Masa Utsman bin 'Affan", 6),
+           ("Titik dan baris", 7), ("Al-Qur'an dalam angka", 8), ("Kalamullah yang berhuruf", 9), ("Nama-nama Al-Fatihah", 10),
+           ("Isi Al-Qur'an dalam Al-Fatihah", 11), ("Ringkasan &amp; ceklis", 13), ("Catatan tadabburku", 14)]
+    tl = ''.join(f'<li><span>{i+1}. {t}</span><span class="d"></span><b>{p}</b></li>' for i, (t, p) in enumerate(toc))
+    P.append(page(f'''
+<span class="label">PENGANTAR</span>
+{ar('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 17)}
+<p>Alhamdulillah, kita lanjutkan kembali cerita kita tentang Al-Qur'an. Mushaf yang hari ini begitu mudah kita baca ternyata melalui <span class="hl">perjalanan panjang</span>: diturunkan, dihafal, dihimpun, disusun, lalu diberi titik dan baris oleh para pendahulu kita.</p>
+<p>Di bagian akhir, kita mengenal surah pertama, <b>Al-Fatihah</b>, yang disebut <span class="hlg">Ummul Qur'an</span>, induk Al-Qur'an.</p>
+<span class="label" style="margin-top:2mm">DAFTAR ISI</span>
+<ul class="toc" style="font-size:10pt">{tl}</ul>
+''', LB, 2))
+    P.append(page(f'''{chead(1, "Turunnya Al-Qur'an", 'moon')}<div class="orn"><span></span></div>
+{dalil('إِنَّا أَنْزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ', '"Sesungguhnya Kami menurunkannya (Al-Qur\'an) pada malam Lailatul Qadar." Malam yang agung, malam yang mulia.', 'QS. Al-Qadr: 1', 19)}
+<p><b>Ibnu 'Abbas</b> radhiyallahu 'anhu, salah seorang pemuka ulama tafsir, mengatakan bahwa pada malam Qadar Allah Subhanahu wa Ta'ala menurunkan Al-Qur'an:</p>
+<div class="card g"><h4>Tahap 1: sekaligus</h4><p>dari <b>Lauhul Mahfuzh</b>, dari awal surah sampai akhir, ke <b>Baitul 'Izzah</b> di langit pertama.</p></div>
+<div class="card y"><h4>Tahap 2: bertahap</h4><p>dari Baitul 'Izzah kepada junjungan kita Baginda Rasulullah Muhammad ﷺ, secara bertahap selama kurang lebih <span class="hl">23 tahun</span>.</p></div>
+<div style="text-align:center">{icon('scroll', 'icoS')} &nbsp;›&nbsp; {icon('cloud', 'icoS')} &nbsp;›&nbsp; {icon('mushaf', 'icoS')}</div>
+''', LB, 3))
+    P.append(page(f'''{chead(2, 'Sebelum dibukukan', 'paper')}<div class="orn"><span></span></div>
+<div class="two">{card('Ayat Makkiyah', '<p>diturunkan sewaktu Baginda Rasulullah berada di <b>Makkah</b></p>' + ar('مَكِّيَّة', 16), 'g')}{card('Ayat Madaniyah', '<p>diturunkan kepada Baginda Rasulullah ﷺ di <b>Madinah</b></p>' + ar('مَدَنِيَّة', 16), 'g')}</div>
+<p>Pada masa Baginda Rasulullah ﷺ masih hidup, Al-Qur'an <b>belum dibukukan</b> seperti sekarang; kitabnya belum ada. Al-Qur'an saat itu ada di:</p>
+{ck(['<b>hafalan-hafalan</b> para sahabat yang hafal', 'tulisan di <b>batu-batuan</b>', 'tulisan di <b>daun-daunan</b>', 'tulisan di <b>kulit kambing</b> yang dikeringkan atau <b>kulit unta</b>'])}
+<div class="icons">{icon('brain', 'icoS')}{icon('mound', 'icoS')}{icon('tree', 'icoS')}{icon('paper', 'icoS')}</div>
+{card('Sampai Nabi kita wafat', '<p>Al-Qur\'an masih belum ada wujudnya sebagai sebuah kitab.</p>', 'y')}
+''', LB, 4))
+    P.append(page(f'''{chead(3, 'Masa Abu Bakar Ash-Shiddiq', 'person_g')}<div class="orn"><span></span></div>
+<p>Setelah <b>Abu Bakar Ash-Shiddiq</b> menjadi khalifah, beliau berpikir:</p>
+{card('Kekhawatiran beliau', '<p><i>"Kalau Al-Qur\'an ini tidak dikumpulkan, tidak dijilid menjadi satu, nantinya akan menyulitkan generasi yang akan datang. Siapa tahu para penghafal Al-Qur\'an wafat, generasi berikutnya tidak hafal lagi, akhirnya Al-Qur\'an bisa hilang."</i></p>', 'r')}
+<p>Maka beliau berinisiatif bersama <b>Sayyidina Umar bin Al-Khattab</b> radhiyallahu 'anhu, lalu menyuruh seorang sahabat bernama <span class="hl">Zaid bin Tsabit</span> untuk:</p>
+{ck(['mencatat Al-Qur\'an dari hafalan di dalam dada para sahabat', 'mengumpulkan ayat-ayat yang bertebaran di daun, kulit dan batu', 'menghimpunnya menjadi <b>satu jilid</b> Al-Qur\'an'])}
+<p class="muted">Setelah Khalifah Abu Bakar wafat dan diganti Khalifah Umar bin Al-Khattab, Al-Qur'an masih demikian adanya.</p>
+''', LB, 5))
+    P.append(page(f'''{chead(4, "Masa Utsman bin 'Affan", 'book')}<div class="orn"><span></span></div>
+<p>Jilid yang dihimpun Zaid bin Tsabit sudah <b>lengkap</b>, tetapi surah-surahnya <b>belum tersusun</b>. Khalifah <b>Utsman bin 'Affan</b> radhiyallahu 'anhu lalu berinisiatif menyusunnya kembali sesuai petunjuk Baginda Rasulullah ﷺ semasa hidup:</p>
+<div class="card g" style="text-align:center;font-weight:700">1. Al-Fatihah &nbsp;›&nbsp; 2. Al-Baqarah &nbsp;›&nbsp; 3. Ali 'Imran &nbsp;›&nbsp; dan seterusnya</div>
+<p>Itulah <span class="hl">jasa Khalifah Utsman bin 'Affan</span>.</p>
+{card('Kata Sayyidina Ali', '<p>Setiap kali kita membaca Al-Qur\'an, Khalifah Abu Bakar Ash-Shiddiq mendapat pahala. Setiap umat Muslim di seluruh dunia sampai hari kiamat membaca Al-Qur\'an, beliau mendapat pahala, karena <b>beliaulah yang pertama</b> mempunyai gagasan menghimpun Al-Qur\'an.</p>', 'y')}
+<p class="muted">Kemudian masa Imam Ali bin Abi Thalib radhiyallahu 'anhu karramallahu wajhah, Imam Al-Hasan bin Ali bin Abi Thalib, Khalifah Mu'awiyah, Yazid, dan seterusnya.</p>
+''', LB, 6))
+    P.append(page(f'''{chead(5, 'Titik dan baris', 'pen')}<div class="orn"><span></span></div>
+<p>Walaupun surah-surahnya sudah tersusun, Al-Qur'an saat itu <b>belum bertitik dan belum berbaris</b>. Orang yang tidak mengaji tidak pandai membacanya.</p>
+<div class="two">{card('Dulu', ar('ٮ   ٮ   ٮ', 22) + '<p style="text-align:center">tanpa titik &amp; baris</p>', 'r')}{card('Kini', ar('بَ   تِ   ثُ', 22) + '<p style="text-align:center">bertitik &amp; berharakat</p>', 'g')}</div>
+<p>Menurut sebagian ahli sejarah, pada masa <b>Khalifah 'Abdul Malik bin Marwan</b>, khalifah ke-10 sesudah Baginda Rasulullah ﷺ, sekitar <span class="hl">tahun 80 Hijriah</span>, beliau menyuruh para ulama memberi titik dan baris (harakat). Salah seorang yang diperintahkan ialah <b>Syeikh Yahya bin Ya'mar</b>.</p>
+{card("Bid'ah hasanah", "<p>Mushaf yang ada sekarang tidak ada di zaman Baginda Rasul; ia inisiatif para sahabat dan pendahulu. Maka ia disebut <b>bid'ah hasanah</b>, bid'ah yang baik. Orang yang anti bid'ah, hendaknya jangan membaca mushaf yang ada sekarang ini.</p>" + ar('بِدْعَةٌ حَسَنَةٌ', 17), 'y')}
+''', LB, 7))
+    P.append(page(f'''{chead(6, "Al-Qur'an dalam angka", 'magnifier')}<div class="orn"><span></span></div>
+<div class="two">{card('30 juz', '<p>ثَلَاثُونَ جُزْءًا, <b>sepakat</b> para ulama</p>', 'g')}{card('114 surah', '<p>itu pun <b>sepakat</b></p>', 'g')}</div>
+{card('± 6.225 ayat', "<p><b>Khilaf para ulama</b>: enam ribunya sepakat, ujungnya tidak. Ada yang mengatakan 6.230-an, ada yang 6.220-an. Sebabnya: tergantung <span class='hl'>qira'at</span> yang mereka baca.</p>", 'y')}
+<div class="two">{card('77.439 kalimat', ar('اللَّهُ', 15) + '<p style="text-align:center">= 1 kalimat, begitu pula الرَّحْمَٰنُ dan الرَّحِيمُ</p>')}{card('340.740 huruf', '<p>hitungan terdahulu pun tidak sama, karena berlainan qira\'at yang dibaca</p>')}</div>
+<p class="muted">Angka-angka di atas sebagaimana disebutkan dalam kajian.</p>
+''', LB, 8))
+    P.append(page(f'''{chead(7, 'Kalamullah yang berhuruf', 'quote')}<div class="orn"><span></span></div>
+{ar('كَلَامُ اللَّهِ', 24)}
+<p>Ada yang bertanya: Al-Qur'an itu Kalamullah, <b>kenapa ada hurufnya?</b> Padahal dalam pelajaran tauhid kita belajar bahwa Kalamullah itu:</p>
+{ck(['tidak berhuruf', 'tidak bersuara', 'tidak berawal dan tidak berakhir'], x=True)}
+{card('Jawaban para ulama terdahulu', "<p>Al-Qur'an yang berhuruf ini <b>menunjukkan kepada sesuatu yang sama</b> dengan yang ditunjukkan oleh Kalamullah yang <b>qadim</b> pada zat-Nya. Kalamullah yang tidak berhuruf dan tidak bersuara itu menunjukkan sesuatu yang sama persis dengan yang ada pada Al-Qur'an sekarang.</p>", 'g')}
+<p>Maka Al-Qur'an sekarang ini disebut juga <span class="hlg">Kalamullah</span>, kalamnya Allah Subhanahu wa Ta'ala, sama seperti Kalamullah yang qadim.</p>
+''', LB, 9))
+    P.append(page(f'''{chead(8, 'Nama-nama Al-Fatihah', 'door')}<div class="orn"><span></span></div>
+<p>Surah yang pertama di dalam Al-Qur'anul Karim adalah yang sudah kita semua kenal: <b>Surah Al-Fatihah</b>. Ia memiliki beberapa nama.</p>
+{card('1. Al-Fatihah: pembuka', ar('فَاتِحَةُ الْكِتَابِ', 18) + "<p style='text-align:center'>Fatihatul Kitab atau Fatihatul Qur'an</p>", 'g')}
+{card("2. Ummul Qur'an: ibu / induk Al-Qur'an", ar('أُمُّ الْقُرْآنِ', 20) + "<p style='text-align:center'>seperti kata protokol: <i>\"mari sama-sama kita bacakan Ummul Qur'an\"</i></p>", 'g')}
+{card('Kenapa disebut induk?', "<p>Menurut para ulama, <b>seluruh isi Al-Qur'an</b>, dari awal sampai akhir, <span class='hl'>tergambar di dalam Surah Al-Fatihah</span>. Lihat halaman berikut.</p>", 'y')}
+''', LB, 10))
+    P.append(page(f'''<span class="label">ISI AL-QUR'AN DALAM AL-FATIHAH · 1</span>
+<p style="margin-top:3mm">Al-Qur'an membicarakan…, dan semuanya terkandung dalam Al-Fatihah:</p>
+{fat_rows(FAT[:4])}''', LB, 11))
+    P.append(page(f'''<span class="label">ISI AL-QUR'AN DALAM AL-FATIHAH · 2</span>
+<p style="margin-top:3mm">Lanjutan…</p>
+{fat_rows(FAT[4:])}''', LB, 12))
+    P.append(page(f'''
+<span class="label">RINGKASAN</span>
+<div class="card" style="font-size:9.6pt;margin-top:3mm">
+<p><b>Lailatul Qadar</b>: Lauhul Mahfuzh › Baitul 'Izzah › Rasulullah ﷺ (±23 tahun)</p>
+<p><b>Masa Nabi</b>: di hafalan, batu, daun, kulit</p>
+<p><b>Abu Bakar &amp; Umar</b>: Zaid bin Tsabit menghimpun satu jilid</p>
+<p><b>Utsman bin 'Affan</b>: menyusun urutan surah</p>
+<p><b>'Abdul Malik bin Marwan (±80 H)</b>: titik &amp; baris, Syeikh Yahya bin Ya'mar</p>
+<p><b>Al-Fatihah</b>: Ummul Qur'an, induk seluruh isi Al-Qur'an</p>
+</div>
+<span class="label">CEKLIS HARIANKU</span>
+<div class="card" style="font-size:9.8pt;margin-top:2mm">
+<p><span class="box"></span>Membaca Al-Qur'an hari ini, walau sedikit</p>
+<p><span class="box"></span>Mengingat jasa para sahabat &amp; pendahulu</p>
+<p><span class="box"></span>Membaca Al-Fatihah dengan menghayati isinya</p>
+<p><span class="box"></span>Belajar membaca dengan titik &amp; baris yang benar</p>
+</div>''', LB, 13))
+    P.append(page(f'''
+<span class="label">CATATAN TADABBURKU</span>
+<p class="muted" style="margin-top:3mm">Tulis satu hal dari Al-Fatihah yang paling menyentuh hatimu minggu ini:</p>
+<div class="note-lines"></div>
+{ar('اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', 18)}
+<p style="text-align:center" class="muted">"Tunjukilah kami jalan yang lurus" (QS. Al-Fatihah: 6)</p>''', LB, 14))
+    P.append(f'''<section class="page cover dark">
+<div class="label">{LB}</div>
+<div class="ar" style="margin-top:22mm;font-size:24pt">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</div>
+<p class="sub" style="margin-top:3mm">Segala puji bagi Allah, Tuhan semesta alam. (QS. Al-Fatihah: 2)</p>
+<div class="orn" style="margin:10mm 15mm"><span></span></div>
+<p style="font-size:11pt">Mushaf di tangan kita adalah buah<br>jasa para sahabat dan pendahulu kita.</p>
+<p class="sub" style="margin-top:8mm">Insya Allah, sampai jumpa di episode berikutnya.</p>
+<div class="foot">Kajian Hurmatul Qur'an</div>
+</section>''')
+    return P

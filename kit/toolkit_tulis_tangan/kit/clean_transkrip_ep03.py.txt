@@ -1,0 +1,29 @@
+import re
+M=[('أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ, بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',"a'udzubillahi minasy syaithanir rajim, bismillahir rahmanir rahim"),('الله سُبْحَانَهُ وَتَعَالَى',"Allah Subhanahu wa Ta'ala"),('اللَّهُ سُبْحَانَهُ وَتَعَالَى',"Allah Subhanahu wa Ta'ala"),
+('الْحَمْدُ لِلَّهِ, kita','Alhamdulillah, kita'),('الْحَمْدُ لِلَّهِ, sudah','Alhamdulillah, sudah'),
+('أم القرآن',"Ummul Qur'an"),('القرآن الكريم',"Al-Qur'an Al-Karim"),('القرآن المصحف',"Al-Qur'an mushaf"),('القرآن',"Al-Qur'an"),
+('ليلة القدر','Lailatul Qadar'),('القدر','Qadar'),
+('رَضِيَ اللَّهُ عَنْهُ',"radhiyallahu 'anhu"),('كَرَّمَ اللَّهُ وَجْهَهُ','karramallahu wajhah'),
+('المفسرين','mufassirin'),('اللوح المحفوظ','Lauhul Mahfuzh'),('بيت العزة',"Baitul 'Izzah"),
+('رسول الله محمد صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ','Rasulullah Muhammad ﷺ'),('رسول الله صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ','Rasulullah ﷺ'),('رسول الله','Rasulullah'),
+('مكية','Makkiyah'),('مكة','Makkah'),('المدينة','Madinah'),('مدنية','Madaniyah'),
+('سورة الفاتحة','surah Al-Fatihah'),('الفاتحة','Al-Fatihah'),('البقرة','Al-Baqarah'),('آل عمران',"Ali 'Imran"),('سورة','surah'),
+('أبو بكر الصديق','Abu Bakar Ash-Shiddiq'),('أبو بكر','Abu Bakar'),('خليفة','Khalifah'),
+('سيدنا عمر بن الخطاب','Sayyidina Umar bin Al-Khattab'),('عمر بن الخطاب','Umar bin Al-Khattab'),('زيد بن ثابت','Zaid bin Tsabit'),
+('عثمان بن عفان',"Utsman bin 'Affan"),('عثمان','Utsman'),('سيدنا علي','Sayyidina Ali'),
+('الإمام الحسن بن علي بن أبي طالب','Imam Al-Hasan bin Ali bin Abi Thalib'),('الإمام علي بن أبي طالب','Imam Ali bin Abi Thalib'),
+('معاوية',"Mu'awiyah"),('يزيد','Yazid'),('عبد الملك بن مروان',"'Abdul Malik bin Marwan"),('هجرية','Hijriah'),
+('الشيخ يحيى بن يعمر',"Syeikh Yahya bin Ya'mar"),('بدعة حسنة',"bid'ah hasanah"),('بدعة',"bid'ah"),('المصحف','mushaf'),
+('ثلاثون جزءًا','tiga puluh juz'),('القراءات',"qira'at"),('كلام الله','Kalamullah'),('قديم','qadim'),
+('الميزان','mizan'),('الحساب','hisab'),('الشريعة',"syari'at"),('الطريقة','thariqat'),('الحقيقة','hakikat'),('الأولياء',"auliya'"),
+('Macam الله satu','Macam اللَّهُ satu'),('ابن عباس',"Ibnu 'Abbas"),('الإمام','Imam'),('الله','Allah'),('Fatihah Al-Kitab','Fatihatul Kitab'),('Fatihah Al-Qur\'an',"Fatihatul Qur'an"),('"',''),('“',''),('”','')]
+out=[]
+for line in open('003.txt'):
+    m=re.match(r'(\[[^\]]+\])\s*(.*)',line.strip()); h,t=m.groups()
+    if re.search('[A-Za-z]',t):
+        for k,v in M: t=t.replace(k,v)
+    t=t.replace(' ,',',').replace('"','')
+    for k,v in [('yang yang surah yang pertama','surah yang pertama'),(". surah Al-Fatihah",". Surah Al-Fatihah"),("Al-Qur'an-Al-Qur'an yang bertebaran","ayat-ayat Al-Qur'an yang bertebaran"),("'Affan lah","'Affan-lah")]: t=t.replace(k,v)
+    if t.startswith('surah'): t='S'+t[1:]
+    out.append(f'{h} {t}')
+open('003c.txt','w').write('\n'.join(out)+'\n')

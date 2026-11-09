@@ -1,0 +1,88 @@
+from engine import *
+from subs import W, register_sub_sfx
+
+ELS = []
+SCENES = []
+CUR = None
+TOTAL = 569.9  # = durasi mp3 (detik)
+
+
+def scene(t0, t1, wh=True):
+    global CUR
+    CUR = {'t0': t0, 't1': t1, 'els': []}
+    SCENES.append(CUR)
+    if wh:
+        sfx(t0, 'whoosh', 0, 0.55)
+
+
+def A(el):
+    if el.out is None:
+        el.out = CUR['t1']
+    CUR['els'].append(el)
+    ELS.append(el)
+    el.register()
+    return el
+
+
+def DIM(t, *keep):
+    for el in CUR['els']:
+        if el.dim is None and el.t0 < t and el not in keep:
+            el.dim = t
+
+
+def head(t, n, tt=None):
+    A(Ticks(t, n, total=4, x0=240, x1=480))
+    A(Txt(tt or t + 0.15, f'Kehormatan ke-{n}', 360, 262, 30))
+
+
+def rasul(t, cx, cy, size=26, color=NAVY, extra=''):
+    txt = 'Rasulullah' + extra
+    w1 = tsprite(txt, 'kb', size, color).w
+    w2 = tsprite('ﷺ', 'ar', int(size * 1.25), color).w
+    left = cx - (w1 + 4 + w2) / 2
+    A(Txt(t, txt, left, cy, size, color=color, ax='l'))
+    A(Txt(t + 0.3, 'ﷺ', left + w1 + 4, cy + 2, int(size * 1.25), fn='ar', color=color, ax='l', mode='pop'))
+
+
+AR = dict(fn='ar')
+G = dict(fill=LGREEN, col=GREEN, border=GREEN)
+R = dict(fill=LRED, col=RED, border=RED)
+
+# ============================================================ 0 Basmalah
+scene(0.0, 1.8, wh=False)
+A(Box(0.05, 95, 505, 625, 665, fill=WHITE))
+A(Txt(0.15, 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 360, 565, 38, dur=1.1, **AR))
+A(Txt(0.9, 'Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang', 360, 625, 17, fn='kr', maxw=500, mode='fade'))
+
+# ============================================================ 1 Hamdalah
+scene(1.8, 9.65)
+A(Sticky(1.85, 150, 215, 'pembukaan', rot=-5))
+A(Txt(1.9, 'الْحَمْدُ لِلَّهِ الَّذِي أَنْزَلَ الْقُرْآنَ عَلَى نَبِيِّنَا سَيِّدِنَا مُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ خَيْرِ الْإِنْسَانِ', 360, 345, 31, maxw=590, dur=6.8, **AR))
+A(arrow(W(1.8, 'أَنْزَلَ'), 360, 470, 360, 545, color=GREEN, dur=0.4))
+A(Txt(W(1.8, 'أَنْزَلَ') + 0.1, 'diturunkan', 450, 505, 20, fn='kr', color=GREEN))
+A(Card(W(1.8, 'الْقُرْآنَ'), 360, 650, 190, 200, icon='mushaf', label="Al-Qur'an", isize=110))
+A(Ellipse(W(1.8, 'خَيْرِ'), 360, 650, 140, 140, dur=0.6))
+A(Txt(W(1.8, 'نَبِيِّنَا'), 'kepada Nabi kita, sebaik-baik manusia', 360, 800, 24, fn='kr', maxw=560))
+
+# ... adegan lain ...
+
+# ============================================================ 17 Kehormatan 1: suci
+scene(268.9, 292.35)
+head(268.9, 1)
+A(Sticky(W(268.9, 'tafsir'), 165, 340, 'Tafsir Al-Qurthubi', rot=-5))
+A(Txt(W(268.9, 'أَنْ'), 'أَنْ لَا يَمَسَّهُ إِلَّا طَاهِرٌ', 450, 345, 36, dur=1.4, **AR))
+A(Txt(W(274.6, 'menyentuh'), 'tidak menyentuh mushaf kecuali dalam keadaan suci', 360, 440, 24, fn='kr', maxw=600))
+A(Card(W(281.7, 'kecil'), 125, 600, 180, 160, icon='drop', label='suci hadas kecil', lsize=17, isize=60))
+A(Card(W(281.7, 'besar'), 360, 600, 180, 160, icon='drop', label='suci hadas besar', lsize=17, isize=60))
+A(Card(W(285.0, 'najis'), 595, 600, 180, 160, icon='sparkle', label='suci dari najis', lsize=17, isize=60))
+for i, tt in enumerate([W(281.7, 'kecil') + 0.4, W(281.7, 'besar') + 0.4, W(285.0, 'najis') + 0.3]):
+    A(Mark(tt, 'check', 125 + i * 235, 715, 18))
+DIM(286.1)
+A(Card(W(286.1, 'tangan'), 220, 880, 180, 170, icon='hand', label='tangan bersih', isize=70, fill=LGREEN))
+A(Mark(W(286.1, 'tangan') + 0.4, 'check', 300, 810, 20))
+A(Card(W(286.1, 'kotor'), 500, 880, 180, 170, icon='hand', label='kotor / najis', isize=70, fill=LRED))
+A(Mark(W(286.1, 'najis'), 'cross', 500, 870, 40))
+
+# ... sampai akhir; adegan terakhir: scene(t, TOTAL)
+
+register_sub_sfx()

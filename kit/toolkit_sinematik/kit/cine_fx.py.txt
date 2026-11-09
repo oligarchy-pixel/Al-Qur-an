@@ -1,0 +1,314 @@
+"""Animasi elemen sinematik (v6): fokus masuk, kata naik + kilau, ikon jatuh memantul, angka bergulir kabur, kaligrafi bercahaya.
+Dipakai seperti elemen lain: A(Focus(Txt(...))), A(RiseWords(t, 'teks', cx, cy, size)), A(DropIcon(t, 'surga', cx, cy, 120)),
+A(RollBlur(t, cx, cy, 0, 156, suffix=' huruf')), A(GlowAr(t, 'لَا إِلَٰهَ إِلَّا اللَّهُ', cx, cy, 64))."""
+import math
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
+from engine import *
+
+
+def _layer(fr):
+    return Image.new('RGBA', fr.size, (0, 0, 0, 0))
+
+
+def _shine(img, k, width=0.18, strength=150):
+    """sapuan kilau diagonal di atas piksel tak transparan; k 0..1 = posisi sapuan"""
+    if k <= 0 or k >= 1:
+        return img
+    w, h = img.size
+    a = np.asarray(img).astype(np.float32)
+    yy, xx = np.mgrid[0:h, 0:w]
+    pos = (xx + yy * 0.45) / (w + h * 0.45)
+    band = np.clip(1 - np.abs(pos - (k * 1.4 - 0.2)) / width, 0, 1) ** 2
+    m = band * (a[..., 3] / 255.0) * strength
+    a[..., :3] = np.clip(a[..., :3] + m[..., None], 0, 255)
+    return Image.fromarray(a.astype(np.uint8), 'RGBA')
+
+
+class Focus(El):
+    """bungkus elemen apa pun: muncul dari besar + kabur menjadi tajam (rack focus), lalu kilau"""
+    z = 0
+
+    def __init__(self, child, dur=0.55, shine=True, **kw):
+        super().__init__(child.t0, out=child.out, dim=child.dim, **kw)
+        self.c, self.dur, self.shine = child, dur, shine
+        self.z = child.z
+
+    def register(self):
+        self.c.out = self.out
+        self.c.register()
+        if self.sfx_on:
+            sfx(self.t0, 'swoosh', 0.35, 0.35)
+
+    def draw(self, fr, t):
+        self.c.out, self.c.dim = self.out, self.dim
+        if not self.c.active(t):
+            return
+        L = _layer(fr)
+        self.c.draw(L, t)
+        bb = L.getbbox()
+        if not bb:
+            return
+        k = eo(clamp((t - self.t0) / self.dur))
+        sp = L.crop(bb)
+        if k < 1:
+            s = 1.35 - 0.35 * k
+            sp = sp.resize((max(1, int(sp.width * s)), max(1, int(sp.height * s))), Image.BICUBIC)
+            sp = sp.filter(ImageFilter.GaussianBlur(10 * (1 - k)))
+            al = sp.getchannel('A').point(lambda v: int(v * k))
+            sp.putalpha(al)
+        ks = (t - self.t0 - self.dur - 0.1) / 0.6
+        if self.shine and 0 < ks < 1:
+            sp = _shine(sp, ks)
+        cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
+        fr.paste(sp, (int(cx - sp.width / 2), int(cy - sp.height / 2)), sp)
+
+
+class RiseWords(El):
+    """kata demi kata naik dari bawah dengan kabur gerak, lalu kilau menyapu seluruh kalimat"""
+
+    def __init__(self, t0, text, cx, cy, size=40, color=NAVY, fn='kb', per=0.12, hl=(), hlcol=GREEN, shine=True, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.size, self.per, self.shine = cx, cy, size, per, shine
+        words = text.split()
+        self.sps = [tsprite(w, fn, size, hlcol if w in hl else color).im for w in words]
+        gap = size * 0.28
+        self.tw = sum(s.width for s in self.sps) + gap * (len(words) - 1)
+        self.gap = gap
+        self.end = per * len(words) + 0.45
+
+    def register(self):
+        if self.sfx_on:
+            for i in range(len(self.sps)):
+                sfx(self.t0 + i * self.per, 'tick', 0, 0.25)
+
+    def draw(self, fr, t):
+        a0 = self.fade(t)
+        L = _layer(fr)
+        x = self.cx - self.tw / 2
+        for i, sp in enumerate(self.sps):
+            w = sp.width
+            k = eo(clamp((t - self.t0 - i * self.per) / 0.45))
+            if k > 0:
+                im = sp.copy()
+                if k < 1:
+                    im = im.filter(ImageFilter.GaussianBlur(4 * (1 - k)))
+                    im.putalpha(im.getchannel('A').point(lambda v, k=k: int(v * k)))
+                y = self.cy + 38 * (1 - k)
+                L.paste(im, (int(x), int(y - im.height / 2)), im)
+            x += w + self.gap
+        ks = (t - self.t0 - self.end) / 0.7
+        bb = L.getbbox()
+        if not bb:
+            return
+        sp = L.crop(bb)
+        if self.shine and 0 < ks < 1:
+            sp = _shine(sp, ks)
+        if a0 < 1:
+            sp.putalpha(sp.getchannel('A').point(lambda v: int(v * a0)))
+        fr.paste(sp, bb[:2], sp)
+
+
+class DropIcon(El):
+    """ikon jatuh dari atas dengan bayangan, memantul sekali, lalu kilau"""
+
+    def __init__(self, t0, name, cx, cy, size=110, col=NAVY, shine=True, **kw):
+        super().__init__(t0, **kw)
+        self.sp = icon_sprite(name, size, col)
+        self.cx, self.cy, self.size, self.shine = cx, cy, size, shine
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0 + 0.38, 'pop', 0, 0.7)
+            sfx(self.t0 + 0.62, 'tick', 0, 0.3)
+
+    def _y(self, k):
+        if k < 0.55:
+            u = k / 0.55
+            return -1 + u * u, 1.0
+        u = (k - 0.55) / 0.45
+        b = math.sin(u * math.pi) * 0.12 * (1 - u)
+        return -b, 1.0 + 0.10 * math.sin(u * math.pi * 2) * (1 - u)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        k = clamp((t - self.t0) / 0.75)
+        off, sq = self._y(k)
+        d = ImageDraw.Draw(fr)
+        sh = 0.4 + 0.6 * (1 + off)
+        rx, ry = self.size * 0.42 * sh, self.size * 0.09 * sh
+        by = self.cy + self.size * 0.55
+        d.ellipse((self.cx - rx, by - ry, self.cx + rx, by + ry), fill=mix(PAPER, (205, 200, 185), a * 0.8 * sh))
+        im = self.sp
+        w, h = im.width, im.height
+        im = im.resize((max(1, int(w * (2 - sq))), max(1, int(h * sq))), Image.LANCZOS)
+        ks = (t - self.t0 - 0.85) / 0.6
+        if self.shine and 0 < ks < 1:
+            im = _shine(im, ks)
+        if a < 1:
+            im.putalpha(im.getchannel('A').point(lambda v: int(v * a)))
+        y = self.cy + off * 260 - im.height / 2 + (h - im.height) / 2
+        fr.paste(im, (int(self.cx - im.width / 2), int(y)), im)
+
+
+class RollBlur(El):
+    """angka bergulir cepat dengan kabur gerak vertikal, berhenti dengan detak + kilau"""
+
+    def __init__(self, t0, cx, cy, a, b, dur=1.3, suffix='', size=80, color=GREEN, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.a, self.b, self.dur, self.suffix, self.size, self.color = cx, cy, a, b, dur, suffix, size, color
+
+    def register(self):
+        if self.sfx_on:
+            for i in range(10):
+                sfx(self.t0 + i * self.dur / 10, 'tick', 0, 0.25)
+            sfx(self.t0 + self.dur, 'ding', 0, 0.45)
+
+    def draw(self, fr, t):
+        al = self.fade(t)
+        u = clamp((t - self.t0) / self.dur)
+        v = int(round(self.a + (self.b - self.a) * eo(u)))
+        sp = tsprite(f'{v}{self.suffix}', 'kb', self.size, self.color).im
+        if u < 1:
+            f = max(1, int(1 + 9 * (1 - u)))
+            sp = sp.resize((sp.width, max(1, sp.height // f)), Image.BILINEAR).resize(sp.size, Image.BILINEAR)
+        kb = clamp((t - self.t0 - self.dur) / 0.35)
+        s = 1 + 0.18 * math.sin(kb * math.pi) if 0 < kb < 1 else 1
+        if s != 1:
+            sp = sp.resize((int(sp.width * s), int(sp.height * s)), Image.BICUBIC)
+        ks = (t - self.t0 - self.dur - 0.25) / 0.6
+        if 0 < ks < 1:
+            sp = _shine(sp, ks)
+        if al < 1:
+            sp.putalpha(sp.getchannel('A').point(lambda x: int(x * al)))
+        fr.paste(sp, (int(self.cx - sp.width / 2), int(self.cy - sp.height / 2)), sp)
+
+
+class GlowAr(El):
+    """kaligrafi Arab ditulis kanan-ke-kiri, lalu cahaya emas lembut di belakang + kilau"""
+
+    def __init__(self, t0, text, cx, cy, size=64, color=GREEN, dur=1.2, glow=(240, 200, 90), **kw):
+        super().__init__(t0, **kw)
+        self.txt = Txt(t0, text, cx, cy, size, fn='ar', color=color, dur=dur)
+        self.cx, self.cy, self.dur, self.glow = cx, cy, dur, glow
+
+    def register(self):
+        self.txt.out = self.out
+        self.txt.register()
+        if self.sfx_on:
+            sfx(self.t0 + self.dur + 0.1, 'ding', 0, 0.4)
+
+    def draw(self, fr, t):
+        self.txt.out, self.txt.dim = self.out, self.dim
+        L = _layer(fr)
+        self.txt.draw(L, t)
+        bb = L.getbbox()
+        if not bb:
+            return
+        sp = L.crop(bb)
+        kg = eo(clamp((t - self.t0 - self.dur) / 0.6))
+        if kg > 0:
+            g = sp.getchannel('A').filter(ImageFilter.GaussianBlur(14))
+            gl = Image.new('RGBA', sp.size, self.glow + (0,))
+            gl.putalpha(g.point(lambda v: int(min(255, v * 1.6) * kg * 0.8)))
+            pad = 20
+            G = Image.new('RGBA', (sp.width + pad * 2, sp.height + pad * 2), (0, 0, 0, 0))
+            G.paste(gl, (pad, pad), gl)
+            G = G.filter(ImageFilter.GaussianBlur(10))
+            fr.paste(G, (bb[0] - pad, bb[1] - pad), G)
+        ks = (t - self.t0 - self.dur - 0.3) / 0.7
+        if 0 < ks < 1:
+            sp = _shine(sp, ks, strength=170)
+        fr.paste(sp, bb[:2], sp)
+
+
+# ---------------------------------------------------------------- pembungkus umum untuk peningkatan otomatis
+class Wrap(El):
+    """gambar elemen anak ke lapisan terpisah lalu beri efek; sfx anak tidak didaftarkan ulang"""
+
+    def __init__(self, child, **kw):
+        super().__init__(child.t0, out=child.out, dim=child.dim, sfx_on=False)
+        self.c = child
+        self.z = child.z
+
+    def layer(self, fr, t):
+        self.c.out, self.c.dim = self.out, self.dim
+        if not self.c.active(t):
+            return None, None
+        L = _layer(fr)
+        self.c.draw(L, t)
+        bb = L.getbbox()
+        return (L.crop(bb), bb) if bb else (None, None)
+
+
+class FocusW(Wrap):
+    def __init__(self, child, dur=0.55):
+        super().__init__(child); self.dur = dur
+        sfx(self.t0, 'swoosh', 0.35, 0.3)
+
+    def draw(self, fr, t):
+        sp, bb = self.layer(fr, t)
+        if sp is None:
+            return
+        k = eo(clamp((t - self.t0) / self.dur))
+        if k < 1:
+            s = 1.35 - 0.35 * k
+            sp = sp.resize((max(1, int(sp.width * s)), max(1, int(sp.height * s))), Image.BICUBIC).filter(ImageFilter.GaussianBlur(10 * (1 - k)))
+            sp.putalpha(sp.getchannel('A').point(lambda v: int(v * k)))
+        ks = (t - self.t0 - self.dur - 0.1) / 0.6
+        if 0 < ks < 1:
+            sp = _shine(sp, ks)
+        cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
+        fr.paste(sp, (int(cx - sp.width / 2), int(cy - sp.height / 2)), sp)
+
+
+class GlowW(Wrap):
+    """cahaya emas lembut + kilau setelah teks Arab selesai ditulis"""
+
+    def __init__(self, child, done, glow=(240, 200, 90)):
+        super().__init__(child); self.done, self.glow = done, glow
+        sfx(done + 0.1, 'ding', 0, 0.3)
+
+    def draw(self, fr, t):
+        sp, bb = self.layer(fr, t)
+        if sp is None:
+            return
+        kg = eo(clamp((t - self.done) / 0.6)) * (self.c.fade(t) if hasattr(self.c, 'fade') else 1)
+        if kg > 0.02:
+            pad = 22
+            g = sp.getchannel('A').filter(ImageFilter.GaussianBlur(12))
+            G = Image.new('RGBA', (sp.width + pad * 2, sp.height + pad * 2), self.glow + (0,))
+            m = Image.new('L', G.size, 0); m.paste(g.point(lambda v: int(min(255, v * 1.5) * kg * 0.75)), (pad, pad))
+            G.putalpha(m.filter(ImageFilter.GaussianBlur(8)))
+            fr.paste(G, (bb[0] - pad, bb[1] - pad), G)
+        ks = (t - self.done - 0.25) / 0.7
+        if 0 < ks < 1:
+            sp = _shine(sp, ks, strength=160)
+        fr.paste(sp, bb[:2], sp)
+
+
+class DropW(Wrap):
+    """kartu/ikon jatuh dari atas dengan bayangan dan pantulan kecil"""
+
+    def __init__(self, child):
+        super().__init__(child)
+        sfx(self.t0 + 0.38, 'tick', 0, 0.3)
+
+    def draw(self, fr, t):
+        sp, bb = self.layer(fr, t)
+        if sp is None:
+            return
+        k = clamp((t - self.t0) / 0.7)
+        if k < 0.55:
+            off = -(1 - (k / 0.55) ** 2) * 200
+        else:
+            u = (k - 0.55) / 0.45
+            off = -math.sin(u * math.pi) * 18 * (1 - u)
+        cx = (bb[0] + bb[2]) / 2
+        by = bb[3] + 6
+        sh = clamp(1 + off / 200)
+        if k < 1:
+            d = ImageDraw.Draw(fr)
+            rx, ry = (bb[2] - bb[0]) * 0.42 * (0.4 + 0.6 * sh), 9 * (0.4 + 0.6 * sh)
+            d.ellipse((cx - rx, by - ry, cx + rx, by + ry), fill=mix(PAPER, (205, 200, 185), 0.7 * sh))
+        fr.paste(sp, (bb[0], int(bb[1] + off)), sp)

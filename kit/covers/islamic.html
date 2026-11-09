@@ -1,0 +1,68 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+:root{--g1:#f3d98b;--g2:#c9a14a;--g3:#8a6a26;--em:#0c3b34;--em2:#06221e;--cream:#fbf3dc}
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;font-family:Amiri,serif;color:var(--cream)}
+.ar{font-family:Amiri,serif;direction:rtl}
+.gold{padding-top:.35em;margin-top:-.35em;background:linear-gradient(180deg,#fff2c4 0%,#f3d98b 30%,#c9a14a 60%,#f0d07a 80%,#a8822f 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cap{letter-spacing:.32em;text-transform:uppercase;font-weight:700}
+.ab{position:absolute}
+</style></head><body><div id="c"></div>
+<script>
+const v = new URLSearchParams(location.search).get('v') || 'yt';
+const W = v === 'yt' ? 1920 : 1080, H = v === 'yt' ? 1080 : 1920;
+document.body.style.width = W + 'px'; document.body.style.height = H + 'px';
+const GD = `<linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset=".35" stop-color="#f3d98b"/><stop offset=".65" stop-color="#c9a14a"/><stop offset="1" stop-color="#8a6a26"/></linearGradient>
+ <radialGradient id="glow"><stop offset="0" stop-color="#ffe7a0" stop-opacity=".95"/><stop offset=".4" stop-color="#f3c25a" stop-opacity=".45"/><stop offset="1" stop-color="#f3c25a" stop-opacity="0"/></radialGradient>`;
+// pola girih bintang delapan
+const star8 = (r, sw, c) => { const p = []; for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, rr = i % 2 ? r * .55 : r; p.push((Math.cos(a) * rr).toFixed(1) + ' ' + (Math.sin(a) * rr).toFixed(1)); } return `<path d="M${p.join(' L')}Z" fill="none" stroke="${c}" stroke-width="${sw}"/>`; };
+const pattern = (op) => `<svg width="100%" height="100%" style="position:absolute;inset:0;opacity:${op}"><defs><pattern id="gr" width="140" height="140" patternUnits="userSpaceOnUse"><g transform="translate(70 70)" fill="none" stroke="#c9a14a" stroke-width="1.6">${star8(46, 1.6, '#c9a14a')}<rect x="-24" y="-24" width="48" height="48" transform="rotate(22.5)"/><circle r="12"/></g><g fill="none" stroke="#c9a14a" stroke-width="1.6">${[[0, 0], [140, 0], [0, 140], [140, 140]].map(([x, y]) => `<g transform="translate(${x} ${y})">${star8(26, 1.6, '#c9a14a')}</g>`).join('')}<path d="M70 24 V0 M70 116 V140 M24 70 H0 M116 70 H140"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#gr)"/></svg>`;
+// lentera gantung
+const lantern = (x, len, s, d = 0) => `<g transform="translate(${x} 0)"><line x1="0" y1="0" x2="0" y2="${len}" stroke="url(#gd)" stroke-width="3"/><g transform="translate(0 ${len}) scale(${s})">
+  <circle cy="120" r="150" fill="url(#glow)"/><path d="M-22 0 H22 L30 22 H-30 Z" fill="url(#gd)"/><path d="M-40 22 H40 L54 70 L40 190 H-40 L-54 70 Z" fill="#1b3b2f" stroke="url(#gd)" stroke-width="5"/>
+  <path d="M-40 22 L0 70 L40 22 M-54 70 H54 M-40 190 L0 140 L40 190 M0 70 V190" stroke="url(#gd)" stroke-width="3" fill="none"/><ellipse cx="0" cy="118" rx="18" ry="34" fill="#ffd77a" opacity=".95"/>
+  <path d="M-40 190 H40 L26 214 H-26 Z" fill="url(#gd)"/><path d="M0 214 V250" stroke="url(#gd)" stroke-width="4"/><circle cy="256" r="8" fill="url(#gd)"/></g></g>`;
+// lengkung mihrab ogee
+const archPath = (x, y, w, h) => { const r = w / 2; return `M${x} ${y + h} V${y + r * .9} Q${x} ${y + r * .25} ${x + r * .55} ${y + r * .05} Q${x + r * .9} ${y - r * .1} ${x + r} ${y - r * .55} Q${x + r * 1.1} ${y - r * .1} ${x + r * 1.45} ${y + r * .05} Q${x + w} ${y + r * .25} ${x + w} ${y + r * .9} V${y + h} Z`; };
+const frame = () => { const m = 26, c = (x, y, sx, sy) => `<g transform="translate(${x} ${y}) scale(${sx} ${sy})"><path d="M0 120 V0 H120" fill="none" stroke="url(#gd)" stroke-width="4"/><path d="M16 120 V16 H120" fill="none" stroke="url(#gd)" stroke-width="2"/><g transform="translate(16 16)">${star8(22, 3, '#f3d98b')}</g><path d="M30 70 Q46 46 70 30" fill="none" stroke="url(#gd)" stroke-width="2.5"/></g>`;
+  return `<rect x="${m}" y="${m}" width="${W - 2 * m}" height="${H - 2 * m}" fill="none" stroke="url(#gd)" stroke-width="3"/><rect x="${m + 14}" y="${m + 14}" width="${W - 2 * m - 28}" height="${H - 2 * m - 28}" fill="none" stroke="url(#gd)" stroke-width="1.4"/>${c(m, m, 1, 1)}${c(W - m, m, -1, 1)}${c(W - m, H - m, -1, -1)}${c(m, H - m, 1, -1)}`; };
+const moon = (x, y, r) => `<g transform="translate(${x} ${y})"><circle r="${r}" fill="url(#gd)"/><circle cx="${r * .42}" cy="${-r * .18}" r="${r * .86}" fill="#0b302a"/></g>` + [[-1.6, -.6], [1.9, .9], [-2.4, 1.4], [2.6, -1.2]].map(([a, b], i) => `<g transform="translate(${x + a * r} ${y + b * r}) scale(${.35 + i * .06})">${star8(18, 4, '#f3d98b')}</g>`).join('');
+// medali foto
+const medal = (cx, cy, r) => `<div class="ab" style="left:${cx - r}px;top:${cy - r}px;width:${2 * r}px;height:${2 * r}px;border-radius:50%;padding:${r * .08}px;background:conic-gradient(#fff2c4,#c9a14a,#8a6a26,#f3d98b,#c9a14a,#fff2c4);box-shadow:0 0 40px rgba(243,217,139,.35)"><div style="width:100%;height:100%;border-radius:50%;border:${r * .05}px solid #0c3b34;background:url(file:///home/claude/covers/user_photo.jpg) 46% 56%/150% auto no-repeat"></div></div>`;
+let h = `<div style="position:relative;width:${W}px;height:${H}px;overflow:hidden;background:radial-gradient(ellipse at 50% ${v === 'yt' ? 45 : 40}%,#145247 0%,#0c3b34 45%,#06221e 100%)">${pattern(.22)}`;
+if (v === 'yt') {
+  const ax = 560, ay = 290, aw = 800, ah = 720;
+  h += `<svg class="ab" style="left:0;top:0" width="${W}" height="${H}"><defs>${GD}<linearGradient id="ai" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a2e28"/><stop offset="1" stop-color="#103f37"/></linearGradient></defs>
+   ${frame()}${lantern(330, 120, 1.0)}${lantern(1590, 120, 1.0)}${lantern(200, 50, .7)}${lantern(1720, 50, .7)}
+   <path d="${archPath(ax - 22, ay - 22, aw + 44, ah + 22)}" fill="none" stroke="url(#gd)" stroke-width="3"/>
+   <path d="${archPath(ax, ay, aw, ah)}" fill="url(#ai)" stroke="url(#gd)" stroke-width="10"/>
+   <g opacity=".5">${[0, 1, 2, 3, 4].map(i => `<g transform="translate(${ax + 120 + i * 140} ${ay + ah - 60})">${star8(30, 2, '#c9a14a')}</g>`).join('')}</g>
+   ${moon(960, 90, 34)}</svg>
+   <div class="ab cap gold" style="left:0;right:0;top:928px;text-align:center;font-size:18px">Seri Kajian Al-Qur'an · Episode 01</div>
+   <div class="ab ar gold" style="left:0;right:0;top:395px;text-align:center;font-size:160px;font-weight:700;line-height:1.45;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5))">حُرْمَةُ الْقُرْآنِ</div>
+   <div class="ab" style="left:0;right:0;top:660px;text-align:center;font-size:72px;font-weight:700;letter-spacing:.06em;color:#fbf3dc">HURMATUL QUR'AN</div>
+   <div class="ab" style="left:0;right:0;top:765px;text-align:center;font-size:38px;font-style:italic;color:#f3d98b">kemuliaan Al-Qur'an &amp; adab kita kepadanya</div>
+   <div class="ab ar gold" style="left:0;right:0;top:830px;text-align:center;font-size:52px">خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ</div>
+   ${medal(1640, 860, 105)}
+   <div class="ab" style="left:1420px;width:440px;top:975px;text-align:center"><div class="cap" style="font-size:16px;color:#f3d98b">disampaikan oleh</div><div style="font-size:34px;font-weight:700;letter-spacing:.12em">ALUR ZIYADAHKU</div></div>
+   <div class="ab" style="left:80px;top:930px"><div class="cap gold" style="font-size:20px">@alurziyadahku</div><div style="font-size:30px;font-weight:700;color:#fbf3dc;margin-top:6px">✦ Tonton sampai habis ✦</div></div>`;
+} else {
+  const ax = 150, ay = 470, aw = 780, ah = 1010;
+  h += `<svg class="ab" style="left:0;top:0" width="${W}" height="${H}"><defs>${GD}<linearGradient id="ai" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a2e28"/><stop offset="1" stop-color="#103f37"/></linearGradient></defs>
+   ${frame()}${lantern(150, 90, .9)}${lantern(930, 90, .9)}${lantern(330, 30, .6)}${lantern(750, 30, .6)}
+   <path d="${archPath(ax - 22, ay - 22, aw + 44, ah + 22)}" fill="none" stroke="url(#gd)" stroke-width="3"/>
+   <path d="${archPath(ax, ay, aw, ah)}" fill="url(#ai)" stroke="url(#gd)" stroke-width="10"/>
+   <g opacity=".5">${[0, 1, 2, 3].map(i => `<g transform="translate(${ax + 150 + i * 160} ${ay + ah - 60})">${star8(30, 2, '#c9a14a')}</g>`).join('')}</g>
+   ${moon(540, 120, 34)}</svg>
+   <div class="ab cap gold" style="left:0;right:0;top:1500px;text-align:center;font-size:20px">Seri Kajian Al-Qur'an · Episode 01</div>
+   <div class="ab ar gold" style="left:0;right:0;top:570px;text-align:center;font-size:140px;font-weight:700;line-height:1.45;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5))">حُرْمَةُ الْقُرْآنِ</div>
+   <div class="ab" style="left:0;right:0;top:830px;text-align:center;font-size:78px;font-weight:700;letter-spacing:.06em;color:#fbf3dc;line-height:1.05">HURMATUL<br>QUR'AN</div>
+   <div class="ab" style="left:180px;right:180px;top:1020px;text-align:center;font-size:40px;font-style:italic;color:#f3d98b">kemuliaan Al-Qur'an &amp; adab kita kepadanya</div>
+   <div class="ab ar gold" style="left:0;right:0;top:1150px;text-align:center;font-size:50px">خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ</div>
+   ${medal(540, 1340, 115)}
+   <div class="ab" style="left:0;right:0;top:1590px;text-align:center"><div class="cap" style="font-size:20px;color:#f3d98b">disampaikan oleh</div><div style="font-size:52px;font-weight:700;letter-spacing:.14em;margin-top:4px">ALUR ZIYADAHKU</div><div class="cap gold" style="font-size:22px;margin-top:10px">@alurziyadahku</div></div>`;
+}
+document.getElementById('c').innerHTML = h + '</div>';
+</script></body></html>

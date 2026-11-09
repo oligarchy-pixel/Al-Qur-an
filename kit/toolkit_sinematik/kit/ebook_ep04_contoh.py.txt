@@ -1,0 +1,158 @@
+from ebook_build import *
+
+TITLE = "Hurmatul Qur'an 04: Al-Fatihah & Rahasia Basmalah"
+LB = "HURMATUL QUR'AN · 04"
+BAS = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ'
+BAS_T = '"Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang."'
+
+FAT = [  # (no, ikon, isi Al-Qur'an, lafaz Al-Fatihah)
+ (1, 'sparkle', "Allah dan pujian-pujian kepada-Nya", 'الْحَمْدُ لِلَّهِ'),
+ (2, 'tree', "Makhluk: langit, bumi, laut, surga, neraka, jin, malaikat, manusia", 'رَبِّ الْعَالَمِينَ'),
+ (3, 'gift', "Pemberian Allah: ampunan, rahmat, nikmat, rezeki, keselamatan", 'الرَّحْمَٰنِ الرَّحِيمِ'),
+ (4, 'scale', "Kubur, kiamat, surga, neraka, mizan, hisab, hari akhir", 'مَالِكِ يَوْمِ الدِّينِ'),
+ (5, 'mosque', "Syariat, tarekat dan hakikat", 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ'),
+ (6, 'hands_dua', "Bermacam-macam doa", 'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ'),
+ (7, 'people', "Para nabi, rasul, wali dan orang yang dikasihi Allah", 'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ'),
+ (8, 'warning', "Orang-orang kafir dan orang-orang yang sesat", 'غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ'),
+]
+
+AYAT = [BAS, 'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', 'الرَّحْمَٰنِ الرَّحِيمِ', 'مَالِكِ يَوْمِ الدِّينِ',
+        'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', 'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ',
+        'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ']
+
+
+def fat_rows(items):
+    out = ''
+    for n, ic, isi, lafaz in items:
+        out += f'''<div class="card" style="display:flex;gap:3mm;align-items:center;padding:1.2mm 3mm;margin:1.0mm 0">
+<div class="num" style="width:7mm;height:7mm;font-size:9pt">{n}</div>
+<div style="flex:1"><p style="margin:0;font-size:8.6pt">{isi}</p>
+<div class="ar" style="font-size:12pt;line-height:1.35;text-align:right">{esc(lafaz)}</div></div></div>'''
+    return out
+
+
+def ayat_rows():
+    out = ''
+    for i, a in enumerate(AYAT):
+        hl = ' g' if i == 0 else ''
+        out += f'''<div class="card{hl}" style="display:flex;gap:3mm;align-items:center;padding:1.8mm 3mm;margin:1.6mm 0">
+<div class="num" style="width:7.5mm;height:7.5mm;font-size:9.5pt">{i + 1}</div>
+<div class="ar" style="flex:1;font-size:{15 if i < 6 else 12.5}pt;line-height:1.5;text-align:right">{esc(a)}</div></div>'''
+    return out
+
+
+def pages():
+    P = []
+    P.append(f'''<section class="page cover">
+<div class="label">{LB}</div>
+<div class="orn"><span></span></div>
+<div class="ar" style="margin-top:6mm"><span class="bigring">بِسْمِ اللَّهِ</span></div>
+<h1>Al-Fatihah &amp;<br>Rahasia Basmalah</h1>
+<div class="sub">nama-nama Ummul Qur'an, basmalah menurut empat imam,<br>dan keutamaan memulai dengan nama Allah</div>
+<div class="icons" style="margin-top:8mm">{icon('mushaf')}{icon('book')}{icon('hands_dua')}{icon('surga')}</div>
+<div class="foot">E-book pendamping video kajian · Episode 04</div>
+</section>''')
+    toc = [("Ummul Qur'an &amp; isinya", 3), ("Nama-nama lain Al-Fatihah", 4), ("Wajib dihafal, 156 huruf", 5),
+           ("Diturunkan dua kali", 6), ("Basmalah menurut Imam Asy-Syafi'i", 6), ("Basmalah menurut Imam Malik", 8),
+           ("Imam Abu Hanifah &amp; Imam Ahmad", 9), ("Makna basmalah", 10), ("Keutamaan basmalah", 11),
+           ("Ringkasan &amp; ceklis", 12), ("Catatan tadabburku", 13)]
+    tl = ''.join(f'<li><span>{i+1}. {t}</span><span class="d"></span><b>{p}</b></li>' for i, (t, p) in enumerate(toc))
+    P.append(page(f'''
+<span class="label">PENGANTAR</span>
+{ar(BAS, 17)}
+<p>Alhamdulillah, kita lanjutkan kembali kajian tentang Al-Qur'anul Karim. Kali ini kita mengenal lebih dekat surah yang paling sering kita baca: <b>Surah Al-Fatihah</b>, yang disebut <span class="hlg">Ummul Qur'an</span>.</p>
+<p>Kita juga akan melihat bagaimana para imam memandang <span class="hl">basmalah</span>, apa maknanya, dan mengapa setiap perkara yang baik hendaknya dimulai dengannya.</p>
+<span class="label" style="margin-top:2mm">DAFTAR ISI</span>
+<ul class="toc" style="font-size:10pt">{tl}</ul>
+''', LB, 2))
+    P.append(page(f'''{chead(1, "Ummul Qur'an &amp; isinya", 'mushaf')}<div class="orn"><span></span></div>
+<p>Surah pertama di dalam Al-Qur'an adalah <b>Al-Fatihah</b>, artinya <b>pembuka</b>. Ia juga dinamakan <span class="ar" style="font-size:14pt">أُمُّ الْقُرْآنِ</span>, <span class="hlg">induk Al-Qur'an</span>, karena menurut para ulama seluruh isi Al-Qur'an dari awal sampai akhir tergambar di dalamnya:</p>
+{fat_rows(FAT)}''', LB, 3))
+    P.append(page(f'''{chead(2, 'Nama-nama lain Al-Fatihah', 'door')}<div class="orn"><span></span></div>
+<p class="muted">Banyaknya nama menunjukkan kemuliaan dan keagungan Surah Al-Fatihah.</p>
+{card("As-Sab'ul Matsani", ar('السَّبْعُ الْمَثَانِي', 18) + "<p style='text-align:center'>tujuh ayat yang <b>diulang-ulang</b></p>", 'g')}
+{card('Al-Wafiyah: surah yang sempurna', ar('الْوَافِيَة', 17) + "<p>Al-Fatihah <b>tidak bisa dipotong-potong</b>; dibaca sekaligus. Dalam salat, bacaannya mesti sempurna dari awal sampai akhir.</p>", 'g')}
+{card('Al-Kafiyah: surah yang cukup', ar('الْكَافِيَة', 17) + "<p>Kalau dalam salat kita hanya membaca Surah Al-Fatihah, maka <b>sudah cukup</b>.</p>", 'g')}
+{card('Asy-Syifa: penyembuh &amp; penawar', ar('الشِّفَاء', 16) + "<p>Al-Fatihah yang dibacakan untuk orang sakit akan menyembuhkan <b>dengan izin Allah</b>; kalau tidak, sekurang-kurangnya meringankan.</p>", 'y')}
+''', LB, 4))
+    P.append(page(f'''{chead(3, 'Wajib dihafal, 156 huruf', 'pen')}<div class="orn"><span></span></div>
+{card('Satu-satunya surah yang wajib', "<p>Al-Fatihah terdiri dari <b>tujuh ayat</b>, dan ia satu-satunya surah yang <span class='hl'>wajib dipelajari</span> oleh seluruh muslim dan muslimah, karena <b>salat tidak sah</b> jika tidak membacanya.</p>", 'r')}
+<div class="two">{card('Surah lain', '<p>Belum hafal atau belum bisa membaca surah lain: <b>tidak mengapa</b>.</p>')}{card('Al-Fatihah', '<p><b>Mesti</b> bisa dibaca dan <b>mesti</b> dihafal.</p>', 'g')}</div>
+{card('156 huruf', "<p>Dihitung dengan tasydid dan harakatnya, Al-Fatihah berjumlah <span class='hl'>156 huruf</span>. Bedanya ada pada ayat ke-4: bila <b>ma</b>-nya (huruf mim, <span class='ar' style='font-size:13pt'>مَ</span>) dibaca <b>pendek</b> (<span class='ar' style='font-size:13pt'>مَلِكِ</span>) dihitung <b>155</b>; bila dibaca <b>panjang</b> (<span class='ar' style='font-size:13pt'>مَالِكِ</span>) dihitung <b>156</b>.</p>", 'y')}
+{ck(['Tidak boleh kurang: satu huruf saja kurang, bacaan tidak sah', 'Bila bacaan Al-Fatihah tidak sah, salat pun menjadi kurang', 'Maka bacalah dengan <b>lengkap</b>'])}
+''', LB, 5))
+    P.append(page(f'''{chead(4, 'Diturunkan dua kali', 'kaaba')}<div class="orn"><span></span></div>
+<p>Para ulama tafsir mengatakan Surah Al-Fatihah <b>diturunkan dua kali</b>:</p>
+<div class="two">{card('Pertama: Makkah', '<p>maka ia disebut surah <b>Makkiyah</b></p>', 'g')}{card('Kedua: Madinah', '<p>maka ia disebut juga surah <b>Madaniyah</b></p>', 'g')}</div>
+{chead(5, "Basmalah menurut Imam Asy-Syafi'i", 'book')}
+{dalil(BAS, BAS_T, "ayat pertama Al-Fatihah", 18)}
+<p>Menurut <b>Imam Asy-Syafi'i</b>, basmalah <span class="hlg">termasuk ayat Surah Al-Fatihah</span>, maka bacaan Al-Fatihah mesti dimulai dengannya.</p>
+<div class="two">{card('Dibaca nyaring', '<p>salat <b>Subuh, Magrib, Isya</b></p>', 'g')}{card('Dibaca perlahan', '<p>salat <b>Zuhur, Asar</b></p>', 'y')}</div>
+''', LB, 6))
+    P.append(page(f'''<span class="label">TUJUH AYAT AL-FATIHAH · MENURUT IMAM ASY-SYAFI'I</span>
+<p style="margin-top:3mm">Ayat pertama adalah basmalah, ayat ketujuh adalah <i>shirathal ladzina…</i> sampai akhir:</p>
+{ayat_rows()}''', LB, 7))
+    P.append(page(f'''{chead(6, 'Basmalah menurut Imam Malik', 'scroll')}<div class="orn"><span></span></div>
+<p>Menurut <b>Imam Malik</b>, basmalah <b>hanya satu kali</b> terdapat di dalam Al-Qur'an, yaitu dalam surat Nabi Sulaiman 'alaihissalam kepada Ratu Balqis, dan <span class="hl">bukan bagian dari Surah Al-Fatihah</span>.</p>
+{dalil(['إِنَّهُ مِنْ سُلَيْمَانَ وَإِنَّهُ بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 'أَلَّا تَعْلُوا عَلَيَّ وَأْتُونِي مُسْلِمِينَ'], '"Sesungguhnya surat itu dari Sulaiman, dan sesungguhnya isinya: Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang. Janganlah kamu berlaku sombong terhadapku dan datanglah kepadaku sebagai orang-orang yang berserah diri."', 'QS. An-Naml: 30-31', 16)}
+{card('Selain itu', '<p>basmalah hanya sebagai <b>pemisah</b> antara satu surah dengan surah yang lain.</p>', 'y')}
+{card('Dalam mazhab Maliki', "<p>Basmalah <b>tidak dibaca</b> dalam salat. Setelah takbiratul ihram, <i>Allahu Akbar</i>, langsung membaca <i>Alhamdulillahi Rabbil 'Alamin</i>.</p>", 'r')}
+''', LB, 8))
+    P.append(page(f'''{chead(7, 'Imam Abu Hanifah &amp; Imam Ahmad', 'book')}<div class="orn"><span></span></div>
+{card('Imam Abu Hanifah', "<p>Basmalah adalah <b>bagian dari Al-Qur'an</b>, tetapi <b>bukan ayat Al-Fatihah</b>. Dalam salat, basmalah dibaca <b>perlahan</b>, kemudian <i>Alhamdulillah</i> dibaca nyaring.</p>")}
+{card('Imam Ahmad bin Hanbal', "<p>Basmalah <b>juga ayat Al-Fatihah</b>, tetapi dibaca <b>perlahan</b>, kemudian <i>Alhamdulillahi Rabbil 'Alamin</i> dibaca nyaring.</p>")}
+<span class="label">RINGKASAN EMPAT IMAM</span>
+<div class="card" style="font-size:9.4pt;margin-top:2mm">
+<p><b>Imam Asy-Syafi'i</b>: ayat Al-Fatihah · nyaring pada salat jahar</p>
+<p><b>Imam Malik</b>: bukan ayat Al-Fatihah · tidak dibaca</p>
+<p><b>Imam Abu Hanifah</b>: ayat Al-Qur'an, bukan Al-Fatihah · perlahan</p>
+<p><b>Imam Ahmad</b>: ayat Al-Fatihah · perlahan</p>
+</div>
+{card('Tidak menjadi masalah', '<p>Kalau kita ke luar negeri dan menjumpai imam yang membaca seperti itu, <span class="hlg">tidak menjadi persoalan</span>.</p>', 'g')}
+''', LB, 9))
+    P.append(page(f'''{chead(8, 'Makna basmalah', 'lamp')}<div class="orn"><span></span></div>
+{dalil(BAS, BAS_T, 'ayat pertama Al-Fatihah', 18)}
+<p>Dalam kitab <b>nahwu</b>, setiap huruf jar seperti <span class="ar" style="font-size:15pt">بِـ</span> mesti memiliki <i>ta'alluq</i>, yaitu <b>hubungan</b>:</p>
+<div class="two">{card('aku membaca', ar('أَقْرَأُ', 20), 'g')}{card('aku memulai', ar('أَبْتَدِئُ', 20), 'g')}</div>
+<div class="two">{card('Hendak makan', '<p>"Dengan nama Allah…, <b>aku makan</b>."</p>')}{card('Hendak minum', ar('أَشْرَبُ', 15) + '<p>"…, <b>aku minum</b>."</p>')}</div>
+<p>Setiap perbuatan kita, membaca Al-Qur'an, berdiri, salat, makan, minum, bernapas, <span class="hl">tidak lepas dari basmalah</span>.</p>
+''', LB, 10))
+    P.append(page(f'''{chead(9, 'Keutamaan basmalah', 'heart')}<div class="orn"><span></span></div>
+<p class="muted">Banyak sabda Rasulullah ﷺ tentang basmalah, mulai dari hadis yang kualitasnya sahih sampai yang daif. Di antaranya yang disebut dalam kajian:</p>
+{card('Hadis: kurang berkah', '<p>"Setiap sesuatu yang tidak dimulai dengan basmalah, maka perkara itu akan <b>kurang berkah</b>." Makan dan minum tanpa basmalah, kurang berkahnya.</p>', 'r')}
+{card('Hadis: hidup beruntung', '<p>Siapa yang ingin hidupnya beruntung, dan ingin meninggal digolongkan bersama para syuhada fi sabilillah, hendaknya <b>memulai sesuatu yang baik dengan basmalah</b>.</p>', 'g')}
+{card('Hadis: surga berkata', '<p>Bila kita mengucapkan basmalah, surga berkata: <i>"Wahai Tuhan, hamba-Mu si Fulan bin Fulan mengucapkan basmalah. Jauhkanlah dia dari api neraka dan masukkanlah dia kepadaku."</i></p>', 'y')}
+''', LB, 11))
+    P.append(page(f'''
+<span class="label">RINGKASAN</span>
+<div class="card" style="font-size:9.6pt;margin-top:3mm">
+<p><b>Al-Fatihah</b>: pembuka, Ummul Qur'an, As-Sab'ul Matsani, Al-Wafiyah, Al-Kafiyah, Asy-Syifa</p>
+<p><b>7 ayat, 156 huruf</b>: wajib dihafal, satu huruf pun tidak boleh kurang</p>
+<p><b>Turun dua kali</b>: Makkah dan Madinah</p>
+<p><b>Basmalah</b>: berbeda pendapat empat imam, dan itu tidak menjadi masalah</p>
+<p><b>Makna</b>: dengan nama Allah… aku membaca, aku memulai</p>
+<p><b>Keutamaan</b>: berkah, beruntung, surga berkata</p>
+</div>
+<span class="label">CEKLIS HARIANKU</span>
+<div class="card" style="font-size:9.8pt;margin-top:2mm">
+<p><span class="box"></span>Memeriksa bacaan Al-Fatihah kepada guru</p>
+<p><span class="box"></span>Membaca basmalah sebelum makan dan minum</p>
+<p><span class="box"></span>Memulai belajar dan bekerja dengan basmalah</p>
+<p><span class="box"></span>Berlapang dada dengan perbedaan pendapat para imam</p>
+</div>''', LB, 12))
+    P.append(page(f'''
+<span class="label">CATATAN TADABBURKU</span>
+<p class="muted" style="margin-top:3mm">Perbuatan apa yang paling sering aku mulai tanpa basmalah? Tulis di sini:</p>
+<div class="note-lines"></div>
+{ar('اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', 18)}
+<p style="text-align:center" class="muted">"Tunjukilah kami jalan yang lurus" (QS. Al-Fatihah: 6)</p>''', LB, 13))
+    P.append(f'''<section class="page cover dark">
+<div class="label">{LB}</div>
+<div class="ar" style="margin-top:22mm;font-size:24pt">{BAS}</div>
+<p class="sub" style="margin-top:3mm">Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang.</p>
+<div class="orn" style="margin:10mm 15mm"><span></span></div>
+<p style="font-size:11pt">Basmalah adalah permulaan tiap-tiap<br>sesuatu yang baik dan membawa keberkahan.</p>
+<p class="sub" style="margin-top:8mm">Insya Allah, sampai jumpa di episode berikutnya.</p>
+<div class="foot">Kajian Hurmatul Qur'an</div>
+</section>''')
+    return P

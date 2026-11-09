@@ -1,0 +1,105 @@
+"""Peningkatan animasi v2 otomatis untuk naskah lama (BASE=script / script2)"""
+import zlib, importlib, os
+import engine
+from engine import *
+
+def _wrap(cls, keys):
+    orig = cls.__init__
+    def init(self, *a, **kw):
+        orig(self, *a, **kw)
+        for i, k in enumerate(['t0'] + keys):
+            if k in kw: setattr(self, '_' + k, kw[k])
+            elif i < len(a): setattr(self, '_' + k, a[i])
+    cls.__init__ = init
+_wrap(Card, ['cx', 'cy', 'w', 'h', 'icon'])
+_wrap(Icon, ['name'])
+_wrap(Txt, ['text'])
+
+S = importlib.import_module(os.environ.get('BASE', 'script'))
+ELS, SCENES, TOTAL = S.ELS, S.SCENES, S.TOTAL
+
+FX = {'heart': 'beat', 'warning': 'beat', 'drop': 'drip', 'drop_r': 'drip', 'sparkle': 'twinkle', 'star': 'twinkle',
+      'bulb': 'twinkle', 'face': 'wiggle', 'speech': 'wiggle', 'hand': 'wiggle', 'flame': 'wiggle', 'pen': 'wiggle',
+      'music': 'wiggle', 'mushaf': 'float', 'book': 'float', 'eye': 'float', 'ear': 'float', 'mosque': 'float',
+      'loop': 'float', 'market': 'float', 'people': 'float', 'person': 'float', 'shield': 'float', 'kaaba': 'float'}
+def fx_for(name, salt):
+    if name in FX: return FX[name]
+    return 'float' if zlib.crc32(str(salt).encode()) % 2 else None
+
+def add(el, out):
+    el.out = out; ELS.append(el); el.register()
+
+def ar_span(text, word, cx, size):
+    f = font('ar', size); kw = dict(direction='rtl', language='ar')
+    words = text.split(' '); idx = len(words) - 1 - words[::-1].index(word)
+    full = f.getlength(text, **kw); left = cx - full / 2
+    after = ' '.join(words[idx + 1:])
+    off = (f.getlength(after, **kw) + f.getlength(' ')) if after else 0
+    return left + off, left + off + f.getlength(word, **kw)
+
+for el in list(ELS):
+    if type(el) is Icon:
+        el.__class__ = Icon2; el.name = getattr(el, '_name', None); el.fx = fx_for(el.name, el.t0)
+    elif type(el) is Card:
+        el.__class__ = Card2; el.fx = fx_for(getattr(el, '_icon', None), el.t0)
+    elif type(el) is Mark and el.kind == 'check':
+        add(Burst(el.t0 + 0.15, el.cx, el.cy, n=8, r=70), el.out)
+    elif (type(el) is Txt and el.ar and el.mode == 'write' and el.size >= 34 and len(el.sp.bands) == 1
+          and el.out and el.out - (el.t0 + el.dur) > 1.6 and el.rot == 0):
+        txt = el._text.strip()
+        word = txt.split(' ')[-1]
+        if len(txt.split(' ')) >= 2 and len(word) >= 3:
+            x0, x1 = ar_span(txt, word, el.cx, el.size)
+            m = Marker(el.t0 + el.dur + 0.1, x0 - 4, x1 + 4, el.cy + 6, h=int(el.size * 1.05)); m.dim = el.dim
+            add(m, el.out)
+
+# transisi balik halaman di setiap pergantian adegan
+for sc in SCENES[1:]:
+    add(PageTurn(sc['t0']), None)
+
+# kamera otomatis per adegan
+def bbox(els):
+    xs0, ys0, xs1, ys1 = [], [], [], []
+    for e in els:
+        sp = getattr(e, 'sp', None)
+        if isinstance(e, Box):
+            x0, y0, x1, y1 = e.b
+        elif sp is not None and hasattr(e, 'cx'):
+            w = sp.w if hasattr(sp, 'w') else sp.width
+            h = sp.h if hasattr(sp, 'h') else sp.height
+            x0, y0, x1, y1 = e.cx - w / 2, e.cy - h / 2, e.cx + w / 2, e.cy + h / 2
+        else:
+            continue
+        xs0.append(x0); ys0.append(y0); xs1.append(x1); ys1.append(y1)
+    if not xs0: return None
+    return min(xs0), min(ys0), max(xs1), max(ys1)
+
+def frame_for(els):
+    b = bbox(els)
+    if not b: return 1.0, 360, 640
+    x0, y0, x1, y1 = b
+    z = min(1.16, 690 / (x1 - x0 + 40), 1180 / (y1 - y0 + 80))
+    if z < 1.04: return 1.0, 360, 640
+    return z, (x0 + x1) / 2, (y0 + y1) / 2
+
+CAM = []
+for sc in SCENES:
+    t0, t1 = sc['t0'], sc['t1']
+    if t1 - t0 < 5:
+        CAM += [(t0, 1.0, 360, 640), (t1 - 0.05, 1.0, 360, 640)]
+        continue
+    els = [e for e in sc['els'] if not isinstance(e, (PageTurn, Burst, Marker, Line, Mark, Ticks))]
+    dims = sorted({e.dim for e in sc['els'] if e.dim})
+    split = dims[0] if dims else (t0 + t1) / 2
+    A_ = [e for e in els if e.t0 < split]
+    B_ = [e for e in els if e.t0 >= split]
+    zA, xA, yA = frame_for(A_)
+    keys = [(t0, 1.0, 360, 640), (t0 + 1.2, zA, xA, yA)]
+    if B_ and split - 0.8 > t0 + 1.2 and t1 - 1.0 > split + 0.9:
+        zB, xB, yB = frame_for(B_ + A_ if not dims else B_)
+        keys += [(split - 0.5, zA, xA, yA), (split + 0.9, zB, xB, yB), (t1 - 0.8, zB, xB, yB)]
+    else:
+        keys += [(t1 - 0.8, zA, xA, yA)]
+    keys += [(t1 - 0.15, 1.0, 360, 640)]
+    CAM += keys
+CAM.sort(key=lambda k: k[0])

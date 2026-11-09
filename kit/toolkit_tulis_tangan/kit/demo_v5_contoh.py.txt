@@ -1,0 +1,74 @@
+"""Demo animasi v5 'pembawa pesan' (dari video contoh ke-6) dalam gaya Zamrud Kertas"""
+from engine import *
+
+ELS = []; SCENES = []; CUR = None
+TOTAL = 44.0
+AR = dict(fn='ar')
+
+
+def scene(t0, t1, wh=True):
+    global CUR
+    CUR = {'t0': t0, 't1': t1, 'els': []}; SCENES.append(CUR)
+    if wh:
+        sfx(t0, 'whoosh', 0, 0.55)
+
+
+def A(el):
+    if el.out is None:
+        el.out = CUR['t1']
+    CUR['els'].append(el); ELS.append(el); el.register(); return el
+
+
+def AA(els):
+    return [A(e) for e in els]
+
+
+# 1 setiap jawaban ada pembawa pesannya
+scene(0, 6.45, wh=False)
+A(Reveal(0.2, 'Setiap jawaban ada pembawa pesannya.', 360, 300, 34, per=0.18, hl=['pembawa', 'pesannya.']))
+A(Gateway(1.0, 360, 560, label='Rasulullah ﷺ', qin='?', qout='قُلْ', n=3, gap=1.0))
+A(Txt(5.0, 'kecuali satu?', 360, 800, 40, color=RED, mode='pop'))
+# 2 orang-orang datang bertanya
+scene(6.5, 12.95)
+A(DotTrail(6.6, 80, 640, 360, 'Rasulullah ﷺ', size=24))
+A(Txt(6.8, 'orang-orang datang bertanya', 360, 290, 26, fn='kr'))
+cards = [('moon', 'bulan sabit'), ('drop', 'khamar'), ('people', 'anak yatim'), ('sparkle', 'roh')]
+for i, (ic, lb) in enumerate(cards):
+    A(Card(8.0 + i * 0.6, 135 + i * 150, 580, 130, 140, icon=ic, label=lb, isize=60, lsize=18))
+A(CrossOut(11.4, 75, 515, 195, 645)); A(CrossOut(11.6, 225, 515, 345, 645))
+A(Txt(11.6, 'semua dijawab lewat beliau', 360, 760, 28, color=GREEN))
+# 3 turus يَسْأَلُونَكَ lalu قُلْ
+scene(13.0, 19.95)
+A(Tally(13.1, 140, 580, 300, n=15, dur=2.2, suffix=' kali'))
+A(Txt(15.6, 'يَسْأَلُونَكَ', 360, 480, 50, **AR))
+A(Txt(16.2, 'mereka bertanya kepadamu', 360, 550, 22, fn='kr', color=GRAY))
+AA(big_word(17.0, 'قُلْ', 360, 740, size=96, sub='katakanlah'))
+# 4 ayat tanpa qul
+scene(20.0, 27.95)
+A(Txt(20.1, 'عِبَادِي عَنِّي', 470, 380, 40, **AR))
+A(Txt(20.6, 'وَإِذَا سَأَلَكَ', 580, 320, 40, **AR))
+A(Txt(21.6, 'فَإِنِّي قَرِيبٌ', 215, 380, 40, color=GREEN, **AR))
+A(GapMark(22.6, 330, 382, rx=34, ry=20))
+A(Sticky(21.0, 590, 455, 'QS. Al-Baqarah: 186', rot=4))
+A(Reveal(22.0, 'Apabila hamba-hamba-Ku bertanya tentang Aku, maka sesungguhnya Aku dekat.', 360, 560, 25, per=0.12, hl=['dekat.']))
+A(Slider(24.4, 200, 520, 690, 'hamba-Ku', 'dekat', dur=1.4))
+A(Stamp(25.8, 360, 820, 'TANPA "QUL"', size=32, rot=-5))
+# 5 ulama terdahulu
+scene(28.0, 33.95)
+A(Ruler(28.1, 360, 420, w=560))
+A(RollNumber(28.3, 360, 320, 1446, 606, dur=1.6, suffix=' H', sub='lebih dari 800 tahun lalu'))
+A(Icon(30.0, 'book', 250, 570, 130))
+A(Sticky(30.4, 480, 550, 'Imam Fakhruddin', 'Ar-Razi', rot=-4))
+A(Txt(31.4, 'sudah memperhatikan celah ini', 360, 710, 28))
+# 6 tanpa perantara
+scene(34.0, 38.95)
+A(Link(34.1, 170, 540, 420, left='kamu', right='اللَّه', mid='perantara', tremove=35.4, tshrink=36.2))
+A(Txt(36.9, 'dalam doa, tak ada perantara', 360, 540, 30, color=GREEN))
+A(Crowd(34.6, 360, 680, n=9, w=260))
+A(Txt(37.2, 'عِبَادِي', 360, 770, 48, color=GREEN, **AR))
+# 7 kecuali satu: kamu
+scene(39.0, TOTAL)
+A(Txt(39.1, 'Setiap jawaban ada pembawa pesannya,', 360, 470, 28, color=GRAY))
+A(Txt(39.6, 'kecuali satu:', 300, 540, 34))
+A(Slot(40.0, 470, 540, 'kamu', tfill=40.9))
+A(Txt(41.6, 'kali ini, kamu yang berbicara.', 360, 630, 32, color=GREEN))

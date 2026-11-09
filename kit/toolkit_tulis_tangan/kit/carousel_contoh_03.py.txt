@@ -1,0 +1,63 @@
+from feed import *
+OUT = '/home/claude/out/Post_03_Perjalanan_AlQuran/'
+LAB = "HURMATUL QUR'AN · 03"; N = 6
+# 1 cover
+s = Slide(); s.chrome(LAB, 1, N)
+s.text("Al-Qur'an yang kamu baca", 540, 230, 'kb', 60, NAVY)
+s.text('hari ini, dulunya...', 540, 325, 'kb', 60, NAVY)
+s.text('tanpa titik!', 540, 470, 'kb', 120, GREEN, rot=-3)
+s.ellipse(540, 478, 360, 100, RED, 8)
+s.panel(90, 620, 990, 900, EMER, GOLDL)
+s.text('إِنَّا أَنْزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ', 540, 730, 'ar', 62, CREAM)
+s.text('"Sesungguhnya Kami menurunkannya pada malam Lailatul Qadar"', 540, 830, 'kr', 28, CREAM)
+s.sticky('QS. Al-Qadr : 1', 820, 622, 24, 5)
+s.panel(180, 990, 900, 1090, CREAM, NAVY, r=50, bw=4)
+s.text("perjalanan Al-Qur'an sampai ke kita", 540, 1040, 'kb', 38, NAVY)
+for i, ic in enumerate(['moon', 'paper', 'pen', 'mushaf']):
+    s.icon(ic, 300 + i*160, 1185, 90)
+s.save(OUT + 'Carousel_03_slide1.jpg')
+# 2-5 isi
+AD = [
+ ('moon', LBLUE, 'Turun di Lailatul Qadar', 'إِنَّا أَنْزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ', 'QS. Al-Qadr : 1',
+  ["Lauhul Mahfuzh ke Baitul 'Izzah", 'Lalu turun bertahap ±23 tahun', 'Ada ayat Makkiyah & Madaniyah']),
+ ('pen', LGREEN, 'Dihimpun jadi satu jilid', 'جَمْعُ الْقُرْآنِ', 'Masa Abu Bakar Ash-Shiddiq',
+  ['Dulu di hafalan, batu, daun, kulit', 'Zaid bin Tsabit mengumpulkannya', "Utsman bin 'Affan menyusun surahnya"]),
+ ('book', LYEL, 'Diberi titik & baris', 'بَ   تِ   ثُ', "Masa 'Abdul Malik bin Marwan",
+  ['Sekitar tahun 80 Hijriah', "Dikerjakan Syeikh Yahya bin Ya'mar", "Jasa pendahulu, bid'ah hasanah"]),
+ ('mushaf', LRED, "Al-Qur'an dalam angka", 'كَلَامُ اللَّهِ', 'tetap Kalamullah',
+  ['30 juz & 114 surah: sepakat', "Jumlah ayat: khilaf, ikut qira'at", '77.439 kalimat, 340.740 huruf']),
+]
+for k, (ic, fl, title, ar, src, pts) in enumerate(AD):
+    s = Slide(); s.chrome(LAB, k+2, N)
+    s.num(k+1, 130, 215)
+    s.text(title, 190, 215, 'kb', 54 if len(title) < 26 else 46, NAVY, anchor='l')
+    s.card(540, 450, 360, 300, fl, rot=[-2, 2, -1.5, 1.5][k])
+    s.icon(ic, 540, 450, 210)
+    s.panel(90, 650, 990, 820, EMER, GOLDL)
+    s.text(ar, 540, 735, 'ar', 50 if len(ar) < 40 else 42, CREAM)
+    s.sticky(src, 830, 652, 22, 4)
+    for j, p in enumerate(pts):
+        y = 900 + j*105
+        s.panel(90, y-42, 990, y+42, WHITE, NAVY, r=42, bw=3, inner=False)
+        s.text('✓' if False else '', 0, 0, 'kb', 1, NAVY)
+        s.text(p, 175, y, 'kb', 34, NAVY, anchor='l')
+        d = ImageDraw.Draw(s.im)
+        d.line([(120, y), (135, y+14), (160, y-16)], fill=GREEN+(255,), width=7, joint='curve')
+    s.save(OUT + f'Carousel_03_slide{k+2}.jpg')
+# 6 penutup
+s = Slide(); s.chrome(LAB, 6, N, swipe=False)
+s.text('Al-Fatihah,', 540, 220, 'kb', 64, NAVY)
+s.text("induk Al-Qur'an", 540, 310, 'kb', 72, GREEN)
+s.panel(90, 400, 990, 680, EMER, GOLDL)
+s.text('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', 540, 505, 'ar', 62, CREAM)
+s.text('"Segala puji bagi Allah,', 540, 590, 'kr', 30, CREAM)
+s.text('Tuhan semesta alam"', 540, 635, 'kr', 30, CREAM)
+s.sticky('QS. Al-Fatihah : 2', 820, 402, 24, 4)
+for i, t in enumerate(['pujian', 'makhluk', 'rahmat', 'akhirat']):
+    x = 180 + i*240
+    s.panel(x-112, 760, x+112, 830, LGREEN, GREEN, r=35, bw=3, inner=False)
+    s.text(t, x, 795, 'kb', 27, GREEN)
+s.put(stamp_sprite('SIMPAN & BAGIKAN', RED, 44), 540, 960, -5)
+s.panel(200, 1090, 880, 1190, CREAM, NAVY, r=50, bw=4)
+s.text('Tonton video lengkapnya', 540, 1140, 'kb', 40, NAVY)
+s.save(OUT + 'Carousel_03_slide6.jpg')

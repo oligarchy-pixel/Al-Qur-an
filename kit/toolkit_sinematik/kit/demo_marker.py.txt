@@ -1,0 +1,18 @@
+from engine import *
+ELS = []; SCENES = []
+OPS = [('marker', '0 · suara sekarang'), ('marker6', '1 · desir halus'), ('marker7', '2 · pop lembut'),
+       ('marker8', '3 · kertas disapu'), ('marker9', '4 · denting kecil'), ('marker10', '5 · tanpa suara')]
+D = 3.4
+TOTAL = D * len(OPS) + 0.3
+SCENES.append({'t0': 0, 't1': TOTAL, 'els': []})
+def A(el, out):
+    el.out = out; ELS.append(el); el.register(); return el
+for i, (snd, lab) in enumerate(OPS):
+    t = i * D; o = t + D - 0.05
+    A(Txt(t + 0.05, 'pilihan suara stabilo', 360, 240, 28, color=GRAY, mode='fade', sfx_on=False), o)
+    A(Chip(t + 0.05, 360, 330, lab, fill=(32, 96, 88), col=WHITE, border=(32, 96, 88), size=34, sfx_on=False), o)
+    A(Txt(t + 0.1, 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 360, 520, 48, fn='ar', mode='fade', sfx_on=False), o)
+    f = font('ar', 48); full = f.getlength('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', direction='rtl', language='ar')
+    A(Marker(t + 0.8, 360 - full / 2 - 4, 360 - full / 2 + 150, 528, h=52, snd=snd), o)
+    A(Txt(t + 0.1, 'termasuk ayat Al-Fatihah', 360, 680, 32, mode='fade', sfx_on=False), o)
+    A(Marker(t + 2.0, 200, 520, 682, h=40, col=(150, 220, 160), snd=snd), o)

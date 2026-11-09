@@ -1,0 +1,169 @@
+"""Transkrip blok AA2 -> baris [mm:ss.s - mm:ss.s] per kalimat, diselaraskan dengan jeda suara rekaman."""
+import re, subprocess, sys, unicodedata
+import numpy as np
+
+SRC, MP3, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
+SR = 16000
+
+M = [('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 'Bismillahir Rahmanir Rahim'),
+     ('الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', "Alhamdulillahi Rabbil 'Alamin"),
+     ('الْحَمْدُ لِلَّهِ, kita', 'Alhamdulillah, kita'),
+     ('أُمُّ الْقُرْآنِ', "Ummul Qur'an"),
+     ('Allah سبحانه وتعالى', "Allah Subhanahu wa Ta'ala"),
+     ('Rasulullah صلى الله عليه وسلم', 'Rasulullah ﷺ'),
+     ('عليه السلام', "'alaihissalam"),
+     ('القرآن الكريم', "Al-Qur'an Al-Karim"), ('القرآن', "Al-Qur'an"),
+     ('سورة الفاتحة', 'surah Al-Fatihah'), ('الفاتحة', 'Al-Fatihah'),
+     ('سورة النمل', 'surah An-Naml'),
+     ('الإمام الشافعي', "Imam Asy-Syafi'i"), ('الإمام مالك', 'Imam Malik'),
+     ('الإمام أبو حنيفة', 'Imam Abu Hanifah'), ('الإمام أحمد بن حنبل', 'Imam Ahmad bin Hanbal'),
+     ('الميزان', 'mizan'), ('الحساب', 'hisab'), ('النحو', 'nahwu'), ('في سبيل الله', 'fi sabilillah'),
+     ('karena mad-nya pendek', 'karena ma-nya dibaca pendek'), ('Kalau mad-nya panjang', 'Kalau ma-nya dibaca panjang'),
+     ('“', ''), ('”', ''), ('‘', "'"), ('’', "'"), ('—', ', '), ('–', '-')]
+
+
+HAR = '[ً-ٰٟۖ-ۭـ]*'
+
+
+def arpat(k):
+    base = ''.join(ch for ch in k if unicodedata.category(ch) != 'Mn')
+    return ''.join(r'\s+' if ch == ' ' else re.escape(ch) + HAR for ch in base)
+
+
+def clean(t):
+    if re.search('[A-Za-z]', t):
+        for k, v in M:
+            if re.search('[؀-ۿ]', k):
+                t = re.sub(arpat(k), v, t)
+            else:
+                t = t.replace(k, v)
+        t = re.sub(r'(^|[.?!:]\s+)surah', lambda m: m.group(1) + 'Surah', t)
+    return re.sub(r'\s+', ' ', t).strip()
+
+
+def tsec(s):
+    m, x = s.split(':')
+    return int(m) * 60 + float(x)
+
+
+# ------------------------------------------------------------ blok
+blocks, cur = [], None
+for line in open(SRC, encoding='utf-8'):
+    line = line.strip()
+    if line.startswith('CATATAN EDITOR'):
+        break
+    m = re.match(r'\[(\d+:\d+\.\d+)\s*[–-]\s*(\d+:\d+\.\d+)\]', line)
+    if m:
+        cur = {'a': tsec(m.group(1)), 'b': tsec(m.group(2)), 'paras': []}
+        blocks.append(cur)
+    elif line and cur is not None:
+        cur['paras'].append(line)
+
+# ------------------------------------------------------------ audio
+raw = subprocess.run(['ffmpeg', '-v', 'error', '-i', MP3, '-ac', '1', '-ar', str(SR), '-f', 's16le', '-'],
+                     capture_output=True).stdout
+x = np.frombuffer(raw, np.int16).astype(np.float32) / 32768
+DUR = len(x) / SR
+HOP = 0.02
+n = int(len(x) / (SR * HOP))
+rms = np.sqrt(np.mean(x[:n * int(SR * HOP)].reshape(n, -1) ** 2, 1) + 1e-10)
+db = 20 * np.log10(rms)
+db = np.convolve(db, np.ones(3) / 3, 'same')
+thr = np.percentile(db, 18) + 0.35 * (np.percentile(db, 75) - np.percentile(db, 18))
+voiced = db > thr
+
+pauses = []  # (mulai, akhir)
+i = 0
+while i < n:
+    if not voiced[i]:
+        j = i
+        while j < n and not voiced[j]:
+            j += 1
+        if (j - i) * HOP >= 0.18:
+            pauses.append((i * HOP, j * HOP))
+        i = j
+    else:
+        i += 1
+cumv = np.concatenate([[0], np.cumsum(voiced) * HOP])
+
+
+def V(t):
+    return np.interp(t / HOP, np.arange(len(cumv)), cumv)
+
+
+def Vinv(v):
+    return float(np.interp(v, cumv, np.arange(len(cumv)) * HOP))
+
+
+def weight(s):
+    w = 0
+    for ch in s:
+        if unicodedata.category(ch) == 'Mn' or ch.isspace():
+            continue
+        w += 1.7 if '؀' <= ch <= 'ۿ' else 1.0
+    return w + 4
+
+
+def pieces(par):
+    out = []
+    for s in re.split(r'(?<=[.?!:])\s+', par):
+        if not s:
+            continue
+        if weight(s) > 120 and ', ' in s:
+            parts, buf = [], ''
+            for p in s.split(', '):
+                buf = (buf + ', ' + p) if buf else p
+                if weight(buf) > 55:
+                    parts.append(buf + ',')
+                    buf = ''
+            if buf:
+                if parts and weight(buf) < 30:
+                    parts[-1] = parts[-1][:-1] + ', ' + buf
+                else:
+                    parts.append(buf)
+            parts[-1] = parts[-1].rstrip(',') if not s.endswith(',') else parts[-1]
+            out += parts
+        else:
+            out.append(s)
+    return out
+
+
+lines = []
+for k, b in enumerate(blocks):
+    a = b['a']
+    e = blocks[k + 1]['a'] if k + 1 < len(blocks) else min(DUR, max(b['b'], DUR - 0.3))
+    ps = [p for par in b['paras'] for p in pieces(par)]
+    ws = np.array([weight(p) for p in ps])
+    va, ve = V(a), V(e)
+    cuts = [(a, a)]
+    acc = 0
+    for w in ws[:-1]:
+        acc += w
+        tgt = Vinv(va + (ve - va) * acc / ws.sum())
+        last = cuts[-1][1]
+        cand = [(abs((p0 + p1) / 2 - tgt) - 0.15 * min(p1 - p0, 1.0), p0, p1) for p0, p1 in pauses
+                if last + 0.6 < (p0 + p1) / 2 < e - 0.4 and abs((p0 + p1) / 2 - tgt) < 1.6]
+        if cand:
+            _, p0, p1 = min(cand)
+            cuts.append((p0, p1))
+        else:
+            tgt = max(tgt, last + 0.6)
+            cuts.append((tgt, tgt))
+    cuts.append((e, e))
+    for i, p in enumerate(ps):
+        s0 = cuts[i][1] if i else a
+        s1 = cuts[i + 1][0]
+        s0 = max(s0 - 0.08, a) if i else a
+        if s1 - s0 < 0.6:
+            s1 = s0 + 0.6
+        lines.append((s0, s1, clean(p)))
+
+
+def fmt(t):
+    return f'{int(t // 60):02d}:{t % 60:04.1f}'
+
+
+with open(OUT, 'w', encoding='utf-8') as f:
+    for s0, s1, t in lines:
+        f.write(f'[{fmt(s0)} - {fmt(s1)}] {t}\n')
+print(len(lines), 'baris, durasi', round(DUR, 2), 'jeda', len(pauses))

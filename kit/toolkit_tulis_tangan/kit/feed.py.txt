@@ -1,0 +1,78 @@
+import sys, math
+sys.path.insert(0, '/home/claude/vid')
+import numpy as np
+from PIL import Image, ImageDraw
+from engine import (font, draw_icon, shadowed, text_on, stamp_sprite,
+                    NAVY, GREEN, RED, YEL, GOLD, WHITE, LGREEN, LBLUE, LYEL, LRED, GRAY)
+W, H = 1080, 1350
+EMER = (14, 61, 46); GOLDL = (222, 186, 98); CREAM = (250, 244, 226)
+
+def bg():
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    b = np.zeros((H, W, 3), np.float32); b[:] = (241, 240, 232)
+    g = ((xx.astype(int) % 54) == 0) | ((yy.astype(int) % 54) == 0); b[g] = (225, 224, 214)
+    d = np.sqrt(((xx-W/2)/(W*.62))**2 + ((yy-H*.5)/(H*.62))**2)
+    b *= (1 - .08*np.clip((d-.45)/.75, 0, 1)**1.6)[..., None]
+    b += np.random.default_rng(3).normal(0, 1.4, (H, W, 1))
+    return Image.fromarray(np.clip(b, 0, 255).astype(np.uint8)).convert('RGBA')
+BG = bg()
+
+class Slide:
+    def __init__(s): s.im = BG.copy()
+    def put(s, sp, cx, cy, rot=0):
+        if rot: sp = sp.rotate(rot, Image.BICUBIC, expand=True)
+        s.im.alpha_composite(sp, (int(cx - sp.width/2), int(cy - sp.height/2)))
+    def text(s, t, cx, cy, fn, size, col, rot=0, anchor='c'):
+        S = 2; f = font(fn, size*S)
+        kw = dict(direction='rtl', language='ar') if fn in ('ar', 'arb') else {}
+        bb = f.getbbox(t, **kw)
+        L = Image.new('RGBA', (bb[2]-bb[0]+40*S, bb[3]-bb[1]+40*S), (0,0,0,0))
+        ImageDraw.Draw(L).text((20*S-bb[0], 20*S-bb[1]), t, font=f, fill=col+(255,), **kw)
+        L = L.resize((L.width//S, L.height//S), Image.LANCZOS)
+        if anchor == 'l': cx = cx + L.width/2 - 20
+        s.put(L, cx, cy, rot)
+    def tw(s, t, fn, size):
+        return font(fn, size).getlength(t, **(dict(direction='rtl', language='ar') if fn in ('ar','arb') else {}))
+    def panel(s, x0, y0, x1, y1, fill, border, r=26, bw=4, inner=True, shadow=True):
+        S = 2
+        b = Image.new('RGBA', ((x1-x0)*S, (y1-y0)*S), (0,0,0,0)); d = ImageDraw.Draw(b)
+        d.rounded_rectangle((2,2,b.width-3,b.height-3), radius=r*S, fill=fill+(255,), outline=border+(255,), width=bw*S)
+        if inner: d.rounded_rectangle((14*S,14*S,b.width-14*S,b.height-14*S), radius=max(4,r-8)*S, outline=border+(140,), width=1*S)
+        b = b.resize((x1-x0, y1-y0), Image.LANCZOS)
+        if shadow: b = shadowed(b, (5,8), 10, 80)
+        s.put(b, (x0+x1)/2, (y0+y1)/2)
+    def sticky(s, t, cx, cy, size, rot, col=YEL):
+        S = 2; f = font('kb', size*S)
+        w = int(f.getlength(t)/S + size*1.6); h = int(size*2.0)
+        st = Image.new('RGBA', (w*S, h*S), col+(255,)); d = ImageDraw.Draw(st)
+        d.rectangle((0,0,w*S,8*S), fill=tuple(c-18 for c in col)+(255,))
+        text_on(d, (w/2, h/2+2), t, 'kb', size, (60,50,30,255))
+        s.put(shadowed(st.resize((w, h), Image.LANCZOS), (4,6), 6, 80), cx, cy, rot)
+    def ellipse(s, cx, cy, rx, ry, col, wdt):
+        S = 3
+        L = Image.new('RGBA', (W*S, H*S), (0,0,0,0)); d = ImageDraw.Draw(L)
+        pts = [(S*(cx + rx*(1+.04*math.sin(i/70*7))*math.cos(math.radians(-120+385*i/70))),
+                S*(cy + ry*(1+.04*math.sin(i/70*7))*math.sin(math.radians(-120+385*i/70)))) for i in range(71)]
+        d.line(pts, fill=col+(255,), width=wdt*S, joint='curve')
+        s.im.alpha_composite(L.resize((W, H), Image.LANCZOS))
+    def icon(s, name, cx, cy, size, col=NAVY):
+        S = 2; L = Image.new('RGBA', (size*2*S, size*2*S), (0,0,0,0))
+        draw_icon(ImageDraw.Draw(L), name, size*S, size*S, size*S*0.5, col, max(4, size//14)*S)
+        s.put(L.resize((size*2, size*2), Image.LANCZOS), cx, cy)
+    def card(s, cx, cy, w, h, fill=WHITE, rot=0):
+        S = 2; c = Image.new('RGBA', (w*S, h*S), (0,0,0,0))
+        ImageDraw.Draw(c).rounded_rectangle((2,2,w*S-3,h*S-3), radius=16*S, fill=fill+(255,), outline=NAVY+(255,), width=4*S)
+        s.put(shadowed(c.resize((w, h), Image.LANCZOS), (4,6), 6, 60), cx, cy, rot)
+    def num(s, n, cx, cy, r=44):
+        S = 2; c = Image.new('RGBA', (r*2*S, r*2*S), (0,0,0,0)); d = ImageDraw.Draw(c)
+        d.ellipse((2,2,r*2*S-3,r*2*S-3), fill=EMER+(255,), outline=GOLDL+(255,), width=4*S)
+        text_on(d, (r, r+2), str(n), 'kb', int(r*1.05), GOLDL+(255,))
+        s.put(shadowed(c.resize((r*2, r*2), Image.LANCZOS), (3,5), 5, 70), cx, cy)
+    def chrome(s, label, i, n, swipe=True):
+        lw = s.tw(label, 'kb', 28) + 70
+        s.panel(int(540-lw/2), 50, int(540+lw/2), 112, EMER, GOLDL, r=31, bw=3, inner=False)
+        s.text(label, 540, 81, 'kb', 28, GOLDL)
+        s.text(f'{i}/{n}', 990, 81, 'kr', 26, GRAY)
+        if swipe: s.text('geser >>', 965, 1295, 'kb', 30, GRAY)
+    def save(s, path):
+        s.im.convert('RGB').save(path, quality=95)

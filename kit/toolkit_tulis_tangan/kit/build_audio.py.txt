@@ -1,0 +1,10 @@
+import os, importlib, wave
+import numpy as np
+script = importlib.import_module(os.environ['SCRIPT'])
+import engine, sfx_synth
+y = sfx_synth.build(sorted(engine.SFX), script.TOTAL + 1)
+y = np.tanh(y) * 0.9
+pcm = (np.stack([y, y], 1) * 32767).astype(np.int16)
+with wave.open('sfx.wav', 'wb') as w:
+    w.setnchannels(2); w.setsampwidth(2); w.setframerate(44100); w.writeframes(pcm.tobytes())
+print('sfx events', len(engine.SFX))

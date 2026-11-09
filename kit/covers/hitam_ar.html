@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+:root{--y:#e9f23a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;overflow:hidden;font-family:Inter,sans-serif}
+.ab{position:absolute}
+.ar{font-family:Amiri,serif;direction:rtl}
+.mono{font-family:'DejaVu Sans Mono',monospace;letter-spacing:.1em}
+.mk{background:var(--y);color:#000;padding:0 .12em}
+.row{display:flex;align-items:center;gap:26px;direction:rtl;border-bottom:1px solid rgba(255,255,255,.25)}
+.num{flex:none;border-radius:50%;background:var(--y);color:#000;display:flex;align-items:center;justify-content:center;font-family:Amiri;font-weight:700}
+</style></head><body><div id="c"></div>
+<script>
+const v = new URLSearchParams(location.search).get('v') || 'yt';
+const W = v === 'yt' ? 1920 : 1080, H = v === 'yt' ? 1080 : 1920;
+document.body.style.width = W + 'px'; document.body.style.height = H + 'px';
+const P = [['١', 'فَضْلُ تَعَلُّمِ الْقُرْآنِ وَتَعْلِيمِهِ', 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ'],
+  ['٢', 'الْقُرْآنُ مَأْدُبَةُ اللَّهِ لِعِبَادِهِ', 'فَأَقْبِلُوا عَلَى مَأْدُبَتِهِ مَا اسْتَطَعْتُمْ'],
+  ['٣', 'أَفْوَاهُنَا طُرُقٌ لِلْقُرْآنِ فَطَهِّرُوهَا', 'إِنَّ أَفْوَاهَكُمْ طُرُقٌ مِنْ طُرُقِ الْقُرْآنِ'],
+  ['٤', 'تَعْظِيمُ الْقُرْآنِ وَآدَابُ تِلَاوَتِهِ', 'مِنْ حُرْمَةِ الْقُرْآنِ · مُقَدِّمَةُ تَفْسِيرِ الْقُرْطُبِيِّ']];
+const list = (w, fs, gap) => `<div style="width:${w}px">${P.map(p => `<div class="row" style="padding:${gap}px 0"><div class="num" style="width:${fs * 1.25}px;height:${fs * 1.25}px;font-size:${fs * .8}px">${p[0]}</div><div style="text-align:right"><div class="ar" style="font-size:${fs}px;font-weight:700;line-height:1.5">${p[1]}</div><div class="ar" style="font-size:${fs * .62}px;color:#e9f23a;line-height:1.5">${p[2]}</div></div></div>`).join('')}</div>`;
+const brand = (sz) => `<div style="display:flex;align-items:center;gap:${sz * .5}px"><div style="width:${sz * 2.3}px;height:${sz * 2.3}px;border-radius:50%;background:url(file:///home/claude/covers/user_photo.jpg) 45% 54%/150% auto no-repeat;border:${sz * .13}px solid #e9f23a"></div><div style="font:800 ${sz}px Inter">@alurziyadahku</div></div>`;
+let h = `<div style="position:relative;width:${W}px;height:${H}px;background:#000;overflow:hidden"><div class="ab" style="left:0;bottom:0;height:6px;width:100%;background:#e9f23a"></div>`;
+if (v === 'yt') {
+  h += `<div class="ab mono" style="left:80px;top:70px;font-size:24px"><span style="color:#e9f23a">●</span> EPISODE 01 · SERI KAJIAN AL-QUR'AN</div>
+  <div class="ab" style="left:80px;top:150px;font:900 120px Inter;line-height:.95;letter-spacing:-.03em">HURMATUL<br><span class="mk">QUR'AN</span></div>
+  <div class="ab ar" style="left:80px;top:440px;font-size:110px;font-weight:700;text-align:left;line-height:1.5">حُرْمَةُ الْقُرْآنِ</div>
+  <div class="ab" style="left:80px;top:670px;width:700px;font:700 34px Inter;line-height:1.35">kemuliaan Al-Qur'an<br>&amp; adab kita kepadanya</div>
+  <div class="ab" style="left:80px;top:930px">${brand(34)}</div>
+  <div class="ab" style="left:900px;top:70px;width:2px;height:940px;background:#e9f23a"></div>
+  <div class="ab ar" style="left:960px;top:70px;width:880px;text-align:right;font-size:40px;color:#e9f23a">مَا الَّذِي نَتَعَلَّمُهُ فِي هَذِهِ الْحَلْقَةِ؟</div>
+  <div class="ab" style="left:960px;top:150px">${list(880, 54, 22)}</div>`;
+} else {
+  h += `<div class="ab mono" style="left:70px;top:120px;font-size:26px"><span style="color:#e9f23a">●</span> EPISODE 01 · SERI KAJIAN</div>
+  <div class="ab" style="left:70px;top:190px;font:900 140px Inter;line-height:.95;letter-spacing:-.03em">HURMATUL<br><span class="mk">QUR'AN</span></div>
+  <div class="ab ar" style="left:70px;top:515px;font-size:116px;font-weight:700;text-align:left;line-height:1.5">حُرْمَةُ الْقُرْآنِ</div>
+  <div class="ab" style="left:70px;top:740px;width:940px;height:3px;background:#e9f23a"></div>
+  <div class="ab ar" style="left:70px;top:780px;width:940px;text-align:right;font-size:44px;color:#e9f23a">مَا الَّذِي نَتَعَلَّمُهُ فِي هَذِهِ الْحَلْقَةِ؟</div>
+  <div class="ab" style="left:70px;top:870px">${list(940, 56, 26)}</div>
+  <div class="ab" style="left:70px;top:1730px">${brand(38)}</div>`;
+}
+document.getElementById('c').innerHTML = h + '</div>';
+</script></body></html>

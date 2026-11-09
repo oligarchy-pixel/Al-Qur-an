@@ -1,0 +1,41 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+@font-face{font-family:Kalam;font-weight:700;src:url('file:///home/claude/fonts/Kalam-Bold.ttf')}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1350px;overflow:hidden;background:#000;font-family:Inter,sans-serif;color:#fff}
+.ab{position:absolute}
+.ar{font-family:Amiri,serif;direction:rtl}
+.k{font-family:Kalam,cursive;font-weight:700}
+.glow{text-shadow:0 0 18px rgba(255,226,150,.85),0 0 40px rgba(255,200,90,.5)}
+.drop{position:absolute;border-radius:50%;background:radial-gradient(circle at 33% 28%,rgba(255,255,255,.95) 0 6%,transparent 12%),radial-gradient(circle at 60% 78%,rgba(255,236,190,.45),transparent 55%);border:1.5px solid rgba(255,255,255,.55);box-shadow:0 3px 6px rgba(0,0,0,.35),inset 0 -4px 8px rgba(255,255,255,.25);backdrop-filter:blur(.6px) brightness(1.7) contrast(1.1)}
+.glass{background:rgba(255,255,255,.10);border:1.5px solid rgba(255,255,255,.45);border-radius:40px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 30px rgba(0,0,0,.4);backdrop-filter:blur(6px)}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><filter id="ripple" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.003 0.055" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="38" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<div id="c"></div>
+<script>
+const HZ = 800; // garis horizon
+const sky = () => `<div style="position:absolute;left:0;top:0;width:1080px;height:${HZ}px;overflow:hidden">
+  <img src="file:///home/claude/covers/bg/bulan.jpg" style="position:absolute;left:0;top:-120px;width:1080px;height:1919px;object-fit:cover">
+  <div class="ab ar glow" style="left:0;right:0;top:${HZ - 390}px;text-align:center;font-size:150px;font-weight:700;color:#fff3cf;line-height:1.4">حُرْمَةُ الْقُرْآنِ</div><div class="ab k glow" style="left:0;right:0;top:${HZ - 140}px;text-align:center;font-size:84px;color:#fff;line-height:1">Hurmatul Qur'an</div></div>`;
+let h = `<div style="position:relative;width:1080px;height:1350px;overflow:hidden">${sky()}
+  <div style="position:absolute;left:0;top:${HZ}px;width:1080px;height:${1350 - HZ}px;overflow:hidden;background:#02060d">
+    <div style="position:absolute;left:0;top:0;width:1080px;height:${HZ}px;transform:scaleY(-1);transform-origin:center;filter:url(#ripple) brightness(1.05);opacity:1">${sky()}</div>
+    <div style="position:absolute;inset:0;background:linear-gradient(rgba(10,30,60,0),rgba(2,8,20,.35) 45%,rgba(2,8,20,.85))"></div>
+    <svg width="1080" height="${1350 - HZ}" style="position:absolute;inset:0">${Array.from({ length: 26 }, (_, i) => { const y = 8 + i * i * .8, w = 120 + i * 30; return `<path d="M${540 - w} ${y} Q540 ${y + 3} ${540 + w} ${y}" stroke="rgba(255,226,150,${.35 - i * .011})" stroke-width="${1 + i * .08}" fill="none"/>`; }).join('')}
+      ${[0, 1, 2, 3].map(i => `<ellipse cx="540" cy="70" rx="${70 + i * 70}" ry="${14 + i * 14}" fill="none" stroke="rgba(255,255,255,${.45 - i * .1})" stroke-width="2"/>`).join('')}</svg>
+  </div>
+  <div class="ab" style="left:0;top:${HZ - 2}px;width:1080px;height:4px;background:linear-gradient(90deg,transparent,rgba(255,230,160,.9),transparent);filter:blur(1px)"></div>
+  <div class="ab glass" style="left:44px;top:44px;padding:10px 26px;display:flex;gap:14px;align-items:center"><span style="font:900 40px Inter">EP 01</span><span class="ar" style="font-size:32px;color:#ffe9a8">حُرْمَةُ الْقُرْآنِ</span></div>
+  <div class="ab glass k" style="right:44px;top:50px;padding:6px 24px;font-size:30px">cahaya Al-Qur'an ✦</div>
+  <div class="ab" style="left:0;right:0;top:${HZ + 26}px;text-align:center"><span class="glass" style="display:inline-block;padding:8px 30px;font:700 30px Inter;color:#fff;letter-spacing:.04em;background:rgba(5,12,25,.55)">kemuliaan Al-Qur'an &amp; adab kita kepadanya</span></div>
+  <div class="ab glass" style="left:50px;top:${HZ + 110}px;width:610px;padding:20px 26px">
+    ${[['١', 'belajar & mengajarkan Al-Qur\'an'], ['٢', 'Al-Qur\'an jamuan Allah'], ['٣', 'mulut kita jalan Al-Qur\'an'], ['٤', 'adab & menghormati mushaf']].map(x => `<div style="display:flex;align-items:center;gap:16px;margin:8px 0"><span class="ar" style="width:44px;height:44px;border-radius:50%;background:rgba(255,233,168,.9);color:#0b1a2e;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;flex:none">${x[0]}</span><span style="font:800 29px Inter;white-space:nowrap">${x[1]}</span></div>`).join('')}</div>
+  <div class="ab" style="left:680px;top:${HZ + 100}px;width:330px;height:330px;border-radius:50%;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.6),0 0 0 3px rgba(255,255,255,.55)"><img src="file:///home/claude/covers/user_photo.jpg" style="width:100%;height:100%;object-fit:cover;object-position:46% 58%">
+    <div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.75) 0 7%,rgba(255,255,255,.18) 18%,transparent 45%),radial-gradient(circle at 70% 85%,rgba(120,180,255,.25),transparent 50%);box-shadow:inset -10px -16px 30px rgba(255,255,255,.25),inset 8px 10px 20px rgba(0,0,0,.35)"></div></div>
+  <div class="ab k" style="left:690px;top:${HZ + 440}px;width:310px;text-align:center;font-size:32px">@alurziyadahku</div>
+  ${[[120, 300, 34], [220, 560, 18], [900, 260, 26], [980, 420, 14], [80, 690, 22], [905, 560, 36], [600, 140, 16], [470, 470, 12], [1010, 1100, 24], [40, 1250, 30], [640, 1290, 18], [320, 1030, 14]].map(([x, y, r]) => `<div class="drop" style="left:${x}px;top:${y}px;width:${r * 2}px;height:${r * 2.2}px"></div>`).join('')}
+</div>`;
+document.getElementById('c').innerHTML = h;
+</script></body></html>

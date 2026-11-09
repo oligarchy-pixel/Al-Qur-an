@@ -1,0 +1,34 @@
+"""Video contoh animasi elemen sinematik (v6), berlabel nomor."""
+from engine import *
+from cine_fx import *
+ELS = []; SCENES = []
+D = 3.8
+OPS = ['1 · fokus masuk', '2 · kata naik + kilau', '3 · ikon jatuh memantul', '4 · angka bergulir', '5 · kaligrafi bercahaya']
+TOTAL = D * len(OPS) + 0.2
+SCENES.append({'t0': 0, 't1': TOTAL, 'els': []})
+
+
+def A(el, out):
+    el.out = out; ELS.append(el); el.register(); return el
+
+
+for i, lab in enumerate(OPS):
+    t = i * D; o = t + D - 0.05
+    A(Chip(t + 0.02, 360, 930, lab, fill=(32, 96, 88), col=WHITE, border=(32, 96, 88), size=30, sfx_on=False), o)
+    if i == 0:
+        A(Focus(Txt(t + 0.3, 'husnul khatimah', 360, 420, 64, color=GREEN, mode='pop', sfx_on=False)), o)
+        A(Focus(Card(t + 1.0, 360, 640, 240, 200, icon='surga', label='surga', isize=110, sfx_on=False)), o)
+    elif i == 1:
+        A(RiseWords(t + 0.3, 'tidak semua yang baik', 360, 420, 46, per=0.13), o)
+        A(RiseWords(t + 0.9, 'dimulai dengan basmalah', 360, 490, 46, hl=['basmalah'], per=0.13), o)
+        A(RiseWords(t + 1.6, 'ada hukumnya', 360, 600, 60, color=GREEN), o)
+    elif i == 2:
+        A(DropIcon(t + 0.3, 'surga', 200, 520, 130), o)
+        A(DropIcon(t + 0.7, 'shield', 360, 520, 120), o)
+        A(DropIcon(t + 1.1, 'mushaf', 520, 520, 120), o)
+    elif i == 3:
+        A(Txt(t + 0.2, 'jumlah huruf Al-Fatihah', 360, 380, 32, mode='fade', sfx_on=False), o)
+        A(RollBlur(t + 0.4, 360, 520, 0, 156, suffix=' huruf', size=96), o)
+    else:
+        A(GlowAr(t + 0.3, 'لَا إِلَٰهَ إِلَّا اللَّهُ', 360, 500, 72), o)
+        A(Txt(t + 1.8, 'kalimat tauhid', 360, 620, 30, mode='fade', sfx_on=False), o)

@@ -1,0 +1,2463 @@
+import math, functools
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import numpy as np
+
+W, H, FPS = 720, 1280, 30
+FD = '/home/claude/fonts/'
+PAPER = (236, 234, 226)
+NAVY = (36, 44, 80)
+GRAY = (172, 174, 186)
+LGRAY = (205, 205, 210)
+GREEN = (44, 130, 76)
+RED = (206, 86, 78)
+YEL = (247, 224, 120)
+GOLD = (222, 176, 60)
+WHITE = (255, 255, 255)
+BLUE = (64, 120, 190)
+ORANGE = (236, 128, 52)
+LGREEN = (222, 240, 222)
+LRED = (250, 226, 222)
+LBLUE = (226, 236, 250)
+LYEL = (252, 244, 210)
+
+SFX = []  # (time, name, dur, gain)
+import os as _os
+WRITE_SFX = _os.environ.get('WRITE_SFX', 'write')  # suara tulisan muncul: write6 = seperti video referensi (pilihan pengguna); write = lama
+MARKER_SFX = _os.environ.get('MARKER_SFX', 'marker')  # suara stabilo pilihan pengguna: marker1 (spidol halus); 'marker' = lama (berdecit)
+STABILO_SFX = _os.environ.get('STABILO_SFX', 'marker7')  # suara sapuan stabilo (Marker) saja: marker7 = pop lembut (pilihan pengguna ep04); 'marker' = lama
+
+
+def sfx(t, name, dur=0.0, gain=1.0):
+    SFX.append((t, name, dur, gain))
+
+
+@functools.lru_cache(None)
+def font(name, size):
+    path = {'kb': 'Kalam-Bold.ttf', 'kr': 'Kalam-Regular.ttf', 'kl': 'Kalam-Light.ttf',
+            'ar': 'Amiri-Regular.ttf', 'arb': 'Amiri-Bold.ttf'}[name]
+    return ImageFont.truetype(FD + path, size, layout_engine=ImageFont.Layout.RAQM)
+
+
+def is_ar(s):
+    return any(('؀' <= c <= 'ۿ') or ('ﭐ' <= c <= '﻿') or ('ݐ' <= c <= 'ݿ') for c in s)
+
+
+def clamp(x, a=0.0, b=1.0):
+    return a if x < a else b if x > b else x
+
+
+def eo(x):  # ease out cubic
+    x = clamp(x)
+    return 1 - (1 - x) ** 3
+
+
+def eio(x):
+    x = clamp(x)
+    return 3 * x * x - 2 * x * x * x
+
+
+def eback(x, s=1.9):
+    x = clamp(x)
+    x -= 1
+    return x * x * ((s + 1) * x + s) + 1
+
+
+def mix(c1, c2, a):
+    return tuple(int(c1[i] * (1 - a) + c2[i] * a) for i in range(3))
+
+
+# ---------------------------------------------------------------- background
+def make_bg():
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    base = np.zeros((H, W, 3), np.float32)
+    base[:] = (240, 239, 231)
+    grid = ((xx.astype(int) % 36) == 0) | ((yy.astype(int) % 36) == 0)
+    base[grid] = (226, 225, 216)
+    d = np.sqrt(((xx - W / 2) / (W * 0.62)) ** 2 + ((yy - H * 0.47) / (H * 0.58)) ** 2)
+    v = np.clip((d - 0.45) / 0.75, 0, 1) ** 1.6
+    base *= (1 - 0.085 * v)[..., None]
+    rng = np.random.default_rng(3)
+    base += rng.normal(0, 1.4, (H, W, 1))
+    return Image.fromarray(np.clip(base, 0, 255).astype(np.uint8), 'RGB')
+
+
+BG = make_bg()
+
+# ---------------------------------------------------------------- sprite helpers
+_acache = {}
+
+
+def with_alpha(sp, a):
+    if a >= 0.995:
+        return sp
+    q = max(1, int(a * 24 + 0.5))
+    key = (id(sp), q)
+    r = _acache.get(key)
+    if r is None:
+        f = q / 24.0
+        r = sp.copy()
+        r.putalpha(sp.getchannel('A').point(lambda v: int(v * f)))
+        _acache[key] = r
+        if len(_acache) > 6000:
+            _acache.clear()
+    return r
+
+
+def paste(frame, sp, cx, cy, a=1.0, s=1.0, rot=0.0):
+    if a <= 0.01 or s <= 0.02:
+        return
+    if abs(s - 1) > 0.01:
+        sp = sp.resize((max(1, int(sp.width * s)), max(1, int(sp.height * s))), Image.BILINEAR)
+    if rot:
+        sp = sp.rotate(rot, Image.BILINEAR, expand=True)
+    sp = with_alpha(sp, a) if (abs(s - 1) <= 0.01 and not rot) else _alpha_now(sp, a)
+    frame.paste(sp, (int(cx - sp.width / 2), int(cy - sp.height / 2)), sp)
+
+
+def _alpha_now(sp, a):
+    if a >= 0.995:
+        return sp
+    sp = sp.copy()
+    sp.putalpha(sp.getchannel('A').point(lambda v: int(v * a)))
+    return sp
+
+
+def shadowed(im, off=(3, 4), blur=4, alpha=60):
+    pad = blur * 2 + max(off)
+    out = Image.new('RGBA', (im.width + 2 * pad, im.height + 2 * pad), (0, 0, 0, 0))
+    sh = Image.new('RGBA', out.size, (0, 0, 0, 0))
+    a = im.getchannel('A').point(lambda v: v * alpha // 255)
+    blk = Image.new('RGBA', im.size, (40, 40, 60, 255))
+    blk.putalpha(a)
+    sh.paste(blk, (pad + off[0], pad + off[1]), blk)
+    sh = sh.filter(ImageFilter.GaussianBlur(blur))
+    out = Image.alpha_composite(sh, out)
+    out.paste(im, (pad, pad), im)
+    return out
+
+
+# ---------------------------------------------------------------- text sprite
+class TextSprite:
+    def __init__(self, text, fn='kb', size=34, color=NAVY, maxw=640, align='center', lh=1.12):
+        rtl = is_ar(text) and fn in ('ar', 'arb')
+        f = font(fn, size)
+        kw = dict(direction='rtl', language='ar') if rtl else {}
+        lines = []
+        for para in text.split('\n'):
+            cur = ''
+            for w in para.split(' '):
+                test = (cur + ' ' + w).strip()
+                if maxw and cur and f.getlength(test, **kw) > maxw:
+                    lines.append(cur)
+                    cur = w
+                else:
+                    cur = test
+            lines.append(cur)
+        asc, desc = f.getmetrics()
+        lhp = int(size * (1.75 if rtl else 1.18) * lh)
+        widths = [f.getlength(l, **kw) for l in lines]
+        pad = int(size * 0.9)
+        Wd = int(max(widths)) + 2 * pad
+        Ht = lhp * (len(lines) - 1) + int(size * 2.4) + 2 * pad
+        im = Image.new('RGBA', (Wd, Ht), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        boxes = []
+        for i, l in enumerate(lines):
+            if align == 'center':
+                x = (Wd - widths[i]) / 2
+            elif align == 'left':
+                x = pad
+            else:
+                x = Wd - pad - widths[i]
+            y = pad + i * lhp
+            d.text((x, y), l, font=f, fill=color + (255,), **kw)
+            boxes.append([x, y, x + widths[i], y + lhp, len(l)])
+        bb = im.getbbox() or (0, 0, 2, 2)
+        m = 3
+        bb = (max(0, bb[0] - m), max(0, bb[1] - m), min(Wd, bb[2] + m), min(Ht, bb[3] + m))
+        self.im = im.crop(bb)
+        # line bands (y ranges) relative to crop
+        bands = []
+        for i, (x0, y0, x1, y1, n) in enumerate(boxes):
+            ya = 0 if i == 0 else int((y0 - bb[1]))
+            yb = self.im.height if i == len(boxes) - 1 else int(boxes[i + 1][1] - bb[1])
+            bands.append((int(x0 - bb[0]) - 3, ya, int(x1 - bb[0]) + 6, yb, n))
+        self.bands = bands
+        self.rtl = rtl
+        self.nchar = sum(b[4] for b in bands)
+        self.w, self.h = self.im.size
+
+    def revealed(self, p):
+        if p >= 1:
+            return self.im
+        out = Image.new('RGBA', self.im.size, (0, 0, 0, 0))
+        tot = max(1, self.nchar)
+        acc = 0
+        for (x0, y0, x1, y1, n) in self.bands:
+            lp = clamp((p * tot - acc) / max(1, n))
+            acc += n
+            if lp <= 0:
+                break
+            x0 = max(0, x0)
+            x1 = min(self.w, x1)
+            wpx = int((x1 - x0) * lp)
+            if wpx <= 0:
+                continue
+            if self.rtl:
+                box = (x1 - wpx, y0, x1, y1)
+            else:
+                box = (x0, y0, x0 + wpx, y1)
+            out.paste(self.im.crop(box), box[:2])
+        return out
+
+
+@functools.lru_cache(maxsize=4000)
+def tsprite(text, fn='kb', size=34, color=NAVY, maxw=640, align='center'):
+    return TextSprite(text, fn, size, color, maxw, align)
+
+
+# ---------------------------------------------------------------- elements
+class El:
+    z = 0
+
+    def __init__(self, t0, dim=None, out=None, sfx_on=True):
+        self.t0 = t0
+        self.dim = dim
+        self.out = out
+        self.sfx_on = sfx_on
+
+    def fade(self, t):
+        a = 1.0
+        if self.dim is not None and t > self.dim:
+            a *= 1 - 0.72 * eo((t - self.dim) / 0.35)
+        if self.out is not None and t > self.out - 0.3:
+            a *= clamp((self.out - t) / 0.3)
+        return a
+
+    def active(self, t):
+        return t >= self.t0 and (self.out is None or t < self.out)
+
+    def register(self):
+        pass
+
+
+class Txt(El):
+    def __init__(self, t0, text, cx, cy, size=34, fn='kb', color=NAVY, maxw=620, mode='write', dur=None,
+                 align='center', ax='c', rot=0, **kw):
+        super().__init__(t0, **kw)
+        self.sp = tsprite(text, fn, size, color, maxw, align)
+        self.cx, self.cy, self.mode, self.rot = cx, cy, mode, rot
+        if ax == 'l':
+            self.cx = cx + self.sp.w / 2
+        elif ax == 'r':
+            self.cx = cx - self.sp.w / 2
+        n = self.sp.nchar
+        self.dur = dur if dur is not None else clamp(n * (0.045 if self.sp.rtl else 0.032), 0.25, 2.2)
+        self.ar = self.sp.rtl
+        self.size = size
+
+    def register(self):
+        if not self.sfx_on:
+            return
+        if self.mode == 'write':
+            sfx(self.t0, getattr(self, 'wsnd', None) or WRITE_SFX, self.dur, 0.9 if self.size >= 30 else 0.6)
+        elif self.mode == 'pop':
+            sfx(self.t0, 'pop', 0, 0.7)
+        else:
+            sfx(self.t0, 'soft', 0, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        k = t - self.t0
+        if self.mode == 'write':
+            p = k / self.dur
+            im = self.sp.revealed(p) if p < 1 else self.sp.im
+            paste(fr, im, self.cx, self.cy, a, rot=self.rot)
+        elif self.mode == 'pop':
+            s = 0.4 + 0.6 * eback(k / 0.38)
+            paste(fr, self.sp.im, self.cx, self.cy, a * clamp(k / 0.15), s, self.rot)
+        else:
+            paste(fr, self.sp.im, self.cx, self.cy + 14 * (1 - eo(k / 0.4)), a * eo(k / 0.4), rot=self.rot)
+
+
+# ---------------------------------------------------------------- icons
+def P(cx, cy, s, pts):
+    return [(cx + x * s, cy + y * s) for x, y in pts]
+
+
+def arcpts(cx, cy, rx, ry, a0, a1, n=40):
+    return [(cx + rx * math.cos(math.radians(a0 + (a1 - a0) * i / n)),
+             cy + ry * math.sin(math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]
+
+
+def draw_icon(d, name, cx, cy, s, col=NAVY, lw=6):
+    c = col
+    L = lambda pts, w=lw, fill=c: d.line(pts, fill=fill, width=w, joint='curve')
+    if name == 'kaaba':
+        d.polygon(P(cx, cy, s, [(-.62, -.35), (.28, -.35), (.28, .72), (-.62, .72)]), fill=(40, 40, 48), outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(.28, -.35), (.7, -.58), (.7, .5), (.28, .72)]), fill=(60, 60, 70), outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(-.62, -.35), (-.2, -.58), (.7, -.58), (.28, -.35)]), fill=(80, 80, 92), outline=c, width=lw)
+        L(P(cx, cy, s, [(-.62, -.1), (.28, -.1), (.7, -.32)]), lw + 4, GOLD)
+        d.rectangle(P(cx, cy, s, [(-.32, .3), (-.08, .72)]), fill=GOLD)
+    elif name == 'book':
+        d.polygon(P(cx, cy, s, [(0, -.45), (-.92, -.62), (-.92, .58), (0, .72)]), fill=WHITE, outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(0, -.45), (.92, -.62), (.92, .58), (0, .72)]), fill=WHITE, outline=c, width=lw)
+        for i in range(4):
+            y = -.3 + i * .22
+            L(P(cx, cy, s, [(-.75, y - .04), (-.18, y + .06)]), lw - 2)
+            L(P(cx, cy, s, [(.18, y + .06), (.75, y - .04)]), lw - 2)
+    elif name == 'mushaf':
+        d.rounded_rectangle(P(cx, cy, s, [(-.58, -.78), (.58, .78)]), radius=int(s * .08), fill=(38, 110, 70), outline=c, width=lw)
+        d.rounded_rectangle(P(cx, cy, s, [(-.44, -.62), (.44, .62)]), radius=int(s * .05), outline=GOLD, width=lw - 1)
+        r = .22
+        d.regular_polygon((cx, cy, s * r), 8, outline=GOLD, fill=None, width=lw - 1) if hasattr(d, 'regular_polygon') else None
+        d.ellipse(P(cx, cy, s, [(-.08, -.08), (.08, .08)]), fill=GOLD)
+    elif name == 'face':
+        d.ellipse(P(cx, cy, s, [(-.78, -.78), (.78, .78)]), fill=(255, 236, 200), outline=c, width=lw)
+        L(arcpts(cx - .3 * s, cy - .2 * s, .16 * s, .1 * s, 0, 180, 12))
+        L(arcpts(cx + .3 * s, cy - .2 * s, .16 * s, .1 * s, 0, 180, 12))
+        d.ellipse(P(cx, cy, s, [(-.2, .08), (.2, .55)]), fill=(120, 40, 40), outline=c, width=lw)
+    elif name == 'shield':
+        pts = P(cx, cy, s, [(0, -.85), (.72, -.6), (.66, .15), (0, .86), (-.66, .15), (-.72, -.6)])
+        d.polygon(pts, fill=LBLUE, outline=c, width=lw)
+        L(P(cx, cy, s, [(-.3, 0), (-.06, .26), (.36, -.24)]), lw + 2, GREEN)
+    elif name == 'speech':
+        d.rounded_rectangle(P(cx, cy, s, [(-.85, -.62), (.85, .32)]), radius=int(s * .25), fill=WHITE, outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(-.4, .3), (-.55, .75), (-.05, .3)]), fill=WHITE, outline=None)
+        L(P(cx, cy, s, [(-.4, .32), (-.55, .75), (-.05, .32)]))
+        for x in (-.4, 0, .4):
+            d.ellipse(P(cx, cy, s, [(x - .09, -.24), (x + .09, -.06)]), fill=c)
+    elif name in ('person', 'person_g', 'person_r'):
+        cc = {'person': c, 'person_g': GREEN, 'person_r': RED}[name]
+        d.ellipse(P(cx, cy, s, [(-.22, -.85), (.22, -.41)]), outline=cc, width=lw)
+        L(P(cx, cy, s, [(0, -.41), (0, .25)]), lw, cc)
+        L(P(cx, cy, s, [(-.48, -.12), (0, -.2), (.48, -.12)]), lw, cc)
+        L(P(cx, cy, s, [(-.36, .82), (0, .25), (.36, .82)]), lw, cc)
+    elif name == 'people':
+        for dx, sc in ((-.55, .62), (.55, .62), (0, .75)):
+            for nm in ['person']:
+                draw_icon(d, 'person', cx + dx * s, cy + (0.15 if sc < .7 else 0) * s, s * sc, c, lw - 1)
+    elif name == 'ear':
+        L(arcpts(cx, cy - .1 * s, .5 * s, .62 * s, 180, 400, 40) + [(cx + .1 * s, cy + .75 * s)], lw)
+        L(arcpts(cx + .02 * s, cy - .08 * s, .22 * s, .3 * s, 200, 380, 20), lw - 1)
+    elif name == 'eye':
+        top = arcpts(cx, cy + .55 * s, 1.0 * s, 1.0 * s, 213, 327, 30)
+        bot = arcpts(cx, cy - .55 * s, 1.0 * s, 1.0 * s, 33, 147, 30)
+        d.polygon(top + bot, fill=WHITE, outline=c, width=lw)
+        d.ellipse(P(cx, cy, s, [(-.3, -.3), (.3, .3)]), fill=(60, 110, 160), outline=c, width=lw - 2)
+        d.ellipse(P(cx, cy, s, [(-.12, -.12), (.12, .12)]), fill=c)
+    elif name == 'house':
+        d.polygon(P(cx, cy, s, [(-.85, -.05), (0, -.82), (.85, -.05)]), fill=(214, 120, 96), outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.62, -.05), (.62, .8)]), fill=WHITE, outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.16, .3), (.16, .8)]), fill=(150, 110, 80), outline=c, width=lw - 2)
+    elif name == 'mosque':
+        d.rectangle(P(cx, cy, s, [(-.62, .05), (.5, .8)]), fill=WHITE, outline=c, width=lw)
+        d.pieslice(P(cx, cy, s, [(-.42, -.45), (.3, .3)]), 180, 360, fill=GREEN, outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(.6, -.65), (.78, .8)]), fill=WHITE, outline=c, width=lw - 1)
+        d.polygon(P(cx, cy, s, [(.56, -.65), (.69, -.88), (.82, -.65)]), fill=GREEN, outline=c, width=lw - 2)
+        d.arc(P(cx, cy, s, [(-.24, .35), (.12, .8)]), 180, 360, fill=c, width=lw - 1)
+        L(P(cx, cy, s, [(-.24, .58), (-.24, .8)]), lw - 1)
+        L(P(cx, cy, s, [(.12, .58), (.12, .8)]), lw - 1)
+    elif name in ('star', 'star_g'):
+        pts = []
+        for i in range(10):
+            r = .85 if i % 2 == 0 else .38
+            a = math.radians(-90 + i * 36)
+            pts.append((cx + r * s * math.cos(a), cy + r * s * math.sin(a) + .05 * s))
+        d.polygon(pts, fill=YEL if name == 'star' else (190, 230, 190), outline=c, width=lw)
+    elif name == 'flame':
+        pts = []
+        for i in range(80):
+            a = 2 * math.pi * i / 80
+            x = .62 * math.sin(a) * abs(math.sin(a / 2)) ** 1.1
+            y = -.85 * math.cos(a) * 0.95 + .05
+            pts.append((cx + x * s, cy + y * s))
+        d.polygon(pts, fill=ORANGE, outline=c, width=lw)
+        inner = [(cx + (x - cx) * .5, cy + .38 * s + (y - cy) * .5) for x, y in pts]
+        d.polygon(inner, fill=YEL)
+    elif name == 'trash':
+        d.polygon(P(cx, cy, s, [(-.55, -.45), (.55, -.45), (.42, .82), (-.42, .82)]), fill=(200, 205, 210), outline=c, width=lw)
+        L(P(cx, cy, s, [(-.72, -.55), (.72, -.55)]), lw + 1)
+        d.rectangle(P(cx, cy, s, [(-.18, -.72), (.18, -.55)]), outline=c, width=lw - 1)
+        for x in (-.22, 0, .22):
+            L(P(cx, cy, s, [(x, -.25), (x * .85, .6)]), lw - 2)
+    elif name in ('drop', 'drop_r'):
+        pts = [(cx, cy - .85 * s)] + arcpts(cx, cy + .25 * s, .52 * s, .55 * s, -25, 205, 40)
+        d.polygon(pts, fill=(120, 175, 230) if name == 'drop' else (240, 200, 190), outline=c, width=lw)
+    elif name == 'board':
+        d.rectangle(P(cx, cy, s, [(-.9, -.65), (.9, .4)]), fill=WHITE, outline=c, width=lw)
+        L(P(cx, cy, s, [(-.5, .4), (-.7, .9)]))
+        L(P(cx, cy, s, [(.5, .4), (.7, .9)]))
+    elif name == 'foot':
+        d.ellipse(P(cx, cy, s, [(-.32, -.35), (.32, .85)]), fill=(160, 140, 130), outline=c, width=lw - 1)
+        for i, (x, y, r) in enumerate([(-.28, -.62, .12), (-.06, -.72, .11), (.14, -.68, .1), (.3, -.56, .09)]):
+            d.ellipse(P(cx, cy, s, [(x - r, y - r), (x + r, y + r)]), fill=(160, 140, 130), outline=c, width=lw - 2)
+    elif name == 'pen':
+        pts = P(cx, cy, s, [(.55, -.85), (.85, -.55), (-.45, .75), (-.78, .82), (-.72, .5)])
+        d.polygon(pts, fill=YEL, outline=c, width=lw)
+        L(P(cx, cy, s, [(-.45, .75), (-.72, .5)]), lw - 1)
+        d.polygon(P(cx, cy, s, [(.55, -.85), (.85, -.55), (.7, -.4), (.4, -.7)]), fill=(240, 150, 150), outline=c, width=lw - 1)
+    elif name == 'market':
+        d.rectangle(P(cx, cy, s, [(-.85, -.2), (.85, .8)]), fill=WHITE, outline=c, width=lw)
+        for i in range(6):
+            x0 = -.9 + i * .3
+            d.polygon(P(cx, cy, s, [(x0, -.75), (x0 + .3, -.75), (x0 + .3, -.3), (x0 + .15, -.18), (x0, -.3)]),
+                      fill=RED if i % 2 == 0 else WHITE, outline=c, width=lw - 2)
+        d.rectangle(P(cx, cy, s, [(-.6, .25), (.6, .45)]), fill=(200, 160, 110), outline=c, width=lw - 2)
+        for x in (-.4, -.1, .2):
+            d.ellipse(P(cx, cy, s, [(x, .02), (x + .2, .24)]), fill=(230, 120, 60), outline=c, width=lw - 3)
+    elif name == 'cloud':
+        circ = [(-.45, .1, .38), (0, -.2, .48), (.45, .1, .38), (0, .25, .4)]
+        for x, y, r in circ:
+            d.ellipse(P(cx, cy, s, [(x - r, y - r), (x + r, y + r)]), fill=WHITE, outline=c, width=lw)
+        for x, y, r in circ:
+            r2 = r - lw / s * 1.2
+            d.ellipse(P(cx, cy, s, [(x - r2, y - r2), (x + r2, y + r2)]), fill=WHITE)
+    elif name == 'heart':
+        pts = []
+        for i in range(60):
+            a = 2 * math.pi * i / 60
+            x = 16 * math.sin(a) ** 3
+            y = -(13 * math.cos(a) - 5 * math.cos(2 * a) - 2 * math.cos(3 * a) - math.cos(4 * a))
+            pts.append((cx + x / 18 * s, cy + y / 18 * s))
+        d.polygon(pts, fill=RED, outline=c, width=lw)
+    elif name == 'warning':
+        d.polygon(P(cx, cy, s, [(0, -.85), (.9, .72), (-.9, .72)]), fill=YEL, outline=c, width=lw)
+        L(P(cx, cy, s, [(0, -.35), (0, .25)]), lw + 2)
+        d.ellipse(P(cx, cy, s, [(-.08, .4), (.08, .56)]), fill=c)
+    elif name == 'music':
+        L(P(cx, cy, s, [(-.3, .5), (-.3, -.7), (.55, -.85), (.55, .35)]), lw + 1)
+        d.ellipse(P(cx, cy, s, [(-.7, .32), (-.25, .7)]), fill=c)
+        d.ellipse(P(cx, cy, s, [(.15, .18), (.6, .55)]), fill=c)
+    elif name == 'rehal':
+        L(P(cx, cy, s, [(-.6, .85), (.5, -.1)]), lw + 2, (150, 100, 60))
+        L(P(cx, cy, s, [(.6, .85), (-.5, -.1)]), lw + 2, (150, 100, 60))
+        d.polygon(P(cx, cy, s, [(0, -.1), (-.85, -.55), (-.85, -.25), (0, .2)]), fill=WHITE, outline=c, width=lw - 1)
+        d.polygon(P(cx, cy, s, [(0, -.1), (.85, -.55), (.85, -.25), (0, .2)]), fill=WHITE, outline=c, width=lw - 1)
+    elif name == 'up':
+        L(P(cx, cy, s, [(0, .8), (0, -.75)]), lw + 2)
+        L(P(cx, cy, s, [(-.45, -.3), (0, -.8), (.45, -.3)]), lw + 2)
+    elif name == 'sparkle':
+        for (x, y, r) in [(0, 0, .75), (.6, -.55, .28), (-.55, .55, .22)]:
+            pts = []
+            for i in range(8):
+                rr = r if i % 2 == 0 else r * .28
+                a = math.radians(-90 + i * 45)
+                pts.append((cx + (x + rr * math.cos(a)) * s, cy + (y + rr * math.sin(a)) * s))
+            d.polygon(pts, fill=(255, 230, 120), outline=c, width=lw - 2)
+    elif name == 'paper':
+        d.polygon(P(cx, cy, s, [(-.62, -.8), (.32, -.8), (.62, -.5), (.62, .82), (-.62, .82)]), fill=WHITE, outline=c, width=lw)
+        L(P(cx, cy, s, [(.32, -.8), (.32, -.5), (.62, -.5)]), lw - 1)
+        for i in range(4):
+            L(P(cx, cy, s, [(-.42, -.3 + i * .27), (.42, -.3 + i * .27)]), lw - 2)
+    elif name == 'torn':
+        pts = [(-.62, -.8), (.62, -.8), (.62, .1), (.4, .22), (.5, .4), (.25, .5), (.35, .82), (-.62, .82)]
+        d.polygon(P(cx, cy, s, pts), fill=(230, 215, 180), outline=c, width=lw)
+        for i in range(3):
+            L(P(cx, cy, s, [(-.42, -.45 + i * .3), (.38 - i * .12, -.45 + i * .3)]), lw - 2, (150, 140, 120))
+        d.ellipse(P(cx, cy, s, [(-.4, .35), (-.1, .62)]), fill=(200, 180, 140))
+    elif name == 'mound':
+        d.pieslice(P(cx, cy, s, [(-.9, .1), (.9, 1.3)]), 180, 360, fill=(170, 130, 90), outline=c, width=lw)
+        d.rounded_rectangle(P(cx, cy, s, [(-.15, -.7), (.15, .2)]), radius=int(.15 * s), fill=WHITE, outline=c, width=lw - 1)
+        L(P(cx, cy, s, [(-.95, .7), (.95, .7)]), lw)
+    elif name == 'moon':
+        d.ellipse(P(cx, cy, s, [(-.7, -.7), (.7, .7)]), fill=YEL, outline=c, width=lw)
+        d.ellipse(P(cx, cy, s, [(-.35, -.85), (.95, .5)]), fill=WHITE)
+    elif name == 'pause':
+        d.rounded_rectangle(P(cx, cy, s, [(-.5, -.7), (-.15, .7)]), radius=6, fill=c)
+        d.rounded_rectangle(P(cx, cy, s, [(.15, -.7), (.5, .7)]), radius=6, fill=c)
+    elif name == 'loop':
+        L(arcpts(cx, cy, .7 * s, .7 * s, -60, 250, 40), lw + 2, GREEN)
+        e = arcpts(cx, cy, .7 * s, .7 * s, 250, 250, 1)[0]
+        d.polygon([(e[0] - .05 * s, e[1] - .32 * s), (e[0] + .3 * s, e[1] + .02 * s), (e[0] - .22 * s, e[1] + .18 * s)], fill=GREEN)
+    elif name == 'wave':
+        d.polygon(P(cx, cy, s, [(-.85, -.25), (-.5, -.25), (-.15, -.6), (-.15, .6), (-.5, .25), (-.85, .25)]), fill=c)
+        for r in (.35, .6, .85):
+            d.arc(P(cx - .15 * s, cy, s, [(-r, -r), (r, r)]), -45, 45, fill=c, width=lw)
+    elif name == 'mute':
+        draw_icon(d, 'wave', cx, cy, s * .9, c, lw)
+    elif name == 'coin':
+        d.ellipse(P(cx, cy, s, [(-.7, -.7), (.7, .7)]), fill=YEL, outline=c, width=lw)
+        d.ellipse(P(cx, cy, s, [(-.48, -.48), (.48, .48)]), outline=GOLD, width=lw - 2)
+    elif name == 'compass':
+        d.ellipse(P(cx, cy, s, [(-.85, -.85), (.85, .85)]), fill=WHITE, outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(0, -.65), (.16, 0), (-.16, 0)]), fill=GREEN)
+        d.polygon(P(cx, cy, s, [(0, .65), (.16, 0), (-.16, 0)]), fill=LGRAY)
+    elif name == 'clock':
+        d.ellipse(P(cx, cy, s, [(-.8, -.8), (.8, .8)]), fill=WHITE, outline=c, width=lw)
+        L(P(cx, cy, s, [(0, -.5), (0, 0), (.35, .2)]), lw)
+    elif name == 'quote':
+        for x in (-.4, .25):
+            d.ellipse(P(cx, cy, s, [(x - .2, -.4), (x + .2, 0)]), fill=c)
+            L(P(cx, cy, s, [(x + .18, -.2), (x + .05, .35)]), lw + 2)
+    elif name == 'bulb':
+        d.ellipse(P(cx, cy, s, [(-.6, -.85), (.6, .35)]), fill=YEL, outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.25, .3), (.25, .7)]), fill=LGRAY, outline=c, width=lw - 1)
+    elif name == 'scroll':
+        d.rectangle(P(cx, cy, s, [(-.6, -.7), (.6, .7)]), fill=LYEL, outline=c, width=lw)
+        for i in range(4):
+            L(P(cx, cy, s, [(-.4, -.4 + i * .25), (.4, -.4 + i * .25)]), lw - 2)
+    elif name == 'hand':
+        d.rounded_rectangle(P(cx, cy, s, [(-.45, -.1), (.45, .8)]), radius=int(.2 * s), fill=(255, 225, 190), outline=c, width=lw)
+        for i, x in enumerate((-.36, -.12, .12, .36)):
+            d.rounded_rectangle(P(cx, cy, s, [(x - .1, -.7 + abs(i - 1.5) * .12), (x + .1, 0)]), radius=int(.1 * s),
+                                fill=(255, 225, 190), outline=c, width=lw - 2)
+    elif name == 'cabinet':
+        d.rectangle(P(cx, cy, s, [(-.7, -.85), (.7, .85)]), fill=(200, 160, 110), outline=c, width=lw)
+        L(P(cx, cy, s, [(-.7, 0), (.7, 0)]), lw - 1)
+        for i, col_ in enumerate([(38, 110, 70), RED, BLUE, (38, 110, 70), GOLD]):
+            x = -.55 + i * .22
+            d.rectangle(P(cx, cy, s, [(x, -.7), (x + .17, -.08)]), fill=col_, outline=c, width=lw - 3)
+        L(P(cx, cy, s, [(-.6, .2), (-.6, .75)]), lw - 2)
+        L(P(cx, cy, s, [(.6, .2), (.6, .75)]), lw - 2)
+    elif name == 'siwak':
+        L(P(cx, cy, s, [(-.75, .6), (.55, -.45)]), lw + 6, (160, 115, 70))
+        for k in range(5):
+            a = -.35 + k * .18
+            L([(cx + .55 * s, cy - .45 * s), (cx + (.55 + .3 * math.cos(a - .7)) * s, cy + (-.45 + .3 * math.sin(a - .7)) * s)], lw - 2, (230, 210, 170))
+    elif name == 'shirt':
+        d.polygon(P(cx, cy, s, [(-.35, -.75), (-.9, -.45), (-.7, -.05), (-.5, -.15), (-.5, .8), (.5, .8), (.5, -.15), (.7, -.05), (.9, -.45), (.35, -.75), (0, -.55)]), fill=(225, 240, 250), outline=c, width=lw)
+    elif name == 'lock':
+        d.arc(P(cx, cy, s, [(-.4, -.85), (.4, .05)]), 180, 360, fill=c, width=lw + 2)
+        L(P(cx, cy, s, [(-.4, -.4), (-.4, -.1)]), lw + 2)
+        L(P(cx, cy, s, [(.4, -.4), (.4, -.1)]), lw + 2)
+        d.rounded_rectangle(P(cx, cy, s, [(-.62, -.15), (.62, .8)]), radius=int(.1 * s), fill=GOLD, outline=c, width=lw)
+        d.ellipse(P(cx, cy, s, [(-.1, .2), (.1, .4)]), fill=c)
+    elif name == 'brain':
+        draw_icon(d, 'cloud', cx, cy, s, c, lw)
+        L(arcpts(cx, cy + .05 * s, .25 * s, .2 * s, 180, 360, 12), lw - 2)
+
+
+ICON_COLORS = {}
+
+
+@functools.lru_cache(maxsize=512)
+def icon_sprite(name, size=80, col=NAVY):
+    S = 2
+    im = Image.new('RGBA', (size * S * 2, size * S * 2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    draw_icon(d, name, size * S, size * S, size * S * 0.5, col, max(3, int(size / 16)) * S)
+    im = im.resize((size * 2, size * 2), Image.LANCZOS)
+    return im.crop(im.getbbox() or (0, 0, 2, 2))
+
+
+def text_on(d, xy, text, fn, size, col, S=2):
+    f = font(fn, size * S)
+    kw = dict(direction='rtl', language='ar') if is_ar(text) and fn in ('ar', 'arb') else {}
+    bb = d.textbbox((0, 0), text, font=f, **kw)
+    x = xy[0] * S - (bb[0] + bb[2]) / 2
+    y = xy[1] * S - (bb[1] + bb[3]) / 2
+    d.text((x, y), text, font=f, fill=col, **kw)
+
+
+@functools.lru_cache(maxsize=1024)
+def card_sprite(w, h, icon, label, arabic, fill, border, lsize, icol, isize, label_col, ar_size):
+    S = 2
+    im = Image.new('RGBA', (w * S, h * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((2, 2, w * S - 3, h * S - 3), radius=12 * S, fill=fill + (255,), outline=border + (255,), width=3 * S)
+    has_label = bool(label)
+    nl = len(label.split('\n')) if label else 0
+    lab_h = (nl * lsize * 1.08 + 12) if has_label else 0
+    icy = (h - lab_h) / 2 + (3 if has_label else 0)
+    if icon:
+        isz = isize or int(min(w, h - lab_h) * 0.62)
+        sc = isz * 0.72
+        sc = min(sc, (h - lab_h) * 0.46, w * 0.42)
+        draw_icon(d, icon, w * S / 2, icy * S, sc * S, icol, max(3, int(sc) // 9) * S)
+    if arabic:
+        text_on(d, (w / 2, icy + 4), arabic, 'ar', ar_size, NAVY + (255,))
+    if has_label:
+        lines = label.split('\n')
+        n = len(lines)
+        for i, ln in enumerate(lines):
+            yy = h - 12 - lsize * 0.62 * (n - i) - (n - 1 - i) * lsize * 0.42 + lsize * 0.3
+            text_on(d, (w / 2, yy), ln, 'kb', lsize, label_col + (255,))
+    im = im.resize((w, h), Image.LANCZOS)
+    return shadowed(im, (3, 4), 4, 55)
+
+
+class Card(El):
+    def __init__(self, t0, cx, cy, w=150, h=150, icon=None, label=None, arabic=None, fill=WHITE, border=NAVY,
+                 lsize=19, icol=NAVY, isize=None, rot=0, label_col=NAVY, ar_size=44, anim='pop', snd='pop', **kw):
+        super().__init__(t0, **kw)
+        self.sp = card_sprite(w, h, icon, label, arabic, fill, border, lsize, icol, isize, label_col, ar_size)
+        self.cx, self.cy, self.rot, self.anim, self.snd = cx, cy, rot, anim, snd
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, self.snd, 0, 0.8)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        a = self.fade(t)
+        if self.anim == 'pop':
+            s = 0.5 + 0.5 * eback(k / 0.4)
+            paste(fr, self.sp, self.cx, self.cy, a * clamp(k / 0.12), s, self.rot)
+        elif self.anim == 'slide':
+            dx = 60 * (1 - eo(k / 0.45))
+            paste(fr, self.sp, self.cx + dx, self.cy, a * clamp(k / 0.25), 1, self.rot)
+        else:
+            paste(fr, self.sp, self.cx, self.cy - 30 * (1 - eo(k / 0.4)), a * clamp(k / 0.2), 1, self.rot)
+
+
+class Icon(El):
+    def __init__(self, t0, name, cx, cy, size=80, col=NAVY, rot=0, snd='pop', **kw):
+        super().__init__(t0, **kw)
+        self.sp = icon_sprite(name, size, col)
+        self.cx, self.cy, self.rot, self.snd = cx, cy, rot, snd
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, self.snd, 0, 0.7)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        s = 0.3 + 0.7 * eback(k / 0.42)
+        paste(fr, self.sp, self.cx, self.cy, self.fade(t) * clamp(k / 0.12), s, self.rot)
+
+
+@functools.lru_cache(maxsize=512)
+def sticky_sprite(text, sub, w, col):
+    S = 2
+    f1 = font('kb', 22 * S)
+    tw = f1.getlength(text)
+    sw = font('kr', 15 * S).getlength(sub) if sub else 0
+    w = w or int(max(tw, sw) / S + 34)
+    h = 62 if sub else 46
+    im = Image.new('RGBA', (w * S, h * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, w * S, h * S), fill=col + (255,))
+    d.rectangle((0, 0, w * S, 6 * S), fill=tuple(max(0, c - 18) for c in col) + (255,))
+    if sub:
+        text_on(d, (w / 2, 25), text, 'kb', 22, (60, 50, 30, 255))
+        text_on(d, (w / 2, 46), sub, 'kr', 15, (80, 70, 50, 255))
+    else:
+        text_on(d, (w / 2, h / 2 + 1), text, 'kb', 22, (60, 50, 30, 255))
+    im = im.resize((w, h), Image.LANCZOS)
+    return shadowed(im, (3, 5), 5, 70)
+
+
+class Sticky(El):
+    def __init__(self, t0, cx, cy, text, sub=None, rot=-4, w=None, col=YEL, **kw):
+        super().__init__(t0, **kw)
+        self.sp = sticky_sprite(text, sub, w, col)
+        self.cx, self.cy, self.rot = cx, cy, rot
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, 'paper', 0, 0.8)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        e = eo(k / 0.4)
+        paste(fr, self.sp, self.cx - 40 * (1 - e), self.cy + 20 * (1 - e), self.fade(t) * clamp(k / 0.2), 1.0,
+              self.rot + 8 * (1 - e))
+
+
+@functools.lru_cache(maxsize=512)
+def chip_sprite(text, fill, col, border, size, fn):
+    S = 2
+    f = font(fn, size * S)
+    kw = dict(direction='rtl', language='ar') if is_ar(text) and fn in ('ar', 'arb') else {}
+    tw = f.getlength(text, **kw) / S
+    w = int(tw + size * 1.3)
+    h = int(size * (2.0 if fn in ('ar', 'arb') else 1.75))
+    im = Image.new('RGBA', (w * S, h * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((2, 2, w * S - 3, h * S - 3), radius=h * S // 2 - 2, fill=fill + (255,),
+                        outline=border + (255,), width=int(2.5 * S))
+    text_on(d, (w / 2, h / 2 + (2 if fn in ('ar', 'arb') else 1)), text, fn, size, col + (255,))
+    im = im.resize((w, h), Image.LANCZOS)
+    return shadowed(im, (2, 3), 3, 40)
+
+
+class Chip(El):
+    def __init__(self, t0, cx, cy, text, fill=WHITE, col=NAVY, border=NAVY, size=22, fn='kb', **kw):
+        super().__init__(t0, **kw)
+        self.sp = chip_sprite(text, fill, col, border, size, fn)
+        self.cx, self.cy = cx, cy
+        self.w = self.sp.width
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, 'click', 0, 0.8)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        s = 0.5 + 0.5 * eback(k / 0.35)
+        paste(fr, self.sp, self.cx, self.cy, self.fade(t) * clamp(k / 0.1), s)
+
+
+@functools.lru_cache(maxsize=256)
+def stamp_sprite(text, col, size):
+    S = 2
+    f = font('kb', size * S)
+    tw = f.getlength(text) / S
+    w, h = int(tw + size * 1.2), int(size * 1.9)
+    im = Image.new('RGBA', (w * S, h * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.rectangle((3, 3, w * S - 4, h * S - 4), outline=col + (230,), width=3 * S)
+    d.rectangle((9 * S, 9 * S, w * S - 9 * S, h * S - 9 * S), outline=col + (200,), width=1 * S)
+    text_on(d, (w / 2, h / 2 + 2), text, 'kb', size, col + (235,))
+    im = im.resize((w, h), Image.LANCZOS)
+    # grunge
+    a = np.array(im)
+    rng = np.random.default_rng(len(text))
+    holes = rng.random(a.shape[:2]) < 0.08
+    a[..., 3] = np.where(holes, a[..., 3] * 0.4, a[..., 3]).astype(np.uint8)
+    return Image.fromarray(a, 'RGBA')
+
+
+class Stamp(El):
+    def __init__(self, t0, cx, cy, text, col=RED, rot=-9, size=30, **kw):
+        super().__init__(t0, **kw)
+        self.sp = stamp_sprite(text, col, size)
+        self.cx, self.cy, self.rot = cx, cy, rot
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0 + 0.12, 'thud', 0, 1.0)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        s = 1 + 0.9 * (1 - eo(k / 0.16))
+        paste(fr, self.sp, self.cx, self.cy, self.fade(t) * clamp(k / 0.1), s, self.rot)
+
+
+def poly_len(pts):
+    return sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+
+
+def poly_partial(pts, p):
+    if p >= 1:
+        return pts
+    tot = poly_len(pts) * p
+    out = [pts[0]]
+    for i in range(len(pts) - 1):
+        seg = math.dist(pts[i], pts[i + 1])
+        if seg >= tot:
+            f = tot / seg if seg else 0
+            out.append((pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f))
+            return out
+        tot -= seg
+        out.append(pts[i + 1])
+    return out
+
+
+class Line(El):
+    z = 1
+
+    def __init__(self, t0, pts, color=NAVY, width=4, dur=0.5, arrow=False, dashed=False, snd='swoosh', head=14, **kw):
+        super().__init__(t0, **kw)
+        self.pts, self.color, self.width, self.dur = pts, color, width, dur
+        self.arrow, self.dashed, self.snd, self.head = arrow, dashed, snd, head
+
+    def register(self):
+        if self.sfx_on and self.snd:
+            sfx(self.t0, self.snd, self.dur, 0.6)
+
+    def draw(self, fr, t):
+        p = eio((t - self.t0) / self.dur)
+        a = self.fade(t)
+        col = mix(PAPER, self.color, a)
+        d = ImageDraw.Draw(fr)
+        pts = poly_partial(self.pts, p)
+        if len(pts) < 2:
+            return
+        if self.dashed:
+            # draw dashes along
+            L = poly_len(pts)
+            n = int(L / 16)
+            for i in range(n):
+                q0, q1 = i / max(1, n), (i + 0.55) / max(1, n)
+                a0 = poly_partial(pts, q0)[-1]
+                a1 = poly_partial(pts, q1)[-1]
+                d.line([a0, a1], fill=col, width=self.width)
+        else:
+            d.line(pts, fill=col, width=self.width, joint='curve')
+            r = self.width / 2 - 0.5
+            for q in (pts[0], pts[-1]):
+                d.ellipse((q[0] - r, q[1] - r, q[0] + r, q[1] + r), fill=col)
+        if self.arrow and p > 0.85:
+            (x0, y0), (x1, y1) = pts[-2], pts[-1]
+            ang = math.atan2(y1 - y0, x1 - x0)
+            hs = self.head
+            l = (x1 - hs * math.cos(ang - 0.45), y1 - hs * math.sin(ang - 0.45))
+            r_ = (x1 - hs * math.cos(ang + 0.45), y1 - hs * math.sin(ang + 0.45))
+            d.line([l, (x1, y1), r_], fill=col, width=self.width, joint='curve')
+
+
+def arrow(t0, x0, y0, x1, y1, color=NAVY, bend=0.0, **kw):
+    n = 24
+    mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+    nx, ny = -(y1 - y0), (x1 - x0)
+    L = math.hypot(nx, ny) or 1
+    cxp, cyp = mx + nx / L * bend, my + ny / L * bend
+    pts = []
+    for i in range(n + 1):
+        u = i / n
+        pts.append(((1 - u) ** 2 * x0 + 2 * (1 - u) * u * cxp + u * u * x1, (1 - u) ** 2 * y0 + 2 * (1 - u) * u * cyp + u * u * y1))
+    kw.setdefault('arrow', True)
+    return Line(t0, pts, color, **kw)
+
+
+class Ellipse(Line):
+    def __init__(self, t0, cx, cy, rx, ry, color=GREEN, width=4, dur=0.5, **kw):
+        pts = []
+        n = 70
+        for i in range(n + 1):
+            a = math.radians(-120 + 385 * i / n)
+            wob = 1 + 0.04 * math.sin(i / n * 7)
+            pts.append((cx + rx * wob * math.cos(a), cy + ry * wob * math.sin(a)))
+        kw.setdefault('snd', MARKER_SFX)
+        super().__init__(t0, pts, color, width, dur, **kw)
+
+
+def strike(t0, x0, x1, y, color=RED, **kw):
+    pts = [(x0, y + 2), ((x0 + x1) / 2, y - 3), (x1, y + 1)]
+    kw.setdefault('snd', 'scratch')
+    kw.setdefault('dur', 0.3)
+    return Line(t0, pts, color, 4, **kw)
+
+
+def underline(t0, x0, x1, y, color=GREEN, **kw):
+    pts = [(x0, y), ((x0 + x1) / 2, y + 3), (x1, y - 1)]
+    kw.setdefault('snd', 'scratch')
+    kw.setdefault('dur', 0.35)
+    return Line(t0, pts, color, 4, **kw)
+
+
+class Mark(El):
+    """check or cross drawn progressively"""
+    z = 2
+
+    def __init__(self, t0, kind, cx, cy, s=26, **kw):
+        super().__init__(t0, **kw)
+        self.kind, self.cx, self.cy, self.s = kind, cx, cy, s
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, 'correct' if self.kind == 'check' else 'wrong', 0, 0.75)
+
+    def draw(self, fr, t):
+        k = (t - self.t0) / 0.3
+        a = self.fade(t)
+        d = ImageDraw.Draw(fr)
+        cx, cy, s = self.cx, self.cy, self.s
+        if self.kind == 'check':
+            col = mix(PAPER, GREEN, a)
+            pts = [(cx - s, cy), (cx - s * .3, cy + s * .7), (cx + s, cy - s * .8)]
+            pp = poly_partial(pts, eo(k))
+            if len(pp) > 1:
+                d.line(pp, fill=col, width=int(s / 4.5), joint='curve')
+        else:
+            col = mix(PAPER, RED, a)
+            p1 = poly_partial([(cx - s, cy - s), (cx + s, cy + s)], eo(k * 2))
+            p2 = poly_partial([(cx + s, cy - s), (cx - s, cy + s)], eo(k * 2 - 1))
+            for pp in (p1, p2):
+                if len(pp) > 1:
+                    d.line(pp, fill=col, width=int(s / 4.5))
+
+
+class Ticks(El):
+    def __init__(self, t0, n, total=15, cy=196, x0=95, x1=625, **kw):
+        super().__init__(t0, **kw)
+        self.n, self.total, self.cy, self.x0, self.x1 = n, total, cy, x0, x1
+        self.pencil = pencil_sprite()
+
+    def register(self):
+        sfx(self.t0, 'soft', 0, 0.5)
+        sfx(self.t0 + 0.35, 'tick', 0, 1.0)
+        sfx(self.t0 + 0.35, 'write', 0.35, 0.7)
+
+    def xs(self, i):
+        return self.x0 + (self.x1 - self.x0) * i / (self.total - 1)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        a = self.fade(t) * clamp(k / 0.25)
+        d = ImageDraw.Draw(fr)
+        for i in range(self.total):
+            x = self.xs(i)
+            if i < self.n - 1:
+                col = mix(PAPER, NAVY, a)
+                d.line([(x, self.cy - 22), (x, self.cy + 22)], fill=col, width=5)
+            elif i == self.n - 1:
+                p = eo((k - 0.35) / 0.35)
+                if p > 0:
+                    col = mix(PAPER, GREEN, a)
+                    d.line([(x, self.cy - 22), (x, self.cy - 22 + 44 * p)], fill=col, width=6)
+                if k < 1.3:
+                    pa = a * clamp((1.3 - k) / 0.3) * clamp(k / 0.2)
+                    paste(fr, self.pencil, x + 14, self.cy - 30 + 44 * clamp((k - 0.35) / 0.35), pa)
+            else:
+                col = mix(PAPER, LGRAY, a)
+                d.line([(x, self.cy - 22), (x, self.cy + 22)], fill=col, width=3)
+
+
+@functools.lru_cache(None)
+def pencil_sprite():
+    S = 2
+    im = Image.new('RGBA', (40 * S, 80 * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    d.polygon([(6 * S, 4 * S), (26 * S, 4 * S), (26 * S, 56 * S), (16 * S, 74 * S), (6 * S, 56 * S)], fill=(245, 200, 70), outline=NAVY, width=2 * S)
+    d.polygon([(6 * S, 56 * S), (26 * S, 56 * S), (16 * S, 74 * S)], fill=(240, 220, 190), outline=NAVY, width=2 * S)
+    d.polygon([(13 * S, 68 * S), (19 * S, 68 * S), (16 * S, 74 * S)], fill=NAVY)
+    d.rectangle((6 * S, 4 * S, 26 * S, 12 * S), fill=(240, 150, 150), outline=NAVY, width=2 * S)
+    im = im.resize((40, 80), Image.LANCZOS).rotate(-20, Image.BICUBIC, expand=True)
+    return im
+
+
+class Bar(El):
+    """progress bar animating from p0 to p1"""
+
+    def __init__(self, t0, cx, cy, w, h, p0, p1, dur=1.0, col=GREEN, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.w, self.h, self.p0, self.p1, self.dur, self.col = cx, cy, w, h, p0, p1, dur, col
+
+    def register(self):
+        sfx(self.t0, 'rise', self.dur, 0.6)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        a = self.fade(t) * clamp(k / 0.2)
+        d = ImageDraw.Draw(fr)
+        x0, y0 = self.cx - self.w / 2, self.cy - self.h / 2
+        p = self.p0 + (self.p1 - self.p0) * eio(k / self.dur)
+        d.rounded_rectangle((x0, y0, x0 + self.w, y0 + self.h), radius=self.h // 2, fill=mix(PAPER, WHITE, a), outline=mix(PAPER, NAVY, a), width=3)
+        if p > 0.02:
+            d.rounded_rectangle((x0 + 4, y0 + 4, x0 + 4 + (self.w - 8) * p, y0 + self.h - 4), radius=(self.h - 8) // 2, fill=mix(PAPER, self.col, a))
+
+
+class Ruler(El):
+    def __init__(self, t0, cx, cy, w=560, h=24, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.w, self.h = cx, cy, w, h
+
+    def register(self):
+        sfx(self.t0, 'slide', 0.4, 0.7)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        p = eo(k / 0.45)
+        a = self.fade(t)
+        d = ImageDraw.Draw(fr)
+        x0 = self.cx - self.w / 2
+        y0 = self.cy - self.h / 2
+        ww = self.w * p
+        if ww < 4:
+            return
+        d.rectangle((x0, y0, x0 + ww, y0 + self.h), fill=mix(PAPER, (240, 208, 100), a), outline=mix(PAPER, (190, 150, 60), a), width=2)
+        for i in range(int(ww / 10)):
+            x = x0 + i * 10
+            hh = self.h * (0.55 if i % 5 == 0 else 0.3)
+            d.line([(x, y0), (x, y0 + hh)], fill=mix(PAPER, (150, 110, 40), a), width=1)
+
+
+class Wave(Line):
+    def __init__(self, t0, x0, x1, cy, amp, freq, color=NAVY, grow=False, **kw):
+        pts = []
+        n = 120
+        for i in range(n + 1):
+            u = i / n
+            A = amp * (u * 1.6 if grow else 1)
+            pts.append((x0 + (x1 - x0) * u, cy + A * math.sin(u * freq * 2 * math.pi)))
+        kw.setdefault('snd', 'swoosh')
+        super().__init__(t0, pts, color, 4, **kw)
+
+
+class Box(El):
+    """plain rounded rectangle frame (draw-on fade)"""
+    z = -1
+
+    def __init__(self, t0, x0, y0, x1, y1, col=NAVY, fill=None, width=3, r=14, dashed=False, **kw):
+        super().__init__(t0, **kw)
+        self.b = (x0, y0, x1, y1)
+        self.col, self.fill, self.width, self.r = col, fill, width, r
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, 'soft', 0, 0.6)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        a = self.fade(t) * eo(k / 0.3)
+        s = 0.92 + 0.08 * eo(k / 0.3)
+        x0, y0, x1, y1 = self.b
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        bx = (cx - (cx - x0) * s, cy - (cy - y0) * s, cx + (x1 - cx) * s, cy + (y1 - cy) * s)
+        d = ImageDraw.Draw(fr)
+        d.rounded_rectangle(bx, radius=self.r, fill=mix(PAPER, self.fill, a) if self.fill else None,
+                            outline=mix(PAPER, self.col, a), width=self.width)
+
+
+class Dots(El):
+    def __init__(self, t0, pts, col=NAVY, r=6, gap=0.08, **kw):
+        super().__init__(t0, **kw)
+        self.pts, self.col, self.r, self.gap = pts, col, r, gap
+
+    def register(self):
+        if self.gap < 0.05:
+            sfx(self.t0, 'rise', len(self.pts) * self.gap, 0.8)
+            for i in range(0, len(self.pts), 6):
+                sfx(self.t0 + i * self.gap, 'tick', 0, 0.3)
+            return
+        for i in range(len(self.pts)):
+            sfx(self.t0 + i * self.gap, 'tick', 0, 0.35)
+
+    def draw(self, fr, t):
+        d = ImageDraw.Draw(fr)
+        a = self.fade(t)
+        for i, (x, y) in enumerate(self.pts):
+            k = t - self.t0 - i * self.gap
+            if k <= 0:
+                continue
+            r = self.r * eback(k / 0.25)
+            col = mix(PAPER, self.col, a)
+            d.ellipse((x - r, y - r, x + r, y + r), fill=col)
+
+
+# ======================================================================= v2: animasi tambahan
+_old_draw_icon = draw_icon
+
+
+def draw_icon(d, name, cx, cy, s, col=NAVY, lw=6):
+    c = col
+    L = lambda pts, w=lw, fill=c: d.line(pts, fill=fill, width=w, joint='curve')
+    SK = (240, 212, 178)
+    if name == 'tap':
+        d.rounded_rectangle(P(cx, cy, s, [(-.85, -.75), (-.55, .1)]), radius=int(.08 * s), fill=(190, 196, 206), outline=c, width=lw)
+        d.rounded_rectangle(P(cx, cy, s, [(-.6, -.75), (.45, -.45)]), radius=int(.1 * s), fill=(190, 196, 206), outline=c, width=lw)
+        d.rounded_rectangle(P(cx, cy, s, [(.25, -.5), (.45, -.25)]), radius=int(.05 * s), fill=(190, 196, 206), outline=c, width=lw - 1)
+        d.rectangle(P(cx, cy, s, [(-.2, -.95), (.05, -.75)]), fill=RED, outline=c, width=lw - 2)
+        for k, y in enumerate((-.05, .3, .65)):
+            d.ellipse(P(cx, cy, s, [(.28, y), (.42, y + .2)]), fill=(120, 175, 230), outline=c, width=max(1, lw - 3))
+    elif name in ('reader', 'reader_g'):
+        body = GREEN if name == 'reader_g' else (70, 110, 160)
+        d.ellipse(P(cx, cy, s, [(-.75, .38), (.75, .82)]), fill=NAVY, outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(-.38, -.38), (.38, -.38), (.5, .55), (-.5, .55)]), fill=body, outline=c, width=lw)
+        d.ellipse(P(cx, cy, s, [(-.2, -.82), (.2, -.42)]), fill=SK, outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(-.2, -.66), (-.22, -.82), (0, -.92), (.22, -.82), (.2, -.66)]), fill=WHITE, outline=c, width=lw - 2)
+        d.polygon(P(cx, cy, s, [(0, .05), (-.5, -.08), (-.5, .3), (0, .42)]), fill=WHITE, outline=c, width=lw - 1)
+        d.polygon(P(cx, cy, s, [(0, .05), (.5, -.08), (.5, .3), (0, .42)]), fill=WHITE, outline=c, width=lw - 1)
+        L(P(cx, cy, s, [(-.38, -.25), (-.48, .1)]), lw)
+        L(P(cx, cy, s, [(.38, -.25), (.48, .1)]), lw)
+    elif name == 'ablution':
+        draw_icon(d, 'tap', cx + .35 * s, cy - .2 * s, s * .7, c, lw)
+        d.polygon(P(cx, cy, s, [(-.65, -.2), (-.15, -.2), (-.05, .85), (-.75, .85)]), fill=(70, 110, 160), outline=c, width=lw)
+        d.ellipse(P(cx, cy, s, [(-.6, -.68), (-.2, -.28)]), fill=SK, outline=c, width=lw)
+        L(P(cx, cy, s, [(-.2, -.05), (.12, .18), (.3, .15)]), lw + 1)
+        d.ellipse(P(cx, cy, s, [(.22, .06), (.42, .24)]), fill=SK, outline=c, width=lw - 2)
+    elif name == 'hands_dua':
+        for sg in (-1, 1):
+            pts = [(sg * .08, .75), (sg * .08, -.1), (sg * .3, -.62), (sg * .62, -.55), (sg * .55, .05), (sg * .4, .75)]
+            d.polygon(P(cx, cy, s, pts), fill=SK, outline=c, width=lw)
+        for r in (.25, .4):
+            d.arc(P(cx, cy - .85 * s, s, [(-r, -r), (r, r)]), 200, 340, fill=GOLD, width=lw - 1)
+    elif name == 'lamp':
+        d.ellipse(P(cx, cy, s, [(-.7, .05), (.5, .6)]), fill=GOLD, outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(.4, .15), (.9, .05), (.5, .4)]), fill=GOLD, outline=c, width=lw - 1)
+        d.arc(P(cx, cy, s, [(-.95, .05), (-.55, .45)]), 90, 270, fill=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.35, .55), (.15, .75)]), fill=GOLD, outline=c, width=lw - 1)
+        draw_icon(d, 'flame', cx + .78 * s, cy - .28 * s, s * .38, c, max(2, lw - 2))
+    elif name == 'magnifier':
+        L(P(cx, cy, s, [(.3, .3), (.82, .82)]), lw + 6, (150, 110, 70))
+        d.ellipse(P(cx, cy, s, [(-.72, -.72), (.42, .42)]), fill=(226, 240, 250), outline=c, width=lw + 1)
+        d.arc(P(cx, cy, s, [(-.55, -.55), (.25, .25)]), 200, 260, fill=WHITE, width=lw)
+    elif name == 'hourglass':
+        L(P(cx, cy, s, [(-.55, -.85), (.55, -.85)]), lw + 3); L(P(cx, cy, s, [(-.55, .85), (.55, .85)]), lw + 3)
+        d.polygon(P(cx, cy, s, [(-.45, -.8), (.45, -.8), (0, 0)]), fill=(250, 240, 210), outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(-.45, .8), (.45, .8), (0, 0)]), fill=(250, 240, 210), outline=c, width=lw)
+        d.polygon(P(cx, cy, s, [(-.3, .78), (.3, .78), (0, .38)]), fill=GOLD)
+    elif name == 'tasbih':
+        for k in range(18):
+            a = 2 * math.pi * k / 18
+            x, y = .58 * math.cos(a), .5 * math.sin(a) - .1
+            d.ellipse(P(cx, cy, s, [(x - .1, y - .1), (x + .1, y + .1)]), fill=(150, 90, 50), outline=c, width=max(1, lw - 3))
+        d.polygon(P(cx, cy, s, [(-.08, .42), (.08, .42), (.12, .85), (-.12, .85)]), fill=GOLD, outline=c, width=lw - 2)
+    elif name == 'sajadah':
+        d.rectangle(P(cx, cy, s, [(-.55, -.85), (.55, .85)]), fill=(150, 40, 50), outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.42, -.72), (.42, .72)]), outline=GOLD, width=lw - 2)
+        d.pieslice(P(cx, cy, s, [(-.3, -.6), (.3, -.05)]), 180, 360, fill=GOLD)
+        d.rectangle(P(cx, cy, s, [(-.3, -.33), (.3, .1)]), fill=GOLD)
+    elif name == 'calendar':
+        d.rounded_rectangle(P(cx, cy, s, [(-.75, -.6), (.75, .8)]), radius=int(.1 * s), fill=WHITE, outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.75, -.6), (.75, -.25)]), fill=RED, outline=c, width=lw)
+        for i in range(3):
+            for j in range(3):
+                d.rectangle(P(cx, cy, s, [(-.5 + i * .38, -.05 + j * .27), (-.32 + i * .38, .1 + j * .27)]), fill=LGRAY)
+    elif name == 'scale':
+        L(P(cx, cy, s, [(0, -.8), (0, .75)]), lw + 1); L(P(cx, cy, s, [(-.4, .78), (.4, .78)]), lw + 2)
+        L(P(cx, cy, s, [(-.75, -.55), (.75, -.55)]), lw + 1)
+        for sg in (-1, 1):
+            L(P(cx, cy, s, [(sg * .75, -.55), (sg * .95, .05), (sg * .55, .05), (sg * .75, -.55)]), lw - 2)
+            d.pieslice(P(cx, cy, s, [(sg * .75 - .25, -.15), (sg * .75 + .25, .25)]), 0, 180, fill=GOLD, outline=c, width=lw - 2)
+    elif name == 'tree':
+        d.rectangle(P(cx, cy, s, [(-.12, .1), (.12, .85)]), fill=(140, 96, 60), outline=c, width=lw - 1)
+        for x, y, r in [(-.35, -.15, .38), (.35, -.15, .38), (0, -.5, .45)]:
+            d.ellipse(P(cx, cy, s, [(x - r, y - r), (x + r, y + r)]), fill=GREEN, outline=c, width=lw - 1)
+    elif name == 'rain':
+        draw_icon(d, 'cloud', cx, cy - .25 * s, s * .8, c, lw)
+        for x in (-.4, 0, .4):
+            L(P(cx, cy, s, [(x, .45), (x - .1, .8)]), lw, (64, 120, 190))
+    elif name == 'key':
+        d.ellipse(P(cx, cy, s, [(-.85, -.35), (-.2, .3)]), fill=GOLD, outline=c, width=lw)
+        L(P(cx, cy, s, [(-.2, 0), (.85, 0)]), lw + 3)
+        L(P(cx, cy, s, [(.55, 0), (.55, .3)]), lw + 2); L(P(cx, cy, s, [(.78, 0), (.78, .25)]), lw + 2)
+    elif name == 'gift':
+        d.rectangle(P(cx, cy, s, [(-.7, -.2), (.7, .8)]), fill=RED, outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.8, -.45), (.8, -.2)]), fill=RED, outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.12, -.45), (.12, .8)]), fill=GOLD)
+        d.ellipse(P(cx, cy, s, [(-.45, -.75), (0, -.45)]), outline=GOLD, width=lw); d.ellipse(P(cx, cy, s, [(0, -.75), (.45, -.45)]), outline=GOLD, width=lw)
+    elif name == 'bell':
+        d.chord(P(cx, cy, s, [(-.6, -.75), (.6, .9)]), 180, 360, fill=GOLD, outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.6, .05), (.6, .5)]), fill=GOLD, outline=None)
+        L(P(cx, cy, s, [(-.6, .1), (-.6, .5)]), lw); L(P(cx, cy, s, [(.6, .1), (.6, .5)]), lw)
+        L(P(cx, cy, s, [(-.8, .5), (.8, .5)]), lw + 1)
+        d.ellipse(P(cx, cy, s, [(-.13, .5), (.13, .78)]), fill=c)
+    elif name == 'trophy':
+        d.pieslice(P(cx, cy, s, [(-.55, -.9), (.55, .3)]), 0, 180, fill=GOLD, outline=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.55, -.85), (.55, -.3)]), fill=GOLD, outline=None)
+        L(P(cx, cy, s, [(-.55, -.85), (.55, -.85)]), lw)
+        d.arc(P(cx, cy, s, [(-.85, -.75), (-.4, -.15)]), 90, 270, fill=c, width=lw)
+        d.arc(P(cx, cy, s, [(.4, -.75), (.85, -.15)]), 270, 90, fill=c, width=lw)
+        d.rectangle(P(cx, cy, s, [(-.1, .3), (.1, .55)]), fill=GOLD, outline=c, width=lw - 2)
+        d.rectangle(P(cx, cy, s, [(-.4, .55), (.4, .78)]), fill=(150, 110, 70), outline=c, width=lw)
+    elif name == 'door':
+        d.rounded_rectangle(P(cx, cy, s, [(-.55, -.85), (.55, .85)]), radius=int(.3 * s), fill=(170, 120, 80), outline=c, width=lw)
+        d.ellipse(P(cx, cy, s, [(.22, 0), (.36, .14)]), fill=GOLD)
+    elif name == 'surga':
+        # gerbang taman surga: gerbang emas, cahaya hijau, dua pohon, sungai, kilau (tanpa sosok)
+        w1, w2, w3 = max(2, int(lw * .6)), max(2, int(lw * .4)), max(1, int(lw * .3))
+        for sg in (-1, 1):
+            d.rectangle(P(cx, cy, s, [(sg * .78 - .05, .22), (sg * .78 + .05, .62)]), fill=(140, 96, 60))
+            d.ellipse(P(cx, cy, s, [(sg * .78 - .21, -.16), (sg * .78 + .21, .3)]), fill=GREEN, outline=c, width=w2)
+        d.chord(P(cx, cy, s, [(-.5, -.8), (.5, .2)]), 180, 360, fill=GOLD, outline=c, width=w1)
+        d.rectangle(P(cx, cy, s, [(-.5, -.3), (.5, .62)]), fill=GOLD, outline=None)
+        L(P(cx, cy, s, [(-.5, -.31), (-.5, .62)]), w1); L(P(cx, cy, s, [(.5, -.31), (.5, .62)]), w1)
+        d.chord(P(cx, cy, s, [(-.3, -.55), (.3, .05)]), 180, 360, fill=(214, 238, 200), outline=c, width=w2)
+        d.rectangle(P(cx, cy, s, [(-.3, -.25), (.3, .62)]), fill=(214, 238, 200), outline=None)
+        L(P(cx, cy, s, [(-.3, -.26), (-.3, .62)]), w2); L(P(cx, cy, s, [(.3, -.26), (.3, .62)]), w2)
+        d.ellipse(P(cx, cy, s, [(-.07, -.94), (.07, -.8)]), fill=GOLD, outline=c, width=w3)
+        d.rectangle(P(cx, cy, s, [(-.95, .62), (.95, .9)]), fill=(150, 196, 236))
+        L(P(cx, cy, s, [(-.95, .62), (.95, .62)]), w1)
+        for x0 in (-.8, -.25, .3):
+            d.arc(P(cx, cy, s, [(x0, .68), (x0 + .3, .84)]), 200, 340, fill=(64, 120, 190), width=w3)
+        for x, y, r in [(-.7, -.62, .12), (.72, -.5, .1), (.4, -.9, .07)]:
+            L(P(cx, cy, s, [(x - r, y), (x + r, y)]), w3, GOLD); L(P(cx, cy, s, [(x, y - r), (x, y + r)]), w3, GOLD)
+    else:
+        _old_draw_icon(d, name, cx, cy, s, col, lw)
+
+
+def _fx_mod(fx, k):
+    """kembalikan (scale, rot, dy, alpha) untuk animasi ikon yang hidup"""
+    if not fx or k < 0.45:
+        return 1.0, 0.0, 0.0, 1.0
+    u = k - 0.45
+    if fx == 'beat':
+        p = (u * 1.4) % 1.0
+        return 1 + 0.09 * math.exp(-p * 7) * math.sin(p * 18), 0.0, 0.0, 1.0
+    if fx == 'wiggle':
+        return 1.0, 7 * math.sin(u * 2 * math.pi * 1.1) * math.exp(-u * 0.25), 0.0, 1.0
+    if fx == 'float':
+        return 1.0, 0.0, 6 * math.sin(u * 2 * math.pi * 0.6), 1.0
+    if fx == 'twinkle':
+        return 1 + 0.05 * math.sin(u * 9), 4 * math.sin(u * 3), 0.0, 0.8 + 0.2 * math.sin(u * 7)
+    if fx == 'drip':
+        return 1.0, 0.0, 4 * math.sin(u * 2 * math.pi * 0.8), 1.0
+    return 1.0, 0.0, 0.0, 1.0
+
+
+class Icon2(El):
+    """ikon dengan animasi hidup: fx = beat | wiggle | float | twinkle | drip"""
+
+    def __init__(self, t0, name, cx, cy, size=80, col=NAVY, rot=0, fx=None, snd='pop', **kw):
+        super().__init__(t0, **kw)
+        self.sp = icon_sprite(name, size, col)
+        self.cx, self.cy, self.rot, self.fx, self.snd, self.name = cx, cy, rot, fx, snd, name
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, self.snd, 0, 0.7)
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        s0 = 0.3 + 0.7 * eback(k / 0.42)
+        sm, rm, dy, am = _fx_mod(self.fx, k)
+        paste(fr, self.sp, self.cx, self.cy + dy, self.fade(t) * clamp(k / 0.12) * am, s0 * sm, self.rot + rm)
+        if self.fx == 'drip' and k > 0.5:
+            u = ((k - 0.5) * 0.9) % 1.0
+            d = ImageDraw.Draw(fr)
+            y = self.cy + self.sp.height * 0.45 + 60 * eio(u)
+            a = self.fade(t) * (1 - u)
+            col = mix(PAPER, (90, 150, 220), a)
+            d.ellipse((self.cx - 6, y - 9, self.cx + 6, y + 9), fill=col)
+
+
+class Card2(Card):
+    def __init__(self, *a, fx=None, **kw):
+        super().__init__(*a, **kw)
+        self.fx = fx
+
+    def draw(self, fr, t):
+        k = t - self.t0
+        a = self.fade(t)
+        s = 0.5 + 0.5 * eback(k / 0.4)
+        sm, rm, dy, am = _fx_mod(self.fx, k)
+        paste(fr, self.sp, self.cx, self.cy + dy, a * clamp(k / 0.12), s * sm, self.rot + rm * 0.5)
+
+
+class Marker(El):
+    """sapuan stabilo transparan di belakang teks"""
+    z = -0.5
+
+    def __init__(self, t0, x0, x1, cy, h=34, col=(250, 222, 90), alpha=120, dur=0.45, snd=None, **kw):
+        super().__init__(t0, **kw)
+        self.snd = snd or STABILO_SFX
+        self.x0, self.x1, self.cy, self.h, self.col, self.alpha, self.dur = x0, x1, cy, h, col, alpha, dur
+        w = int(x1 - x0)
+        im = Image.new('RGBA', (w + 10, h + 10), (0, 0, 0, 0))
+        dd = ImageDraw.Draw(im)
+        rng = np.random.default_rng(int(x0 + cy))
+        top = [(x, 5 + rng.uniform(-2, 3)) for x in np.linspace(3, w + 6, 12)]
+        bot = [(x, h + 5 + rng.uniform(-3, 2)) for x in np.linspace(w + 6, 3, 12)]
+        dd.polygon(top + bot, fill=col + (alpha,))
+        self.sp = im
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, self.snd, self.dur, 0.5)
+
+    def draw(self, fr, t):
+        p = eio((t - self.t0) / self.dur)
+        a = self.fade(t)
+        w = int(self.sp.width * p)
+        if w < 2:
+            return
+        sp = self.sp.crop((0, 0, w, self.sp.height))
+        if a < 0.99:
+            sp = _alpha_now(sp, a)
+        fr.paste(sp, (int(self.x0 - 5), int(self.cy - self.sp.height / 2)), sp)
+
+
+class Burst(El):
+    """percikan bintang kecil saat momen penting"""
+    z = 3
+
+    def __init__(self, t0, cx, cy, n=12, r=90, col=GOLD, **kw):
+        super().__init__(t0, **kw)
+        rng = np.random.default_rng(int(cx * 7 + cy))
+        self.parts = [(rng.uniform(0, 2 * math.pi), rng.uniform(.6, 1.0) * r, rng.uniform(3, 7)) for _ in range(n)]
+        self.cx, self.cy, self.col = cx, cy, col
+
+    def register(self):
+        if self.sfx_on:
+            sfx(self.t0, 'ding', 0, 0.35)
+
+    def active(self, t):
+        return self.t0 <= t < self.t0 + 0.8
+
+    def draw(self, fr, t):
+        k = (t - self.t0) / 0.8
+        d = ImageDraw.Draw(fr)
+        col = mix(PAPER, self.col, 1 - k)
+        for a, r, sz in self.parts:
+            x = self.cx + math.cos(a) * r * eo(k)
+            y = self.cy + math.sin(a) * r * eo(k)
+            s = sz * (1 - k * 0.6)
+            d.polygon([(x, y - s * 1.6), (x + s * .45, y - s * .45), (x + s * 1.6, y), (x + s * .45, y + s * .45),
+                       (x, y + s * 1.6), (x - s * .45, y + s * .45), (x - s * 1.6, y), (x - s * .45, y - s * .45)], fill=col)
+
+
+@functools.lru_cache(None)
+def _sheet():
+    im = Image.new('RGB', (W, H + 72))
+    im.paste(BG, (0, 72)); im.paste(BG.crop((0, 0, W, 72)), (0, 0))
+    sh = Image.new('RGBA', (60, H + 72), (0, 0, 0, 0))
+    g = np.linspace(90, 0, 60).astype(np.uint8)
+    arr = np.zeros((H + 72, 60, 4), np.uint8); arr[..., 3] = g[None, :]; arr[..., :3] = (40, 40, 50)
+    return im, Image.fromarray(arr, 'RGBA')
+
+
+class PageTurn(El):
+    """transisi: lembar kertas baru menyapu layar (masuk dari kanan, keluar ke kiri)"""
+    z = 9
+
+    def __init__(self, t0, dur=0.32, **kw):
+        super().__init__(t0 - dur, **kw)
+        self.tc, self.dur = t0, dur
+
+    def register(self):
+        sfx(self.t0, 'paper', 0, 0.9)
+        sfx(self.t0, 'swoosh', 0.5, 0.7)
+
+    def active(self, t):
+        return self.t0 <= t < self.tc + self.dur
+
+    def draw(self, fr, t):
+        sheet, shadow = _sheet()
+        if t < self.tc:
+            x = int(W * (1 - eio((t - self.t0) / self.dur)))
+        else:
+            x = int(-W * eio((t - self.tc) / self.dur))
+        if x >= W or x <= -W:
+            return
+        if x > -W:
+            fr.paste(sheet, (x, 0))
+            if t < self.tc:
+                fr.paste(shadow.transpose(Image.FLIP_LEFT_RIGHT), (x - 60, 0), shadow.transpose(Image.FLIP_LEFT_RIGHT))
+            else:
+                fr.paste(shadow, (x + W, 0), shadow)
+
+
+class Counter(El):
+    """angka menghitung naik"""
+
+    def __init__(self, t0, cx, cy, n, suffix='', size=60, color=GREEN, dur=1.2, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.n, self.suffix, self.size, self.color, self.dur = cx, cy, n, suffix, size, color, dur
+
+    def register(self):
+        sfx(self.t0, 'rise', self.dur, 0.6)
+        for i in range(8):
+            sfx(self.t0 + i * self.dur / 8, 'tick', 0, 0.3)
+
+    def draw(self, fr, t):
+        v = int(round(self.n * eo((t - self.t0) / self.dur)))
+        sp = tsprite(f'{v}{self.suffix}', 'kb', self.size, self.color)
+        paste(fr, sp.im, self.cx, self.cy, self.fade(t))
+
+
+# ======================================================================= v3: animasi dari video contoh
+def _poly_draw(fr, polys, p, col, width):
+    """gambar sekumpulan polyline secara bertahap (p 0..1 dari total panjang)"""
+    d = ImageDraw.Draw(fr)
+    tot = sum(poly_len(pl) for pl in polys) or 1
+    left = tot * p
+    for pl in polys:
+        L = poly_len(pl)
+        if left <= 0:
+            break
+        part = pl if left >= L else poly_partial(pl, left / L)
+        if len(part) > 1:
+            d.line(part, fill=col, width=width, joint='curve')
+        left -= L
+
+
+def _arc(cx, cy, rx, ry, a0, a1, n=30):
+    return [(cx + rx * math.cos(math.radians(a0 + (a1 - a0) * i / n)), cy + ry * math.sin(math.radians(a0 + (a1 - a0) * i / n))) for i in range(n + 1)]
+
+
+def lineart(kind, cx, cy, s):
+    """kumpulan polyline untuk ilustrasi garis (tanpa wajah)"""
+    P_ = lambda pts: [(cx + x * s, cy + y * s) for x, y in pts]
+    if kind == 'cave':
+        return [_arc(cx, cy + .6 * s, 1.0 * s, 1.25 * s, 180, 360), _arc(cx, cy + .6 * s, .62 * s, .85 * s, 180, 360)]
+    if kind == 'stick':
+        return [_arc(cx, cy - .72 * s, .16 * s, .16 * s, 0, 360, 20), P_([(0, -.56), (0, .2)]), P_([(-.32, -.25), (0, -.35), (.32, -.25)]),
+                P_([(-.25, .8), (0, .2), (.25, .8)])]
+    if kind == 'buildings':
+        return [P_([(-1, .8), (-1, -.1), (-.55, -.1), (-.55, .8)]), P_([(-.55, .8), (-.55, -.6), (-.05, -.6), (-.05, .8)]),
+                P_([(-.05, .8), (-.05, -.25), (.45, -.25), (.45, .8)]), P_([(.45, .8), (.45, .1), (1, .1), (1, .8)]), P_([(-1.1, .8), (1.1, .8)])]
+    if kind == 'house':
+        return [P_([(-.7, .8), (-.7, -.05), (0, -.7), (.7, -.05), (.7, .8), (-.7, .8)]), P_([(-.18, .8), (-.18, .3), (.18, .3), (.18, .8)])]
+    if kind == 'mosque':
+        return [P_([(-.8, .8), (-.8, .05), (.55, .05), (.55, .8), (-.8, .8)]), _arc(-.12 * s + cx, cy + .05 * s, .45 * s, .55 * s, 180, 360),
+                P_([(.7, .8), (.7, -.7), (.92, -.7), (.92, .8)]), P_([(.66, -.7), (.81, -.98), (.96, -.7)]),
+                _arc(cx - .12 * s, cy + .62 * s, .18 * s, .22 * s, 180, 360) + P_([(.06, .8)])]
+    if kind == 'mountains':
+        return [P_([(-1.1, .6), (-.6, -.3), (-.3, .15), (0, -.55), (.55, .6)])]
+    if kind == 'waves':
+        return [[(cx + (-1 + 2 * i / 40) * s, cy + .12 * s * math.sin(i / 40 * 4 * math.pi)) for i in range(41)]]
+    if kind == 'tree':
+        return [P_([(0, .8), (0, 0)]), _arc(cx, cy - .25 * s, .3 * s, .3 * s, 0, 360, 24)]
+    if kind == 'bird':
+        return [_arc(cx - .2 * s, cy, .2 * s, .14 * s, 200, 340, 10) + _arc(cx + .2 * s, cy, .2 * s, .14 * s, 200, 340, 10)]
+    if kind == 'sun':
+        out = [_arc(cx, cy, .35 * s, .35 * s, 0, 360, 24)]
+        for k in range(8):
+            a = math.radians(k * 45)
+            out.append([(cx + .5 * s * math.cos(a), cy + .5 * s * math.sin(a)), (cx + .7 * s * math.cos(a), cy + .7 * s * math.sin(a))])
+        return out
+    if kind == 'moon':
+        return [_arc(cx, cy, .6 * s, .6 * s, 60, 300, 30) + _arc(cx + .25 * s, cy, .48 * s, .52 * s, 250, 110, 30)]
+    if kind == 'paper':
+        return [P_([(-.8, -.6), (.8, -.6), (.8, .6), (-.8, .6), (-.8, -.6)])] + [P_([(-.55, y), (.55, y)]) for y in (-.3, -.05, .2)]
+    if kind == 'ground':
+        return [P_([(-1, 0), (1, 0)])]
+    raise KeyError(kind)
+
+
+class LineArt(El):
+    """ilustrasi garis yang tergambar perlahan (cave, stick, buildings, house, mosque, mountains, waves, tree, bird, sun, moon, paper)"""
+
+    def __init__(self, t0, kind, cx, cy, s=100, color=NAVY, width=4, dur=1.0, fill=None, snd=True, **kw):
+        super().__init__(t0, **kw)
+        self.polys = lineart(kind, cx, cy, s)
+        self.kind, self.color, self.width, self.dur, self.fill, self.snd = kind, color, width, dur, fill, snd
+
+    def register(self):
+        if self.sfx_on and self.snd:
+            sfx(self.t0, 'write', self.dur, 0.7)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        p = eio((t - self.t0) / self.dur)
+        if self.fill and p > 0.9 and self.kind in ('sun',):
+            d = ImageDraw.Draw(fr); pl = self.polys[0]
+            xs = [q[0] for q in pl]; ys = [q[1] for q in pl]
+            d.ellipse((min(xs), min(ys), max(xs), max(ys)), fill=mix(PAPER, self.fill, a * eo((p - .9) * 10)))
+        _poly_draw(fr, self.polys, p, mix(PAPER, self.color, a), self.width)
+
+
+class Walker(El):
+    """orang lidi berjalan di sepanjang lintasan, meninggalkan jejak titik"""
+    z = 2
+
+    def __init__(self, t0, path, dur=2.5, s=34, color=NAVY, trail=True, **kw):
+        super().__init__(t0, **kw)
+        self.path, self.dur, self.s, self.color, self.trail = path, dur, s, color, trail
+        self.L = poly_len(path)
+
+    def register(self):
+        n = int(self.dur / 0.35)
+        for i in range(n):
+            sfx(self.t0 + i * 0.35, 'tick', 0, 0.25)
+
+    def draw(self, fr, t):
+        k = clamp((t - self.t0) / self.dur)
+        a = self.fade(t)
+        d = ImageDraw.Draw(fr)
+        if self.trail:
+            n = int(self.L / 26)
+            for i in range(n):
+                u = i / max(1, n)
+                if u > k - 0.02:
+                    break
+                x, y = poly_partial(self.path, u)[-1]
+                d.ellipse((x - 3.5, y - 3.5, x + 3.5, y + 3.5), fill=mix(PAPER, GRAY, a))
+        x, y = poly_partial(self.path, max(0.001, k))[-1]
+        bob = 3 * abs(math.sin(k * self.dur * 6)) if k < 1 else 0
+        polys = lineart('stick', x, y - self.s * .8 - bob, self.s)
+        if k < 1:  # kaki melangkah
+            sw = .25 * math.sin(k * self.dur * 12)
+            polys[3] = [(x - self.s * sw - self.s * .2, y - bob), (x, y - self.s * .6 - bob), (x + self.s * sw + self.s * .2, y - bob)]
+        _poly_draw(fr, polys, 1, mix(PAPER, self.color, a), 4)
+
+
+class Brace(El):
+    """kurung kurawal di bawah/atas sekelompok elemen + label"""
+
+    def __init__(self, t0, x0, x1, y, label=None, color=GREEN, up=False, dur=0.5, size=24, **kw):
+        super().__init__(t0, **kw)
+        h = -14 if up else 14
+        m = (x0 + x1) / 2
+        self.pts = [(x0, y - h * .3), (x0 + 12, y + h * .6), (m - 14, y + h * .6), (m, y + h * 1.3), (m + 14, y + h * .6), (x1 - 12, y + h * .6), (x1, y - h * .3)]
+        self.color, self.dur = color, dur
+        self.lab = tsprite(label, 'kb', size, color) if label else None
+        self.ly = y + h * 1.3 + (size if not up else -size)
+        self.m = m
+
+    def register(self):
+        sfx(self.t0, 'swoosh', self.dur, 0.6)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        p = eio((t - self.t0) / self.dur)
+        pts = poly_partial(self.pts, p)
+        if len(pts) > 1:
+            ImageDraw.Draw(fr).line(pts, fill=mix(PAPER, self.color, a), width=4, joint='curve')
+        if self.lab and p > 0.6:
+            paste(fr, self.lab.revealed((p - .6) / .4 * 1.0 + (t - self.t0 - self.dur) * 2), self.m, self.ly, a)
+
+
+class NumberMorph(El):
+    """angka berubah digit, mis. 300 -> 309 (digit baru berwarna & memantul)"""
+
+    def __init__(self, t0, cx, cy, a, b, tswap, size=64, color=NAVY, new_col=RED, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.a, self.b, self.tswap, self.size, self.color, self.new_col = cx, cy, str(a), str(b), tswap, size, color, new_col
+
+    def register(self):
+        sfx(self.t0, 'pop', 0, 0.6)
+        sfx(self.tswap, 'click', 0, 0.9)
+        sfx(self.tswap + 0.05, 'ding', 0, 0.4)
+
+    def draw(self, fr, t):
+        al = self.fade(t) * clamp((t - self.t0) / 0.15)
+        if t < self.tswap:
+            sp = tsprite(self.a, 'kb', self.size, self.color)
+            paste(fr, sp.im, self.cx, self.cy, al, 0.6 + 0.4 * eback((t - self.t0) / .35))
+            return
+        i = 0
+        while i < min(len(self.a), len(self.b)) and self.a[i] == self.b[i]:
+            i += 1
+        keep, new = self.b[:i], self.b[i:]
+        f = font('kb', self.size)
+        wk, wn = f.getlength(keep) + (self.size * 0.22 if keep.endswith(' ') else 0), f.getlength(new)
+        x0 = self.cx - (wk + wn) / 2
+        if keep:
+            sp = tsprite(keep, 'kb', self.size, self.color); paste(fr, sp.im, x0 + sp.w / 2, self.cy, al)
+        sp = tsprite(new, 'kb', self.size, self.new_col)
+        k = (t - self.tswap) / .35
+        paste(fr, sp.im, x0 + wk + wn / 2, self.cy - 18 * (1 - eo(k)), al * clamp(k * 3), 0.5 + 0.5 * eback(k))
+
+
+class PinNote(El):
+    """catatan kertas berpenjepit di pojok, tetap tampil sebagai pengingat"""
+    z = 4
+
+    def __init__(self, t0, cx, cy, text, sub=None, rot=3, size=26, **kw):
+        super().__init__(t0, **kw)
+        fn = 'ar' if is_ar(text) else 'kb'
+        t1 = tsprite(text, fn, size, NAVY, 240)
+        t2 = tsprite(sub, 'kr', 13, GRAY) if sub else None
+        w = max(t1.w, t2.w if t2 else 0) + 34
+        h = t1.h + (t2.h + 2 if t2 else 0) + 26
+        im = Image.new('RGBA', (w, h + 14), (0, 0, 0, 0))
+        dd = ImageDraw.Draw(im)
+        dd.rectangle((0, 14, w - 1, h + 13), fill=(255, 255, 255, 255), outline=(225, 225, 228, 255))
+        im.paste(t1.im, ((w - t1.w) // 2, 24), t1.im)
+        if t2:
+            im.paste(t2.im, ((w - t2.w) // 2, 24 + t1.h), t2.im)
+        dd.rounded_rectangle((14, 0, 26, 34), radius=6, outline=(150, 156, 170, 255), width=3)  # penjepit
+        self.sp = shadowed(im, (3, 5), 5, 60)
+        self.cx, self.cy, self.rot = cx, cy, rot
+
+    def register(self):
+        sfx(self.t0, 'paper', 0, 0.8)
+        sfx(self.t0 + 0.25, 'click', 0, 0.6)
+
+    def draw(self, fr, t):
+        k = (t - self.t0) / 0.45
+        paste(fr, self.sp, self.cx, self.cy - 50 * (1 - eback(k)), self.fade(t) * clamp(k * 2), 1, self.rot * eo(k))
+
+
+class CompareBars(El):
+    """batang perbandingan bertumpuk dengan ikon, label, dan kurung selisih"""
+
+    def __init__(self, t0, x0, x1, y, rows, gap=70, diff=None, dur=0.9, stagger=0.6, **kw):
+        super().__init__(t0, **kw)
+        self.x0, self.x1, self.y, self.rows, self.gap, self.diff, self.dur, self.stagger = x0, x1, y, rows, gap, diff, dur, stagger
+
+    def register(self):
+        for i in range(len(self.rows)):
+            sfx(self.t0 + i * self.stagger, 'rise', self.dur, 0.5)
+        if self.diff:
+            sfx(self.t0 + len(self.rows) * self.stagger + .3, 'pop', 0, 0.6)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        d = ImageDraw.Draw(fr)
+        L = self.x1 - self.x0 - 60
+        ends = []
+        for i, (icon, label, frac, col) in enumerate(self.rows):
+            k = (t - self.t0 - i * self.stagger) / self.dur
+            if k <= 0:
+                continue
+            y = self.y + i * self.gap
+            paste(fr, icon_sprite(icon, 40, NAVY), self.x0 + 20, y, a * clamp(k * 3))
+            w = L * frac * eio(k)
+            if w > 2:
+                d.rounded_rectangle((self.x0 + 50, y - 7, self.x0 + 50 + w, y + 7), radius=7, fill=mix(PAPER, col, a))
+            if k > .7:
+                paste(fr, tsprite(label, 'kr', 18, NAVY).im, self.x0 + 50 + L * frac / 2, y + 24, a * clamp((k - .7) * 4))
+            ends.append((self.x0 + 50 + L * frac, y))
+        if self.diff and len(ends) >= 2:
+            k = (t - self.t0 - len(self.rows) * self.stagger - .2) / .4
+            if k > 0:
+                (xa, ya), (xb, yb) = ends[0], ends[-1]
+                xr = max(xa, xb) + 14
+                pts = poly_partial([(xa + 4, ya), (xr, ya), (xr, yb), (xb + 4, yb)], eo(k))
+                if len(pts) > 1:
+                    d.line(pts, fill=mix(PAPER, RED, a), width=3)
+                if k > .8:
+                    paste(fr, tsprite(self.diff, 'kb', 24, RED).im, xr + 10 + font('kb', 24).getlength(self.diff) / 2, (ya + yb) / 2, a)
+
+
+class IconRow(El):
+    """deretan ikon muncul satu per satu, mis. 9 bulan, 10 sajadah"""
+
+    def __init__(self, t0, name, n, x0, x1, y, size=40, gap=0.08, col=NAVY, rows=1, rgap=50, **kw):
+        super().__init__(t0, **kw)
+        per = math.ceil(n / rows)
+        self.pos = [(x0 + (x1 - x0) * (i % per) / max(1, per - 1), y + (i // per) * rgap) for i in range(n)]
+        self.sp = icon_sprite(name, size, col)
+        self.gap = gap
+
+    def register(self):
+        for i in range(len(self.pos)):
+            sfx(self.t0 + i * self.gap, 'tick', 0, 0.35)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        for i, (x, y) in enumerate(self.pos):
+            k = (t - self.t0 - i * self.gap) / .3
+            if k > 0:
+                paste(fr, self.sp, x, y, a * clamp(k * 2), .4 + .6 * eback(k))
+
+
+class SunArc(El):
+    """lengkung langit; matahari bergerak dari terbit ke terbenam, jejak hijau di bagian akhir"""
+
+    def __init__(self, t0, cx, cy, r, dur=2.5, green_from=0.7, labels=('terbit', 'tengah hari', 'terbenam'), **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.r, self.dur, self.gf, self.labels = cx, cy, r, dur, green_from, labels
+
+    def register(self):
+        sfx(self.t0, 'write', 0.6, 0.6)
+        sfx(self.t0 + 0.6, 'rise', self.dur, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        d = ImageDraw.Draw(fr)
+        k0 = eio((t - self.t0) / 0.6)
+        base = [(self.cx - self.r - 40, self.cy), (self.cx + self.r + 40, self.cy)]
+        d.line(poly_partial(base, k0), fill=mix(PAPER, NAVY, a), width=3)
+        arc = _arc(self.cx, self.cy, self.r, self.r, 180, 360, 60)
+        pa = poly_partial(arc, k0)
+        if len(pa) > 1:
+            d.line(pa, fill=mix(PAPER, GRAY, a), width=3)
+        k = clamp((t - self.t0 - 0.6) / self.dur)
+        if k > 0:
+            if k > self.gf:
+                g = poly_partial(arc, k)[int(len(arc) * self.gf):]
+                if len(g) > 1:
+                    d.line(g, fill=mix(PAPER, GREEN, a), width=6)
+            x, y = poly_partial(arc, max(.001, k))[-1]
+            _poly_draw(fr, lineart('sun', x, y, 30), 1, mix(PAPER, NAVY, a), 3)
+            d.ellipse((x - 9, y - 9, x + 9, y + 9), fill=mix(PAPER, YEL, a))
+        for (lx, ly), lab in zip([(self.cx - self.r, self.cy + 20), (self.cx, self.cy - self.r - 22), (self.cx + self.r, self.cy + 20)], self.labels):
+            if lab and k0 > .9:
+                paste(fr, tsprite(lab, 'kr', 16, GRAY).im, lx, ly, a)
+
+
+class Spotlight(El):
+    """lingkaran sorotan hijau bersinar + label (mis. 'kamu')"""
+    z = 3
+
+    def __init__(self, t0, cx, cy, r=70, label=None, color=GREEN, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.r, self.color = cx, cy, r, color
+        self.lab = tsprite(label, 'kb', 34, color) if label else None
+
+    def register(self):
+        sfx(self.t0, MARKER_SFX, 0.5, 0.6)
+        sfx(self.t0 + 0.5, 'ding', 0, 0.6)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        k = (t - self.t0)
+        _poly_draw(fr, [_arc(self.cx, self.cy, self.r, self.r, -90, 270, 50)], eio(k / .5), mix(PAPER, self.color, a), 4)
+        if k > .5:
+            d = ImageDraw.Draw(fr)
+            pulse = 1 + .06 * math.sin((k - .5) * 5)
+            for i in range(8):
+                ang = math.radians(i * 45 + 22)
+                r0, r1 = self.r * 1.15 * pulse, self.r * 1.38 * pulse
+                d.line([(self.cx + r0 * math.cos(ang), self.cy + r0 * math.sin(ang)), (self.cx + r1 * math.cos(ang), self.cy + r1 * math.sin(ang))],
+                       fill=mix(PAPER, self.color, a * clamp((k - .5) * 3)), width=4)
+            if self.lab:
+                paste(fr, self.lab.im, self.cx, self.cy - self.r * 1.55, a * clamp((k - .5) * 3), .6 + .4 * eback((k - .5) / .35))
+
+
+class Night(El):
+    """layar menggelap (mis. 'lalu Allah menidurkan mereka')"""
+    z = 8
+
+    def __init__(self, t0, t1, alpha=0.62, **kw):
+        super().__init__(t0, **kw)
+        self.t1, self.alpha = t1, alpha
+
+    def register(self):
+        sfx(self.t0, 'whoosh', 0, 0.5)
+
+    def active(self, t):
+        return self.t0 <= t < self.t1
+
+    def draw(self, fr, t):
+        k = min(clamp((t - self.t0) / .6), clamp((self.t1 - t) / .6))
+        ov = Image.new('RGB', fr.size, (40, 46, 70))
+        fr.paste(Image.blend(fr.convert('RGB'), ov, self.alpha * eio(k)), (0, 0))
+
+
+class Tape(El):
+    """meteran kuning yang memanjang dari kotak + label angka"""
+
+    def __init__(self, t0, x0, x1, y, label=None, dur=1.2, **kw):
+        super().__init__(t0, **kw)
+        self.x0, self.x1, self.y, self.dur = x0, x1, y, dur
+        self.lab = tsprite(label, 'kb', 34, NAVY) if label else None
+
+    def register(self):
+        sfx(self.t0, 'slide', 0.4, 0.8)
+        sfx(self.t0, 'rise', self.dur, 0.4)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        d = ImageDraw.Draw(fr)
+        k = eo((t - self.t0) / self.dur)
+        d.rounded_rectangle((self.x0 - 22, self.y - 22, self.x0 + 22, self.y + 22), radius=6, fill=mix(PAPER, WHITE, a), outline=mix(PAPER, NAVY, a), width=4)
+        d.ellipse((self.x0 - 7, self.y - 7, self.x0 + 7, self.y + 7), outline=mix(PAPER, NAVY, a), width=3)
+        xe = self.x0 + 22 + (self.x1 - self.x0 - 22) * k
+        if xe > self.x0 + 24:
+            d.rectangle((self.x0 + 22, self.y - 12, xe, self.y + 12), fill=mix(PAPER, (240, 208, 100), a), outline=mix(PAPER, (190, 150, 60), a), width=2)
+            for x in range(int(self.x0 + 30), int(xe), 10):
+                d.line([(x, self.y - 12), (x, self.y - (2 if (x // 10) % 5 else -4))], fill=mix(PAPER, (150, 110, 40), a), width=1)
+        if self.lab and k > .6:
+            paste(fr, self.lab.im, (self.x0 + self.x1) / 2, self.y + 52, a * clamp((k - .6) * 3))
+
+
+class Balance(El):
+    """timbangan yang miring ke sisi yang lebih berat/utama"""
+
+    def __init__(self, t0, cx, cy, left, right, ttilt, side='left', s=150, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.ttilt, self.side, self.s = cx, cy, ttilt, side, s
+        self.L = tsprite(left, 'kb', 24, GREEN if side == 'left' else NAVY)
+        self.R = tsprite(right, 'kb', 24, GREEN if side == 'right' else NAVY)
+
+    def register(self):
+        sfx(self.t0, 'pop', 0, 0.6)
+        sfx(self.ttilt, 'thud', 0, 0.7)
+
+    def draw(self, fr, t):
+        a = self.fade(t) * clamp((t - self.t0) / .3)
+        d = ImageDraw.Draw(fr)
+        c = mix(PAPER, NAVY, a)
+        k = (t - self.ttilt)
+        ang = 0 if k < 0 else 14 * eback(clamp(k / .6), 2.5) * (1 if self.side == 'left' else -1)
+        r = math.radians(ang)
+        s = self.s
+        d.line([(self.cx, self.cy - 10), (self.cx, self.cy + s * .9)], fill=c, width=5)
+        d.line([(self.cx - s * .4, self.cy + s * .9), (self.cx + s * .4, self.cy + s * .9)], fill=c, width=6)
+        dx, dy = s * math.cos(r), s * math.sin(r)
+        lx, ly = self.cx - dx, self.cy - dy * -1
+        rx, ry = self.cx + dx, self.cy - dy
+        ly = self.cy + dy
+        d.line([(lx, ly), (rx, ry)], fill=c, width=5)
+        for (px, py), sp in (((lx, ly), self.L), ((rx, ry), self.R)):
+            d.line([(px, py), (px - 34, py + 60)], fill=c, width=2); d.line([(px, py), (px + 34, py + 60)], fill=c, width=2)
+            d.chord((px - 50, py + 40, px + 50, py + 80), 0, 180, fill=mix(PAPER, GOLD, a), outline=c, width=3)
+            paste(fr, sp.im, px, py + 100, a)
+        d.ellipse((self.cx - 9, self.cy - 9, self.cx + 9, self.cy + 9), fill=c)
+
+
+def big_word(t, word, cx, cy, size=90, ring=GREEN, sub=None, rr=None):
+    """kata Arab besar ditulis lalu dilingkari (gaya penutup video contoh)"""
+    els = [Txt(t, word, cx, cy, size, fn='ar', dur=0.7)]
+    sp = tsprite(word, 'ar', size)
+    rx = rr or max(sp.w, sp.h) * 0.62
+    els.append(Ellipse(t + 0.75, cx, cy + 4, rx, rx * 0.9, color=ring, width=5, dur=0.6))
+    if sub:
+        els.append(Txt(t + 1.2, sub, cx, cy + rx + 40, 30))
+    return els
+
+
+def guess(t, text, cx, cy, tstrike, size=34, color=NAVY):
+    """tebakan yang kemudian dicoret"""
+    sp = tsprite(text, 'kb', size, color)
+    return [Txt(t, text, cx, cy, size, color=color, mode='pop'),
+            strike(tstrike, cx - sp.w / 2, cx + sp.w / 2, cy + 2, color=RED)]
+
+
+# ======================================================================= v4: animasi infografis (video contoh ke-4)
+COINC, COIND = (240, 178, 52), (176, 120, 30)
+JAR, JARD = (32, 96, 88), (20, 64, 58)
+SKY = (120, 160, 220)
+
+
+def _coin(d, cx, cy, r, a=1.0, flat=False):
+    if flat:  # koin dilihat dari samping (tumpukan)
+        d.rounded_rectangle((cx - r, cy - r * .32, cx + r, cy + r * .32), radius=int(r * .3), fill=mix(PAPER, COINC, a), outline=mix(PAPER, COIND, a), width=2)
+        return
+    d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=mix(PAPER, COINC, a), outline=mix(PAPER, COIND, a), width=max(2, int(r * .14)))
+    ri = r * .58
+    d.ellipse((cx - ri, cy - ri, cx + ri, cy + ri), outline=mix(PAPER, COIND, a * .8), width=max(1, int(r * .09)))
+
+
+def _dots_arc(d, cx, cy, r, a0, a1, col, step=7, rad=2):
+    for ang in range(int(a0), int(a1) + 1, step):
+        x = cx + r * math.cos(math.radians(ang)); y = cy + r * math.sin(math.radians(ang))
+        d.ellipse((x - rad, y - rad, x + rad, y + rad), fill=col)
+
+
+class CoinBars(El):
+    """tumpukan koin bernomor yang tumbuh dari kecil ke besar + panah tren"""
+
+    def __init__(self, t0, x0, x1, ybase, n=7, maxc=11, dur=1.6, arrow=True, nums=True, **kw):
+        super().__init__(t0, **kw)
+        self.x0, self.x1, self.yb, self.n, self.maxc, self.dur, self.arrow, self.nums = x0, x1, ybase, n, maxc, dur, arrow, nums
+
+    def register(self):
+        for i in range(self.n):
+            sfx(self.t0 + i * self.dur / self.n, 'coin', 0, 0.55)
+        if self.arrow:
+            sfx(self.t0 + self.dur + .1, 'swoosh', 0.4, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr)
+        k0 = t - self.t0
+        gap = (self.x1 - self.x0) / self.n; r = gap * .36
+        d.line([(self.x0 - 10, self.yb + r * .4), (self.x1 + 10, self.yb + r * .4)], fill=mix(PAPER, NAVY, a * clamp(k0 / .3)), width=3)
+        tops = []
+        for i in range(self.n):
+            cx = self.x0 + gap * (i + .5)
+            target = max(1, round(self.maxc * (i + 1) / self.n))
+            k = clamp((k0 - i * self.dur / self.n * .7) / (self.dur * .55))
+            c = int(round(target * eo(k)))
+            for j in range(c):
+                _coin(d, cx, self.yb - j * r * .62, r, a, flat=True)
+            tops.append((cx, self.yb - max(c - 1, 0) * r * .62 - r * .9))
+            if self.nums and k > 0:
+                yy = self.yb + r * .4 + 22
+                d.ellipse((cx - 11, yy - 11, cx + 11, yy + 11), fill=mix(PAPER, JAR, a * clamp(k * 4)))
+                paste(fr, tsprite(str(i + 1), 'kb', 15, WHITE).im, cx, yy, a * clamp(k * 4))
+        if self.arrow:
+            k = clamp((k0 - self.dur - .1) / .6)
+            if k > 0:
+                pts = [(x, y - 26) for x, y in tops]
+                pp = poly_partial(pts, eio(k))
+                if len(pp) > 1:
+                    d.line(pp, fill=mix(PAPER, GREEN, a), width=4, joint='curve')
+                if k >= 1:
+                    (xa, ya), (xb, yb) = pts[-2], pts[-1]
+                    ang = math.atan2(yb - ya, xb - xa)
+                    for s_ in (2.5, -2.5):
+                        d.line([(xb, yb), (xb - 16 * math.cos(ang + s_ / 6), yb - 16 * math.sin(ang + s_ / 6))], fill=mix(PAPER, GREEN, a), width=4)
+
+
+class CoinJar(El):
+    """toples: koin melayang masuk dari kiri-kanan lalu bertumpuk"""
+
+    def __init__(self, t0, cx, cy, s=110, n=6, gap=0.45, fill=None, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.s, self.n, self.gap = cx, cy, s, n, gap
+        self.fillcol = fill or JAR
+
+    def register(self):
+        sfx(self.t0, 'pop', 0, 0.5)
+        for i in range(self.n):
+            sfx(self.t0 + .5 + i * self.gap + .35, 'coin', 0, 0.7)
+
+    def slots(self):
+        s = self.s; r = s * .2; out = []; row = 0; per = 3
+        while len(out) < self.n:
+            m = max(1, per - row)
+            for j in range(m):
+                out.append((self.cx + (j - (m - 1) / 2) * r * 2.05, self.cy + s * .62 - r - row * r * 1.75))
+            row += 1
+        return out[:self.n], r
+
+    def draw(self, fr, t):
+        a = self.fade(t) * clamp((t - self.t0) / .3); d = ImageDraw.Draw(fr)
+        s = self.s; x0, x1, y0, y1 = self.cx - s * .62, self.cx + s * .62, self.cy - s * .55, self.cy + s * .7
+        d.rounded_rectangle((x0, y0, x1, y1), radius=int(s * .16), fill=mix(PAPER, self.fillcol, a), outline=mix(PAPER, JARD, a), width=3)
+        d.rounded_rectangle((x0 - 10, y0 - 14, x1 + 10, y0 + 2), radius=8, fill=mix(PAPER, (140, 200, 180), a))
+        sl, r = self.slots()
+        for i, (tx, ty) in enumerate(sl):
+            k = (t - self.t0 - .5 - i * self.gap) / .4
+            if k <= 0:
+                continue
+            side = -1 if i % 2 == 0 else 1
+            sx, sy = self.cx + side * s * 1.3, self.cy - s * .3
+            if k < 1:
+                e = eio(k); x = sx + (tx - sx) * e; y = sy + (ty - sy) * e - math.sin(e * math.pi) * s * .8
+            else:
+                x, y = tx, ty
+            _coin(d, x, y, r, a)
+
+
+class RainGrow(El):
+    """awan menurunkan hujan, tunas tumbuh lalu berbunga koin"""
+
+    def __init__(self, t0, cx, ybase, s=120, dur=3.0, bloom=True, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.yb, self.s, self.dur, self.bloom = cx, ybase, s, dur, bloom
+
+    def register(self):
+        sfx(self.t0, 'soft', 0, 0.6)
+        for i in range(10):
+            sfx(self.t0 + .5 + i * self.dur * .08, 'drip', 0, 0.35)
+        if self.bloom:
+            sfx(self.t0 + self.dur, 'ding', 0, 0.6)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr); s = self.s; k0 = t - self.t0
+        ca = a * clamp(k0 / .4); cy = self.yb - s * 2.1
+        for (dx, dy, rr) in ((-.38, .05, .3), (0, -.12, .42), (.38, .05, .3), (0, .1, .3)):
+            x, y, r = self.cx + dx * s, cy + dy * s, rr * s
+            d.ellipse((x - r, y - r, x + r, y + r), fill=mix(PAPER, SKY, ca))
+        d.line([(self.cx - s * .8, self.yb), (self.cx + s * .8, self.yb)], fill=mix(PAPER, NAVY, ca), width=3)
+        if k0 > .4:
+            for i in range(9):
+                ph = ((k0 - .4) * 1.4 + i * .37) % 1.0
+                x = self.cx + (i - 4) * s * .13 + math.sin(i * 7) * s * .05
+                y = cy + s * .35 + ph * (self.yb - cy - s * .45)
+                d.line([(x, y), (x - 1, y + 9)], fill=mix(PAPER, SKY, a * (1 - ph * .4)), width=3)
+        g = clamp((k0 - .7) / (self.dur - .7))
+        if g > 0:
+            top = self.yb - s * 1.1 * eo(g)
+            d.line([(self.cx, self.yb), (self.cx, top)], fill=mix(PAPER, GREEN, a), width=5)
+            for j, (fy, sd) in enumerate(((.35, -1), (.6, 1))):
+                kk = clamp((g - .3 - j * .2) * 4)
+                if kk > 0:
+                    y = self.yb - s * 1.1 * fy; L = s * .32 * eback(kk)
+                    d.polygon([(self.cx, y), (self.cx + sd * L, y - L * .45), (self.cx + sd * L * .5, y + L * .1)], fill=mix(PAPER, (120, 190, 130), a))
+            if self.bloom and g >= 1:
+                kb = clamp((k0 - self.dur) / .4)
+                _coin(d, self.cx, top - 4, s * .17 * eback(kb), a)
+
+
+class JarFill(El):
+    """toples terisi cairan emas yang naik + gelembung tanda tambah"""
+
+    def __init__(self, t0, cx, cy, s=110, frac=1.0, dur=2.5, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.s, self.frac, self.dur = cx, cy, s, frac, dur
+
+    def register(self):
+        sfx(self.t0, 'rise', self.dur, 0.5)
+        for i in range(5):
+            sfx(self.t0 + .4 + i * self.dur / 5, 'pop', 0, 0.35)
+
+    def draw(self, fr, t):
+        a = self.fade(t) * clamp((t - self.t0) / .3); d = ImageDraw.Draw(fr); s = self.s; k0 = t - self.t0
+        x0, x1, y0, y1 = self.cx - s * .62, self.cx + s * .62, self.cy - s * .55, self.cy + s * .7
+        d.rounded_rectangle((x0, y0, x1, y1), radius=int(s * .16), fill=mix(PAPER, JAR, a), outline=mix(PAPER, JARD, a), width=3)
+        lv = self.frac * eio(clamp(k0 / self.dur))
+        if lv > .02:
+            yl = y1 - (y1 - y0 - 6) * lv
+            d.rounded_rectangle((x0 + 2, yl, x1 - 2, y1 - 2), radius=int(s * .14), fill=mix(PAPER, (247, 160, 40), a))
+        d.rounded_rectangle((x0 - 10, y0 - 14, x1 + 10, y0 + 2), radius=8, fill=mix(PAPER, (140, 200, 180), a))
+        for i in range(5):
+            ph = (k0 - .4 - i * self.dur / 5) / 1.0
+            if 0 < ph < 1:
+                bx = x1 + 22 + (i % 2) * 12; by = y0 - 10 - ph * s * .6
+                al = a * (1 - ph)
+                d.rounded_rectangle((bx - 14, by - 10, bx + 14, by + 10), radius=10, fill=mix(PAPER, (140, 200, 180), al))
+                d.line([(bx - 6, by), (bx + 6, by)], fill=mix(PAPER, JARD, al), width=3)
+                d.line([(bx, by - 6), (bx, by + 6)], fill=mix(PAPER, JARD, al), width=3)
+
+
+class CoinScale(El):
+    """timbangan berisi tumpukan koin; koin jatuh ke satu sisi lalu timbangan miring"""
+
+    def __init__(self, t0, cx, cy, s=150, tdrop=None, side='left', labels=None, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.s, self.side = cx, cy, s, side
+        self.tdrop = tdrop if tdrop is not None else t0 + 1.0
+        self.labs = [tsprite(l, 'kb', 22, NAVY) if l else None for l in (labels or (None, None))]
+
+    def register(self):
+        sfx(self.t0, 'pop', 0, 0.5)
+        sfx(self.tdrop + .45, 'coin', 0, 0.8)
+        sfx(self.tdrop + .5, 'thud', 0, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t) * clamp((t - self.t0) / .3); d = ImageDraw.Draw(fr); s = self.s
+        c = mix(PAPER, JAR, a)
+        k = t - self.tdrop - .45
+        ang = 0 if k < 0 else 7 * eback(clamp(k / .6), 2.2) * (1 if self.side == 'left' else -1)
+        r = math.radians(ang); dx, dy = s * math.cos(r), s * math.sin(r)
+        d.line([(self.cx, self.cy), (self.cx, self.cy + s * .95)], fill=c, width=7)
+        d.rounded_rectangle((self.cx - s * .35, self.cy + s * .92, self.cx + s * .35, self.cy + s * 1.0), radius=4, fill=c)
+        L, R = (self.cx - dx, self.cy + dy), (self.cx + dx, self.cy - dy)
+        d.line([L, R], fill=c, width=6)
+        d.ellipse((self.cx - 9, self.cy - 9, self.cx + 9, self.cy + 9), fill=mix(PAPER, (140, 200, 180), a))
+        cr = s * .11
+        for idx, (px, py) in enumerate((L, R)):
+            d.line([(px, py), (px - s * .3, py + s * .32)], fill=c, width=2); d.line([(px, py), (px + s * .3, py + s * .32)], fill=c, width=2)
+            d.rounded_rectangle((px - s * .38, py + s * .32, px + s * .38, py + s * .38), radius=4, fill=mix(PAPER, (140, 200, 180), a))
+            base = py + s * .32 - cr
+            for j, (ox, oy) in enumerate(((-1, 0), (1, 0), (0, -1.7))):
+                _coin(d, px + ox * cr * 1.05, base + oy * cr, cr, a)
+            if self.labs[idx]:
+                paste(fr, self.labs[idx].im, px, py + s * .62, a)
+        if t > self.tdrop:
+            kk = clamp((t - self.tdrop) / .45)
+            tgt = L if self.side == 'left' else R
+            x = tgt[0]; y0_ = tgt[1] - s * .9; y = y0_ + (tgt[1] + s * .32 - cr * 3.4 - y0_) * (kk * kk)
+            _coin(d, x, y, cr, a)
+
+
+class NestArc(El):
+    """matahari bergerak di lengkung putus-putus; burung (titik) pulang ke sarang hingga penuh"""
+
+    def __init__(self, t0, cx, cy, r=150, dur=3.5, n=6, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.r, self.dur, self.n = cx, cy, r, dur, n
+
+    def register(self):
+        sfx(self.t0, 'soft', 0, 0.5)
+        sfx(self.t0, 'rise', self.dur, 0.35)
+        for i in range(self.n):
+            sfx(self.t0 + .6 + i * (self.dur - .8) / self.n, 'pop', 0, 0.35)
+
+    def draw(self, fr, t):
+        a = self.fade(t) * clamp((t - self.t0) / .3); d = ImageDraw.Draw(fr); k0 = t - self.t0
+        cx, cy, r = self.cx, self.cy, self.r
+        _dots_arc(d, cx, cy, r, 180, 360, mix(PAPER, GRAY, a))
+        d.line([(cx - r * 1.12, cy), (cx + r * 1.12, cy)], fill=mix(PAPER, NAVY, a), width=3)
+        d.pieslice((cx - r * .42, cy - r * .42, cx + r * .42, cy + r * .42), 0, 180, fill=mix(PAPER, JAR, a))
+        p = clamp(k0 / self.dur)
+        ang = math.radians(180 + 180 * eio(p))
+        sx, sy = cx + r * math.cos(ang), cy + r * math.sin(ang)
+        d.ellipse((sx - 15, sy - 15, sx + 15, sy + 15), fill=mix(PAPER, (247, 160, 40), a))
+        br = r * .07
+        pos = [(-1.1, -1), (0, -1), (1.1, -1), (-.55, -2.6), (.55, -2.6), (0, -4.2)]
+        for i in range(min(self.n, len(pos))):
+            kb = (k0 - .6 - i * (self.dur - .8) / self.n) / .5
+            if kb <= 0:
+                continue
+            tx, ty = cx + pos[i][0] * br * 1.9, cy + pos[i][1] * br * .9
+            if kb < 1:
+                e = eio(kb); fx, fy = cx + (r * 1.2 if i % 2 else -r * 1.2), cy - r * .9
+                x = fx + (tx - fx) * e; y = fy + (ty - fy) * e - math.sin(e * math.pi) * 30
+            else:
+                x, y = tx, ty
+            d.ellipse((x - br, y - br, x + br, y + br), fill=mix(PAPER, (120, 190, 160), a))
+
+
+class Network(El):
+    """koin/ikon di tengah, cabang ke simpul-simpul (silaturahim), lalu cincin penghubung"""
+
+    def __init__(self, t0, cx, cy, r=110, n=6, labels=None, gap=0.3, center=None, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.r, self.n, self.gap = cx, cy, r, n, gap
+        self.labs = [tsprite(l, 'kr', 18, NAVY) for l in labels] if labels else None
+        self.center = center
+
+    def register(self):
+        sfx(self.t0, 'pop', 0, 0.6)
+        for i in range(self.n):
+            sfx(self.t0 + .3 + i * self.gap, 'tick', 0, 0.5)
+        sfx(self.t0 + .3 + self.n * self.gap + .1, 'swoosh', 0.5, 0.4)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr); k0 = t - self.t0
+        cols = [JAR, (120, 190, 160), (120, 150, 220)]
+        pts = [(self.cx + self.r * math.cos(math.radians(-90 + i * 360 / self.n)), self.cy + self.r * math.sin(math.radians(-90 + i * 360 / self.n))) for i in range(self.n)]
+        kr = clamp((k0 - .3 - self.n * self.gap - .1) / .6)
+        if kr > 0:
+            ring = pts + [pts[0]]
+            pp = poly_partial(ring, eio(kr))
+            if len(pp) > 1:
+                d.line(pp, fill=mix(PAPER, GRAY, a), width=2)
+        for i, (x, y) in enumerate(pts):
+            k = clamp((k0 - .3 - i * self.gap) / .35)
+            if k <= 0:
+                continue
+            ex, ey = self.cx + (x - self.cx) * eo(k), self.cy + (y - self.cy) * eo(k)
+            d.line([(self.cx, self.cy), (ex, ey)], fill=mix(PAPER, NAVY, a * .7), width=3)
+            if k >= 1:
+                kb = clamp((k0 - .3 - i * self.gap - .35) / .25)
+                rr = 13 * eback(kb)
+                d.ellipse((x - rr, y - rr, x + rr, y + rr), fill=mix(PAPER, cols[i % 3], a))
+                if self.labs and i < len(self.labs):
+                    ox = 1 if x > self.cx + 5 else (-1 if x < self.cx - 5 else 0)
+                    oy = 1 if y > self.cy + 5 else -1
+                    lw = self.labs[i].w
+                    paste(fr, self.labs[i].im, x + ox * (lw / 2 + 22), y + (oy * 30 if ox == 0 else 0), a * kb)
+        kc = clamp(k0 / .35)
+        if self.center:
+            paste(fr, icon_sprite(self.center, 70, NAVY), self.cx, self.cy, a * kc, .6 + .4 * eback(kc))
+        else:
+            _coin(d, self.cx, self.cy, 30 * eback(kc), a)
+
+
+class BarChart(El):
+    """grafik batang: sumbu tergambar, batang naik, garis tren, koin di ujung"""
+
+    def __init__(self, t0, x0, ybase, w=360, h=220, vals=(.2, .35, .45, .6, .85), dur=1.8, labels=None, **kw):
+        super().__init__(t0, **kw)
+        self.x0, self.yb, self.w, self.h, self.vals, self.dur = x0, ybase, w, h, vals, dur
+        self.labs = [tsprite(l, 'kr', 17, NAVY) for l in labels] if labels else None
+
+    def register(self):
+        sfx(self.t0, 'write', 0.4, 0.5)
+        sfx(self.t0 + .4, 'rise', self.dur, 0.45)
+        sfx(self.t0 + .4 + self.dur + .7, 'coin', 0, 0.8)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr); k0 = t - self.t0
+        ka = eo(clamp(k0 / .4))
+        d.line([(self.x0, self.yb - self.h * ka), (self.x0, self.yb)], fill=mix(PAPER, NAVY, a), width=3)
+        d.line([(self.x0, self.yb), (self.x0 + self.w * ka, self.yb)], fill=mix(PAPER, NAVY, a), width=3)
+        n = len(self.vals); gw = self.w / n; bw = gw * .55
+        tops = []
+        for i, v in enumerate(self.vals):
+            k = clamp((k0 - .4 - i * self.dur / n * .6) / (self.dur * .5))
+            hh = self.h * .92 * v * eback(k, 1.4)
+            x = self.x0 + gw * (i + .5)
+            if hh > 1:
+                d.rectangle((x - bw / 2, self.yb - hh, x + bw / 2, self.yb - 2), fill=mix(PAPER, JAR, a))
+            tops.append((x, self.yb - self.h * .92 * v - 22))
+            if self.labs and i < len(self.labs) and k > .5:
+                paste(fr, self.labs[i].im, x, self.yb + 18, a)
+        kl = clamp((k0 - .4 - self.dur) / .7)
+        if kl > 0:
+            pp = poly_partial(tops, eio(kl))
+            if len(pp) > 1:
+                d.line(pp, fill=mix(PAPER, (247, 160, 40), a), width=4, joint='curve')
+            if kl >= 1:
+                kb = clamp((k0 - .4 - self.dur - .7) / .3)
+                x, y = tops[-1]; _coin(d, x, y, 13 * eback(kb), a)
+
+
+@functools.lru_cache(maxsize=2048)
+def _wordim(w_, fn, size, col):
+    """kata dengan tinggi baris tetap agar garis dasar sejajar"""
+    S = 2; f = font(fn, size * S); asc, desc = f.getmetrics()
+    im = Image.new('RGBA', (int(f.getlength(w_)) + 8 * S, asc + desc + 4 * S), (0, 0, 0, 0))
+    ImageDraw.Draw(im).text((4 * S, 2 * S), w_, font=f, fill=col + (255,))
+    return im.resize((im.width // S, im.height // S), Image.LANCZOS)
+
+
+class Reveal(El):
+    """kalimat muncul kata demi kata (abu-abu -> tinta), kata kunci berwarna"""
+
+    def __init__(self, t0, text, cx, cy, size=30, maxw=600, per=0.16, hl=(), hlcol=GREEN, color=NAVY, fn='kb', times=None, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.size, self.per, self.color, self.hlcol, self.fn = cx, cy, size, per, color, hlcol, fn
+        words = text.split()
+        hls = {h.lower() for h in hl}
+        f = font(fn, size); sp = f.getlength(' ')
+        lines, cur, cw = [], [], 0
+        for w_ in words:
+            ww = f.getlength(w_)
+            if cur and cw + sp + ww > maxw:
+                lines.append(cur); cur, cw = [], 0
+            cur.append(w_); cw += (sp if cw else 0) + ww
+        if cur:
+            lines.append(cur)
+        self.items = []
+        lh = size * 1.35; y0 = cy - (len(lines) - 1) * lh / 2; idx = 0
+        for li, ln in enumerate(lines):
+            tw = sum(f.getlength(w_) for w_ in ln) + sp * (len(ln) - 1); x = cx - tw / 2
+            for w_ in ln:
+                ww = f.getlength(w_)
+                key = w_.strip('.,!?;:"\'').lower()
+                hit = key in hls
+                tt = times[idx] if times else t0 + idx * per
+                self.items.append((tt, x + ww / 2, y0 + li * lh, _wordim(w_, fn, size, hlcol if hit else color),
+                                   _wordim(w_, fn, size, (190, 192, 200)), hit))
+                x += ww + sp; idx += 1
+
+    def register(self):
+        sfx(self.t0, 'soft', 0, 0.4)
+
+    def draw(self, fr, t):
+        a = self.fade(t)
+        for tt, x, y, im, gim, hit in self.items:
+            k = (t - tt) / .25
+            if k <= -0.6:
+                continue
+            if k < 0:
+                paste(fr, gim, x, y + 3, a * (k + .6) / .6 * .7)
+            else:
+                paste(fr, im, x, y + 3 * (1 - eo(k)), a * clamp(k), 1.0 + (.12 * (1 - eo(k)) if hit else 0))
+
+
+
+# ======================================================================= v5: animasi "pembawa pesan" (video contoh ke-6, gaya kertas yang sama)
+def _card_im(text, w=58, h=64, fn='kb', size=26, col=NAVY, fill=WHITE, border=NAVY):
+    S = 2; im = Image.new('RGBA', (w * S, h * S), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.rounded_rectangle((2, 2, w * S - 3, h * S - 3), radius=6 * S, fill=fill + (255,), outline=border + (255,), width=3 * S)
+    im = im.resize((w, h), Image.LANCZOS)
+    sp = tsprite(text, fn, size, col)
+    im.paste(sp.im, (int(w / 2 - sp.im.width / 2), int(h / 2 - sp.im.height / 2)), sp.im)
+    return im
+
+
+class Gateway(El):
+    """gerbang/pintu lengkung: kartu '?' masuk dari kiri, keluar di kanan menjadi kartu jawaban (mis. 'قُلْ')"""
+
+    def __init__(self, t0, cx, cy, label=None, qin='?', qout='قُلْ', n=3, gap=0.9, s=110, out_fn='ar', **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.n, self.gap, self.s = cx, cy, n, gap, s
+        self.cin = _card_im(qin, size=26)
+        self.cout = _card_im(qout, fn=out_fn, size=26, col=GREEN, border=GREEN)
+        self.lab = label_sprite(label, 22, NAVY) if isinstance(label, str) else label
+
+    def register(self):
+        sfx(self.t0, 'write', 0.5, 0.6)
+        for i in range(self.n):
+            sfx(self.t0 + .6 + i * self.gap, 'slide', 0.4, 0.5)
+            sfx(self.t0 + .6 + i * self.gap + .7, 'pop', 0, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr); s = self.s; k0 = t - self.t0
+        x0, x1, yb = self.cx - s * .5, self.cx + s * .5, self.cy + s * .55
+        pts = [(x0, yb)] + _arc(self.cx, self.cy - s * .05, s * .5, s * .5, 180, 360, 30) + [(x1, yb)]
+        _poly_draw(fr, [pts], eio(k0 / .5), mix(PAPER, NAVY, a), 4)
+        if k0 > .4:
+            d.line([(x0 - 28, yb), (x1 + 28, yb)], fill=mix(PAPER, NAVY, a), width=4)
+        for i in range(self.n):
+            k = (k0 - .6 - i * self.gap) / 1.6
+            if k <= 0 or k > 1.15:
+                continue
+            x = self.cx - 300 + 600 * eio(clamp(k))
+            inside = abs(x - self.cx) < s * .42
+            im = self.cin if x < self.cx else self.cout
+            al = a * (0.35 if inside else 1) * clamp((1.15 - k) / .15 if k > 1 else 1)
+            paste(fr, im, x, self.cy + s * .15, al)
+        if self.lab and k0 > .6:
+            paste(fr, self.lab.im if hasattr(self.lab, 'im') else self.lab, self.cx, yb + 26, a * clamp((k0 - .6) * 3))
+
+
+class _Mixed:
+    def __init__(self, text, size, color):
+        parts = text.split('ﷺ'); a = tsprite(parts[0].rstrip(), 'kb', size, color); b = tsprite('ﷺ', 'ar', int(size * 1.2), color)
+        self.w, self.h = int(a.w + 4 + b.w), int(max(a.h, b.h))
+        im = Image.new('RGBA', (self.w, self.h), (0, 0, 0, 0))
+        im.paste(a.im, (0, (self.h - a.im.height) // 2), a.im); im.paste(b.im, (int(a.w + 4), (self.h - b.im.height) // 2 + 2), b.im)
+        self.im = im
+
+
+def label_sprite(text, size=24, color=NAVY, fn='kb'):
+    """teks label; otomatis menambah ﷺ dengan huruf Arab bila ada"""
+    if 'ﷺ' in text:
+        return _Mixed(text, size, color)
+    return tsprite(text, 'ar' if is_ar(text) else fn, size, color)
+
+
+class DotTrail(El):
+    """jejak titik-titik bergerak menuju sebuah label berbingkai elips (orang-orang datang bertanya)"""
+
+    def __init__(self, t0, x0, x1, y, label, size=24, dur=1.2, **kw):
+        super().__init__(t0, **kw)
+        self.x0, self.x1, self.y, self.dur = x0, x1, y, dur
+        self.lab = label_sprite(label, size, NAVY)
+
+    def register(self):
+        sfx(self.t0, 'write', 0.6, 0.5)
+        for i in range(5):
+            sfx(self.t0 + self.dur + i * .35, 'tick', 0, 0.25)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr); k0 = t - self.t0
+        lx = self.x1 - self.lab.w / 2 - 18
+        rx, ry = self.lab.w / 2 + 20, self.lab.h / 2 + 10
+        _poly_draw(fr, [_arc(lx, self.y, rx, ry, -90, 270, 40)], eio(k0 / .6), mix(PAPER, NAVY, a), 3)
+        paste(fr, self.lab.im, lx, self.y, a * clamp(k0 / .4))
+        L = lx - rx - 8 - self.x0
+        for j in range(18):
+            x = self.x0 + L * j / 17
+            d.ellipse((x - 1.5, self.y - 1.5, x + 1.5, self.y + 1.5), fill=mix(PAPER, GRAY, a * clamp((k0 - .3) * 3)))
+        if k0 > self.dur * .5:
+            for j in range(6):
+                ph = ((k0 - self.dur * .5) * .35 + j / 6) % 1.0
+                x = self.x0 + L * ph
+                r = 3.5
+                d.ellipse((x - r, self.y - r, x + r, self.y + r), fill=mix(PAPER, NAVY, a * min(1, ph * 5, (1 - ph) * 8)))
+
+
+class Tally(El):
+    """pensil menggores turus satu per satu sambil angka bertambah ('0 kali' -> 'n kali')"""
+
+    def __init__(self, t0, x0, x1, y, n=15, dur=2.0, suffix=' kali', cnt_y=None, size=34, **kw):
+        super().__init__(t0, **kw)
+        self.x0, self.x1, self.y, self.n, self.dur, self.suffix, self.size = x0, x1, y, n, dur, suffix, size
+        self.cy = cnt_y if cnt_y is not None else y + 62
+        self.pencil = pencil_sprite()
+
+    def register(self):
+        for i in range(self.n):
+            sfx(self.t0 + i * self.dur / self.n, 'scratch', 0, 0.35)
+        sfx(self.t0 + self.dur + .1, 'ding', 0, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr); k0 = t - self.t0
+        gap = (self.x1 - self.x0) / max(1, self.n - 1)
+        c = 0
+        for i in range(self.n):
+            k = (k0 - i * self.dur / self.n) / (self.dur / self.n)
+            if k <= 0:
+                break
+            x = self.x0 + gap * i; p = eo(clamp(k))
+            d.line([(x, self.y - 20), (x, self.y - 20 + 40 * p)], fill=mix(PAPER, NAVY, a), width=4)
+            if k >= 1:
+                c += 1
+        if 0 < k0 < self.dur + .4:
+            i = min(self.n - 1, int(k0 / (self.dur / self.n)))
+            paste(fr, self.pencil, self.x0 + gap * i + 13, self.y - 26, a * clamp((self.dur + .4 - k0) * 3))
+        col = mix(GRAY, NAVY, clamp(c / self.n * 1.4))
+        paste(fr, tsprite(f'{c}{self.suffix}', 'kb', self.size, col).im, (self.x0 + self.x1) / 2, self.cy, a * clamp(k0 / .3))
+
+
+class Slider(El):
+    """garis dengan label kiri-kanan; titik bergerak dari kiri menuju kanan (jauh -> dekat)"""
+
+    def __init__(self, t0, x0, x1, y, left, right, dur=1.4, p0=0.0, p1=0.9, **kw):
+        super().__init__(t0, **kw)
+        self.x0, self.x1, self.y, self.dur, self.p0, self.p1 = x0, x1, y, dur, p0, p1
+        self.L = tsprite(left, 'kr', 20, GRAY); self.R = tsprite(right, 'kb', 22, GREEN)
+
+    def register(self):
+        sfx(self.t0, 'soft', 0, 0.5); sfx(self.t0 + .3, 'slide', 0.4, 0.5); sfx(self.t0 + .3 + self.dur, 'pop', 0, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t) * clamp((t - self.t0) / .3); d = ImageDraw.Draw(fr)
+        paste(fr, self.L.im, self.x0 - self.L.w / 2 - 12, self.y, a)
+        paste(fr, self.R.im, self.x1 + self.R.w / 2 + 12, self.y, a)
+        d.line([(self.x0, self.y), (self.x1, self.y)], fill=mix(PAPER, (120, 190, 140), a), width=3)
+        p = self.p0 + (self.p1 - self.p0) * eio(clamp((t - self.t0 - .3) / self.dur))
+        x = self.x0 + (self.x1 - self.x0) * p
+        d.ellipse((x - 7, self.y - 7, x + 7, self.y + 7), fill=mix(PAPER, GREEN, a))
+
+
+class GapMark(El):
+    """elips merah putus-putus menandai kata yang 'hilang' + panah lengkung melompatinya"""
+    z = 3
+
+    def __init__(self, t0, cx, cy, rx=34, ry=18, jump=True, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.rx, self.ry, self.jump = cx, cy, rx, ry, jump
+
+    def register(self):
+        sfx(self.t0, MARKER_SFX, 0.4, 0.6)
+        if self.jump:
+            sfx(self.t0 + .9, 'swoosh', 0.4, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr); k0 = t - self.t0
+        pts = _arc(self.cx, self.cy, self.rx, self.ry, 0, 360, 48)
+        p = eio(k0 / .5); n = int(len(pts) * p)
+        for i in range(0, n - 1, 2):
+            d.line([pts[i], pts[i + 1]], fill=mix(PAPER, RED, a), width=3)
+        if self.jump and k0 > .9:
+            arc = _arc(self.cx, self.cy - self.ry - 4, self.rx * 2.2, self.ry * 2.2, 200, 340, 30)
+            _poly_draw(fr, [arc], eio((k0 - .9) / .5), mix(PAPER, GREEN, a), 3)
+
+
+class RollNumber(El):
+    """angka bergulir dari a ke b (mis. tahun 1446 -> 606 H) dengan keterangan kecil"""
+
+    def __init__(self, t0, cx, cy, a, b, dur=1.4, suffix='', size=54, sub=None, color=NAVY, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.a, self.b, self.dur, self.suffix, self.size, self.color = cx, cy, a, b, dur, suffix, size, color
+        self.sub = tsprite(sub, 'kr', 20, GRAY) if sub else None
+
+    def register(self):
+        for i in range(10):
+            sfx(self.t0 + i * self.dur / 10, 'tick', 0, 0.35)
+        sfx(self.t0 + self.dur, 'thud', 0, 0.4)
+
+    def draw(self, fr, t):
+        a = self.fade(t); k = eio(clamp((t - self.t0) / self.dur))
+        v = int(round(self.a + (self.b - self.a) * k))
+        paste(fr, tsprite(f'{v}{self.suffix}', 'kb', self.size, self.color).im, self.cx, self.cy, a)
+        if self.sub and k > .5:
+            paste(fr, self.sub.im, self.cx, self.cy + self.size * .75, a * clamp((k - .5) * 3))
+
+
+class Link(El):
+    """'kamu' ----o---- 'Allah': perantara di tengah dihapus, lalu garis memendek (tanpa perantara, dekat)"""
+
+    def __init__(self, t0, x0, x1, y, left='kamu', right='اللَّه', mid='perantara', tremove=None, tshrink=None, shrink=0.45, **kw):
+        super().__init__(t0, **kw)
+        self.x0, self.x1, self.y, self.shrink = x0, x1, y, shrink
+        self.tr = tremove if tremove is not None else t0 + 1.5
+        self.ts = tshrink if tshrink is not None else self.tr + 1.0
+        self.L = tsprite(left, 'ar' if is_ar(left) else 'kb', 28, NAVY)
+        self.R = tsprite(right, 'ar' if is_ar(right) else 'kb', 44 if is_ar(right) else 28, NAVY)
+        self.M = tsprite(mid, 'kr', 18, GRAY) if mid else None
+
+    def register(self):
+        sfx(self.t0, 'write', 0.5, 0.5); sfx(self.tr, 'scratch', 0, 0.6); sfx(self.ts, 'slide', 0.4, 0.5); sfx(self.ts + .6, 'ding', 0, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr); k0 = t - self.t0
+        cx = (self.x0 + self.x1) / 2; half = (self.x1 - self.x0) / 2
+        ks = eio(clamp((t - self.ts) / .6))
+        half *= 1 - (1 - self.shrink) * ks
+        xa, xb = cx - half, cx + half
+        col = mix(PAPER, mix(NAVY, GREEN, ks), a)
+        L = eo(clamp(k0 / .5))
+        d.line([(xa, self.y), (xa + (xb - xa) * L, self.y)], fill=col, width=4)
+        paste(fr, self.L.im, xa - self.L.w / 2 - 14, self.y, a * clamp(k0 * 3))
+        paste(fr, self.R.im, xb + self.R.w / 2 + 14, self.y, a * clamp(k0 * 3))
+        if t < self.tr + .5 and k0 > .4:
+            ke = clamp((t - self.tr) / .5)
+            r = 14
+            d.ellipse((cx - r, self.y - r, cx + r, self.y + r), fill=mix(PAPER, WHITE, a * (1 - ke)), outline=mix(PAPER, NAVY, a * (1 - ke)), width=3)
+            if self.M:
+                paste(fr, self.M.im, cx, self.y + 32, a * (1 - ke))
+            if t > self.tr - .3:
+                ex = cx + 40 - 40 * clamp((t - self.tr + .3) / .3)
+                d.rounded_rectangle((ex - 16, self.y - 9, ex + 16, self.y + 9), radius=3, fill=mix(PAPER, (240, 160, 170), a * (1 - ke)), outline=mix(PAPER, NAVY, a * (1 - ke)), width=2)
+
+
+class Slot(El):
+    """kotak putus-putus berisi '?' yang kemudian terisi kata (mis. 'kamu') + garis sinar"""
+
+    def __init__(self, t0, cx, cy, word, tfill=None, size=34, color=GREEN, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.color = cx, cy, color
+        self.tf = tfill if tfill is not None else t0 + 1.0
+        self.sp = tsprite(word, 'ar' if is_ar(word) else 'kb', size, color)
+        self.w, self.h = max(70, self.sp.w + 24), self.sp.h + 14
+
+    def register(self):
+        sfx(self.t0, 'soft', 0, 0.5); sfx(self.tf, 'pop', 0, 0.7); sfx(self.tf + .4, 'ding', 0, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t) * clamp((t - self.t0) / .3); d = ImageDraw.Draw(fr)
+        x0, y0, x1, y1 = self.cx - self.w / 2, self.cy - self.h / 2, self.cx + self.w / 2, self.cy + self.h / 2
+        kf = clamp((t - self.tf) / .25)
+        if kf <= 0:
+            for x in range(int(x0), int(x1), 10):
+                d.line([(x, y0), (min(x + 5, x1), y0)], fill=mix(PAPER, GRAY, a), width=2); d.line([(x, y1), (min(x + 5, x1), y1)], fill=mix(PAPER, GRAY, a), width=2)
+            for y in range(int(y0), int(y1), 10):
+                d.line([(x0, y), (x0, min(y + 5, y1))], fill=mix(PAPER, GRAY, a), width=2); d.line([(x1, y), (x1, min(y + 5, y1))], fill=mix(PAPER, GRAY, a), width=2)
+            paste(fr, tsprite('?', 'kb', 24, GRAY).im, self.cx, self.cy, a)
+        else:
+            d.rectangle((x0, y0, x1, y1), outline=mix(PAPER, self.color, a), width=3, fill=mix(PAPER, LGREEN, a * kf))
+            paste(fr, self.sp.im, self.cx, self.cy, a, .7 + .3 * eback(kf))
+            kr = clamp((t - self.tf - .3) / .4)
+            if kr > 0:
+                for ang in (-30, 0, 30):
+                    r0, r1 = 14, 14 + 22 * eo(kr)
+                    ca, sa = math.cos(math.radians(ang)), math.sin(math.radians(ang))
+                    d.line([(x1 + r0 * ca, self.cy + r0 * sa), (x1 + r1 * ca, self.cy + r1 * sa)], fill=mix(PAPER, self.color, a), width=3)
+
+
+class CrossOut(El):
+    """coretan silang merah tipis di atas kartu/kotak (pilihan yang bukan jawabannya)"""
+    z = 3
+
+    def __init__(self, t0, x0, y0, x1, y1, color=RED, **kw):
+        super().__init__(t0, **kw)
+        self.b, self.color = (x0, y0, x1, y1), color
+
+    def register(self):
+        sfx(self.t0, 'scratch', 0, 0.5)
+
+    def draw(self, fr, t):
+        a = self.fade(t); x0, y0, x1, y1 = self.b
+        _poly_draw(fr, [[(x0, y1), (x1, y0)]], eo((t - self.t0) / .3), mix(PAPER, self.color, a), 3)
+
+
+class Crowd(El):
+    """titik-titik orang muncul berkelompok (umat yang bertanya / hamba-hamba)"""
+
+    def __init__(self, t0, cx, cy, n=8, w=180, gap=0.08, **kw):
+        super().__init__(t0, **kw)
+        self.cx, self.cy, self.n, self.w, self.gap = cx, cy, n, w, gap
+
+    def register(self):
+        for i in range(0, self.n, 2):
+            sfx(self.t0 + i * self.gap, 'tick', 0, 0.3)
+
+    def draw(self, fr, t):
+        a = self.fade(t); d = ImageDraw.Draw(fr)
+        for i in range(self.n):
+            k = clamp((t - self.t0 - i * self.gap) / .2)
+            if k <= 0:
+                continue
+            x = self.cx - self.w / 2 + self.w * i / max(1, self.n - 1)
+            y = self.cy + (math.sin(i * 2.3) * 8)
+            r = 4.5 * eback(k)
+            d.ellipse((x - r, y - r, x + r, y + r), fill=mix(PAPER, NAVY, a))

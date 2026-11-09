@@ -1,0 +1,111 @@
+from ebook_build import *
+
+TITLE = "Hurmatul Qur'an 05: Hukum & Adab Basmalah"
+LB = "HURMATUL QUR'AN · 05"
+BAS = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ'
+BSM = 'بِسْمِ اللَّهِ'
+
+
+def pages():
+    P = []
+    P.append(f'''<section class="page cover">
+<div class="label">{LB}</div>
+<div class="orn"><span></span></div>
+<div class="ar" style="margin-top:6mm"><span class="bigring">بِسْمِ اللَّهِ</span></div>
+<h1>Hukum &amp; Adab<br>Basmalah</h1>
+<div class="sub">empat hukum mengucapkan basmalah, dan bismillah<br>yang disesuaikan dengan keadaan sehari-hari</div>
+<div class="icons" style="margin-top:8mm">{icon('book')}{icon('shield')}{icon('moon')}{icon('shirt')}</div>
+<div class="foot">E-book pendamping video kajian · Episode 05</div>
+</section>''')
+    toc = [("Empat hukum basmalah", 3), ("Bismillah disesuaikan", 5), ("Masuk jamban", 5),
+           ("Penjelasan Imam Ali", 6), ("Suami &amp; istri", 7), ("Tiga kebaikan doa", 8),
+           ("Naik kendaraan &amp; tidur", 9), ("Berpakaian", 10), ("Ringkasan &amp; ceklis", 11), ("Catatan tadabburku", 12)]
+    tl = ''.join(f'<li><span>{i+1}. {t}</span><span class="d"></span><b>{p}</b></li>' for i, (t, p) in enumerate(toc))
+    P.append(page(f'''
+<span class="label">PENGANTAR</span>
+{ar(BAS, 17)}
+<p>Alhamdulillah, kita lanjutkan kajian tentang Al-Qur'anul Karim. Al-Qur'an dimulai dengan Surah Al-Fatihah, dan Surah Al-Fatihah dimulai dengan <b>Bismillahir Rahmanir Rahim</b>.</p>
+<p>Namun para ulama mengatakan, <span class="hl">tidak semua perkara yang baik dimulai dengan Bismillahir Rahmanir Rahim</span>. Ada hukumnya, dan ada pula bacaan bismillah yang <b>disesuaikan</b> dengan keadaan.</p>
+<span class="label" style="margin-top:2mm">DAFTAR ISI</span>
+<ul class="toc" style="font-size:10pt">{tl}</ul>
+''', LB, 2))
+    P.append(page(f'''{chead(1, 'Empat hukum basmalah', 'book')}<div class="orn"><span></span></div>
+<p>Oleh para ulama fikih, hukum mengucapkan basmalah dibagi menjadi <b>empat</b>; bahkan ada yang mengatakan sampai <b>lima</b>.</p>
+{card('1. Wajib', "<p>Ketika <b>salat</b>, yaitu ketika membaca <b>Surah Al-Fatihah</b>.</p>" + ar(BAS, 16), 'g')}
+{card('2. Sunah', "<p>Ketika hendak <b>berwudu, mandi, makan dan minum</b>.</p>", 'g')}
+<div class="icons">{icon('ablution', 'icoS')}{icon('tap', 'icoS')}{icon('hand', 'icoS')}{icon('drop', 'icoS')}</div>
+''', LB, 3))
+    P.append(page(f'''<span class="label">EMPAT HUKUM BASMALAH · LANJUTAN</span>
+{card('3. Makruh', "<p>Seperti dicontohkan para ulama fikih: orang yang hendak <b>melihat auratnya sendiri</b> lalu membaca basmalah.</p><p>Mengapa? Karena hal itu bukan perkara yang mulia.</p>" + ar('كُلُّ ذِي بَالٍ', 18) + "<p style='text-align:center' class='muted'>kullu dzi balin: perkara yang mulia</p>", 'y')}
+{card('4. Haram', "<p>Orang yang hendak berbuat dosa, seperti <b>minum arak, berzina, mencuri, berjudi</b>, lalu membaca bismillah.</p><p>Perbuatan itu tidak pantas diawali dengan bismillah. <span class='hl'>Bukan mengurangi dosa, malah menambah dosa.</span></p>", 'r')}
+''', LB, 4))
+    P.append(page(f'''{chead(2, 'Bismillah disesuaikan', 'door')}<div class="orn"><span></span></div>
+<p>Dalam keadaan tertentu, nama <b>Ar-Rahman</b> dan <b>Ar-Rahim</b> bisa tidak disebut, tetapi ucapan <span class="hlg">bismillah tetap ada</span> sesuai keadaan yang kita hadapi.</p>
+{chead(3, 'Masuk jamban', 'door')}
+<p>Ketika hendak masuk jamban, jangan membaca Bismillahir Rahmanir Rahim. Sunahnya membaca:</p>
+{dalil('بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ', '"Dengan nama Allah, aku berlindung kepada Allah dari setan laki-laki dan setan perempuan."', 'doa masuk jamban', 17)}
+<p>Setelah itu, barulah kita masuk ke jamban.</p>
+''', LB, 5))
+    P.append(page(f'''{chead(4, 'Penjelasan Imam Ali', 'shield')}<div class="orn"><span></span></div>
+<p>Dijelaskan oleh <b>Imam Ali bin Abi Thalib</b> radhiyallahu 'anhu karramallahu wajhah:</p>
+{card('Penghalang', '<p>Penghalang antara <b>pandangan jin</b> dan <b>aurat manusia</b> ketika masuk ke jamban adalah ucapan <span class="hlg">bismillah</span>. Sebab setan itu ada yang laki-laki dan ada yang perempuan.</p>', 'g')}
+<div class="two">{card('Tanpa bismillah', '<p>setan laki-laki dan perempuan akan melihat aurat kita</p>', 'r')}{card('Dengan bismillah', '<p>bismillah dan doa menjadi pelindung aurat kita</p>', 'g')}</div>
+<div style="text-align:center">{icon('eye', 'icoS')} &nbsp;›&nbsp; {icon('shield', 'icoS')} &nbsp;›&nbsp; {icon('lock', 'icoS')}</div>
+{card('Belum hafal doanya?', '<p>Membaca <b>bismillah saja</b> sudah cukup.</p>', 'y')}
+''', LB, 6))
+    P.append(page(f'''{chead(5, 'Suami &amp; istri', 'house')}<div class="orn"><span></span></div>
+<p>Ketika suami dan istri hendak berhubungan, disunahkan sebagaimana diajarkan Rasulullah ﷺ untuk membaca:</p>
+{dalil('بِسْمِ اللَّهِ، اللَّهُمَّ جَنِّبْنَا الشَّيْطَانَ، وَجَنِّبِ الشَّيْطَانَ مَا رَزَقْتَنَا', '"Dengan nama Allah. Ya Allah, jauhkanlah kami dari setan, dan jauhkan setan dari rezeki yang Engkau karuniakan kepada kami."', 'doa suami istri', 17)}
+{card('Sunah kifayah', '<p>Jika suami sudah membacanya lalu istri tidak membaca, tidak mengapa. Jika keduanya membaca, juga tidak mengapa.</p>', 'g')}
+<p>Yang dibaca bukan Bismillahir Rahmanir Rahim, melainkan <b>bismillah</b>, lalu dilanjutkan doa sesuai keadaan.</p>
+''', LB, 7))
+    P.append(page(f'''{chead(6, 'Tiga kebaikan doa', 'gift')}<div class="orn"><span></span></div>
+<p>Hadis Rasulullah ﷺ menjelaskan gunanya, sebagaimana ditafsirkan para ulama:</p>
+{card('1. Perlindungan dari setan', '<p>Membaca bismillah dan menyempurnakan doanya berarti memohon perlindungan dari setan. Jangan sampai kita melupakan Allah dalam keadaan seperti itu.</p>', 'g')}
+{card('2. Anak terlindung', '<p>Bila Allah mentakdirkan lahir seorang anak, doa itu menjadi sebab perlindungan dari gangguan setan.</p>', 'g')}
+{card('3. Pahala setiap napas', '<p>Orang tua mendapat pahala atas <span class="hl">setiap napas anaknya</span>, sejak kecil hingga ia meninggal dunia, karena membaca bismillah dan berdoa.</p>', 'y')}
+''', LB, 8))
+    P.append(page(f'''{chead(7, 'Naik kendaraan &amp; tidur', 'moon')}<div class="orn"><span></span></div>
+{card('Naik kendaraan', "<p>Cukup membaca <b>bismillah</b> dan <b>alhamdulillah</b>. Setiap langkah atau perjalanan kendaraan kita dapat dicatat sebagai amal kebaikan. Contoh bismillah yang disesuaikan:</p>" + ar('بِسْمِ اللَّهِ تَوَكَّلْتُ', 16) + ar('بِسْمِ اللَّهِ مَجْرَاهَا', 16), 'g')}
+<p><b>Hendak tidur</b>, Nabi kita Muhammad ﷺ mengajarkan untuk membaca:</p>
+{dalil('بِاسْمِكَ اللَّهُمَّ أَحْيَا وَبِاسْمِكَ أَمُوتُ', '"Dengan nama-Mu ya Allah, aku hidup dan aku mati."', 'doa sebelum tidur', 18)}
+<p>Agar bila wafat dalam tidur, kita wafat dalam keadaan <span class="hlg">husnul khatimah</span>, dan di akhir hayat dimudahkan mengucapkan <span class="ar" style="font-size:13pt">لَا إِلَٰهَ إِلَّا اللَّهُ</span> karena sudah terbiasa.</p>
+''', LB, 9))
+    P.append(page(f'''{chead(8, 'Berpakaian', 'shirt')}<div class="orn"><span></span></div>
+<p>Ketika hendak mengenakan baju, bukan Bismillahir Rahmanir Rahim, tetapi membaca:</p>
+{dalil(['بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا هُوَ لَهُ', 'وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا هُوَ لَهُ'], '"Dengan nama Allah. Ya Allah, aku memohon kebaikannya dan kebaikan tujuannya, dan berlindung dari keburukannya dan keburukan tujuannya."', 'doa berpakaian', 16)}
+<p>Insya Allah, pakaian yang kita kenakan mendapat <b>keberkahan</b> dari Allah Subhanahu wa Ta'ala.</p>
+{card('Ingat kembali', '<p>Basmalah adalah salah satu dari <b>tujuh ayat Al-Fatihah</b>. Tertinggal satu huruf saja dalam salat, salat kita berkurang atau bahkan <b>tidak sah</b>.</p>', 'y')}
+''', LB, 10))
+    P.append(page(f'''
+<span class="label">RINGKASAN</span>
+<div class="card" style="font-size:9.6pt;margin-top:3mm">
+<p><b>Wajib</b>: membaca Al-Fatihah dalam salat</p>
+<p><b>Sunah</b>: wudu, mandi, makan, minum</p>
+<p><b>Makruh</b>: perkara yang tidak mulia</p>
+<p><b>Haram</b>: sebelum perbuatan dosa</p>
+<p><b>Disesuaikan</b>: jamban, suami istri, kendaraan, tidur, berpakaian, cukup bismillah + doanya</p>
+</div>
+<span class="label">CEKLIS HARIANKU</span>
+<div class="card" style="font-size:9.8pt;margin-top:2mm">
+<p><span class="box"></span>Membaca bismillah sebelum wudu, makan dan minum</p>
+<p><span class="box"></span>Menghafal doa masuk jamban</p>
+<p><span class="box"></span>Membaca doa sebelum tidur setiap malam</p>
+<p><span class="box"></span>Membaca doa ketika berpakaian</p>
+</div>''', LB, 11))
+    P.append(page(f'''
+<span class="label">CATATAN TADABBURKU</span>
+<p class="muted" style="margin-top:3mm">Doa mana yang ingin aku hafalkan minggu ini? Tulis di sini:</p>
+<div class="note-lines"></div>
+{ar('بِاسْمِكَ اللَّهُمَّ أَحْيَا وَبِاسْمِكَ أَمُوتُ', 18)}
+<p style="text-align:center" class="muted">"Dengan nama-Mu ya Allah, aku hidup dan aku mati"</p>''', LB, 12))
+    P.append(f'''<section class="page cover dark">
+<div class="label">{LB}</div>
+<div class="ar" style="margin-top:22mm;font-size:30pt">{BSM}</div>
+<p class="sub" style="margin-top:3mm">Dengan nama Allah.</p>
+<div class="orn" style="margin:10mm 15mm"><span></span></div>
+<p style="font-size:11pt">Bismillah menyertai setiap langkah kita,<br>disesuaikan dengan keadaan yang kita hadapi.</p>
+<p class="sub" style="margin-top:8mm">Insya Allah, berikutnya: ayat kedua Al-Fatihah.</p>
+<div class="foot">Kajian Hurmatul Qur'an</div>
+</section>''')
+    return P

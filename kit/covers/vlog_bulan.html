@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+@font-face{font-family:Kalam;src:url('file:///home/claude/fonts/Kalam-Regular.ttf')}
+@font-face{font-family:Kalam;font-weight:700;src:url('file:///home/claude/fonts/Kalam-Bold.ttf')}
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;font-family:Inter,sans-serif}
+.ab{position:absolute}
+.ar{font-family:Amiri,serif;direction:rtl}
+.k{font-family:Kalam,cursive}
+.script{font-family:Kalam,cursive;font-weight:700;line-height:.85;-webkit-text-stroke:0;paint-order:stroke fill}
+.pol{background:#fff;padding:14px 14px 56px;box-shadow:0 18px 40px rgba(80,40,20,.35);position:relative}
+.tape{position:absolute;width:110px;height:34px;background:rgba(255,214,140,.75);top:-16px;left:50%;margin-left:-55px;transform:rotate(-4deg)}
+.chip{display:flex;align-items:center;gap:12px;background:#fff6dc;border-radius:30px;padding:8px 22px 8px 10px;font:800 28px Inter;color:#3a2a1a;box-shadow:0 6px 14px rgba(80,40,20,.25);margin-bottom:12px;width:max-content}
+.ico{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none}
+.bub{background:#fff;border:3px solid #2b2219;border-radius:30px;padding:4px 20px;font:700 30px Kalam;color:#2b2219;box-shadow:0 6px 12px rgba(0,0,0,.2)}
+.pink{background:#ff8fb1;border-color:#2b2219}
+</style></head><body><div id="c"></div>
+<script>
+const v = new URLSearchParams(location.search).get('v') || 'yt';
+const W = 1080, H = 1350;
+document.body.style.width = W + 'px'; document.body.style.height = H + 'px';
+const PH = 'file:///home/claude/covers/user_photo.jpg';
+// ilustrasi kecil
+const ILL = {
+  mushaf: `<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#f6e3c4"/><circle cx="240" cy="40" r="60" fill="#ffd9a0" opacity=".6"/><path d="M60 180 L150 130 L240 180 M60 180 L150 205 L240 180" fill="none" stroke="#7a4a22" stroke-width="8"/><path d="M80 120 Q150 95 150 125 Q150 95 220 120 L220 160 Q150 140 150 165 Q150 140 80 160Z" fill="#fffaf0" stroke="#7a4a22" stroke-width="4"/><path d="M95 130 H140 M95 142 H140 M160 130 H205 M160 142 H205" stroke="#2f7d4a" stroke-width="3"/></svg>`,
+  kaaba: `<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#ffe1c2"/><circle cx="150" cy="70" r="90" fill="#ffc98a" opacity=".5"/><path d="M0 180 H300" stroke="#b07a40" stroke-width="3"/><rect x="100" y="70" width="100" height="110" fill="#1c1c1c"/><rect x="100" y="92" width="100" height="12" fill="#d9b25a"/><path d="M40 180 V120 M260 180 V120" stroke="#b07a40" stroke-width="4"/></svg>`,
+  hidangan: `<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#fde7d6"/><ellipse cx="150" cy="150" rx="120" ry="40" fill="#fff" stroke="#c9a14a" stroke-width="5"/><path d="M60 140 Q150 60 240 140" fill="#f6c76b"/><circle cx="110" cy="120" r="14" fill="#e98a4a"/><circle cx="150" cy="105" r="16" fill="#7bbf6a"/><circle cx="190" cy="120" r="14" fill="#e94a6a"/><path d="M140 60 q10 -20 0 -40 M160 60 q10 -20 0 -40" stroke="#c9a14a" stroke-width="4" fill="none"/></svg>`,
+  lentera: `<svg viewBox="0 0 300 220"><rect width="300" height="220" fill="#2d4a6a"/><circle cx="150" cy="110" r="90" fill="#ffd77a" opacity=".25"/><path d="M150 0 V40" stroke="#d9b25a" stroke-width="4"/><path d="M125 40 H175 L185 60 L175 170 H125 L115 60Z" fill="#7a3a1a" stroke="#d9b25a" stroke-width="5"/><ellipse cx="150" cy="110" rx="18" ry="34" fill="#ffd77a"/><circle cx="60" cy="40" r="3" fill="#fff"/><circle cx="240" cy="60" r="3" fill="#fff"/><circle cx="220" cy="30" r="2" fill="#fff"/></svg>`,
+};
+const daisy = (s) => `<svg width="${s}" height="${s}" viewBox="-50 -50 100 100">${Array.from({ length: 12 }, (_, i) => `<ellipse rx="10" ry="30" cy="-24" fill="#fff" stroke="#e8e0d0" stroke-width="1.5" transform="rotate(${i * 30})"/>`).join('')}<circle r="14" fill="#f6c21a"/></svg>`;
+const heart = (s, c = '#ff4f8b') => `<svg width="${s}" height="${s}" viewBox="0 0 24 24"><path d="M12 21 C-6 9 4 -3 12 5 C20 -3 30 9 12 21Z" fill="${c}"/></svg>`;
+const spark = (s, c = '#fff') => `<svg width="${s}" height="${s}" viewBox="-10 -10 20 20"><path d="M0 -10 Q1 -1 10 0 Q1 1 0 10 Q-1 1 -10 0 Q-1 -1 0 -10Z" fill="${c}"/></svg>`;
+const arrow = (w, h, flip) => `<svg width="${w}" height="${h}" viewBox="0 0 100 60" style="${flip ? 'transform:scaleX(-1)' : ''}"><path d="M5 10 Q50 0 90 45" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M78 44 L92 48 L90 33" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>`;
+const pol = (kind, w, rot, cap) => `<div class="pol" style="width:${w}px;transform:rotate(${rot}deg)"><div class="tape"></div><div style="height:${(w - 28) * .73}px;overflow:hidden">${ILL[kind]}</div><div class="k" style="position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:${w / 11}px;font-weight:700;color:#3a2a1a">${cap}</div></div>`;
+const CH = [['#ffd36b', 'Belajar Al-Qur\'an', 'M4 6 h7 v12 h-7z M13 6 h7 v12 h-7z'], ['#bfe8c8', 'Mengajarkannya', 'M12 4 l8 4 -8 4 -8 -4z M6 10 v5 q6 4 12 0 v-5'], ['#cfe0ff', 'Adab Membaca', 'M12 3 l2.5 6 6.5 .5 -5 4 1.5 6.5 -5.5 -3.5 -5.5 3.5 1.5 -6.5 -5 -4 6.5 -.5z'], ['#ffc0cf', 'Hormati Mushaf', 'M12 21 C-6 9 4 -3 12 5 C20 -3 30 9 12 21Z'], ['#ffe0b0', 'Jamuan Allah', 'M3 14 h18 a9 9 0 0 1 -18 0z M12 5 v4']];
+const chips = (sc) => `<div style="transform:scale(${sc});transform-origin:0 0">${CH.map(c => `<div class="chip"><div class="ico" style="background:${c[0]}"><svg width="24" height="24" viewBox="0 0 24 24"><path d="${c[2]}" fill="none" stroke="#3a2a1a" stroke-width="2.2" stroke-linejoin="round"/></svg></div>${c[1]}</div>`).join('')}</div>`;
+const title = (sc) => `<div style="transform:scale(${sc}) rotate(-4deg);transform-origin:0 0;width:760px">
+  <div class="script" style="font-size:170px;color:#fff;text-shadow:5px 5px 0 #2b2219,-2px -2px 0 #2b2219,2px -2px 0 #2b2219,-2px 2px 0 #2b2219">Mini</div>
+  <div class="script" style="font-size:210px;color:#ffd60a;margin-top:-10px;text-shadow:6px 6px 0 #2b2219,-3px -3px 0 #2b2219,3px -3px 0 #2b2219,-3px 3px 0 #2b2219">Kajian</div>
+  <div style="display:inline-block;margin-top:14px;background:#fff6dc;padding:10px 26px;font:900 40px Inter;letter-spacing:.04em;color:#2b2219;box-shadow:0 8px 18px rgba(0,0,0,.3);transform:rotate(2deg)">HURMATUL QUR'AN <span style="color:#ff4f8b">♡</span></div></div>`;
+const badge = (sc) => `<div style="transform:scale(${sc}) rotate(-4deg);transform-origin:0 0;display:flex;align-items:center;gap:14px;background:#fff;padding:10px 26px;box-shadow:0 10px 20px rgba(0,0,0,.3)"><span style="font:900 64px Inter;color:#ff4f8b;-webkit-text-stroke:2px #2b2219">EP 01</span><span class="ar" style="font-size:46px;color:#2b2219">حُرْمَةُ الْقُرْآنِ</span></div>`;
+const note = (w, rot) => `<div style="width:${w}px;transform:rotate(${rot}deg);background:#fffdf5;background-image:repeating-linear-gradient(transparent 0 44px,#b9cbe8 44px 46px);border-left:5px solid #f2a0a0;padding:20px 24px;box-shadow:0 18px 40px rgba(60,30,10,.35);position:relative">
+  <div class="tape" style="left:30%"></div>
+  <div class="ar" style="font-size:${w / 11}px;color:#1f3a8a;text-align:right;line-height:1.5">خَيْرُكُمْ مَنْ تَعَلَّمَ <span style="background:linear-gradient(transparent 55%,#ffe45c 55%)">الْقُرْآنَ</span> وَعَلَّمَهُ</div>
+  <div class="k" style="font-size:${w / 18}px;color:#1f3a8a">"Sebaik-baik kalian: yang belajar Al-Qur'an & mengajarkannya" ✓</div>
+  <div class="k" style="font-size:${w / 22}px;color:#b0502a;margin-top:6px">— HR. al-Bukhari 5027</div>
+  <div style="position:absolute;right:-30px;bottom:-26px;display:flex;gap:8px;transform:rotate(-12deg)"><div style="width:26px;height:90px;border-radius:6px;background:#ff9fc0"></div><div style="width:26px;height:90px;border-radius:6px;background:#a9e6a0"></div><div style="width:26px;height:90px;border-radius:6px;background:#ffe45c"></div></div></div>`;
+const polPh = (w, rot) => `<div class="pol" style="width:${w}px;transform:rotate(${rot}deg)"><div class="tape"></div><img src="${PH}" style="display:block;width:${w - 28}px;height:${w - 28}px;object-fit:cover;object-position:46% 55%"><div class="k" style="position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:${w / 12}px;font-weight:700;color:#3a2a1a">tadarus malam ♡</div></div>`;
+const bub = (t, cls = '') => `<div class="bub ${cls}">${t}</div>`;
+let h = `<div style="position:relative;width:${W}px;height:${H}px;overflow:hidden;background:#000">
+  <img src="file:///home/claude/covers/bg/bulan.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 28%">
+  <div class="ab" style="left:40px;top:50px">${badge(.8)}</div>
+  <div class="ab" style="left:660px;top:120px">${bub('cahaya Al-Qur\'an ✦', 'pink')}</div>
+  <div class="ab" style="left:600px;top:175px">${arrow(100, 60, true)}</div>
+  <div class="ab" style="left:40px;top:330px">${title(.68)}</div>
+  <div class="ab" style="left:640px;top:520px">${polPh(360, 5)}</div>
+  <div class="ab" style="left:40px;top:830px">${chips(.82)}</div>
+  <div class="ab" style="left:560px;top:1000px">${note(470, 3)}</div>
+  <div class="ab" style="left:50px;top:1250px">${bub('@alurziyadahku', 'pink')}</div>
+  <div class="ab" style="left:960px;top:470px">${daisy(110)}</div><div class="ab" style="left:430px;top:1180px">${daisy(90)}</div>
+  <div class="ab" style="left:600px;top:470px">${heart(44)}</div><div class="ab" style="left:1010px;top:960px">${heart(34, '#ff7aa8')}</div>
+  <div class="ab" style="left:520px;top:840px">${spark(36, '#ffe9a8')}</div><div class="ab" style="left:420px;top:240px">${spark(30, '#ffe9a8')}</div>`;
+document.getElementById('c').innerHTML = h + '</div>';
+</script></body></html>

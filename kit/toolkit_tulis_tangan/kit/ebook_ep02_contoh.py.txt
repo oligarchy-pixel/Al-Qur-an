@@ -1,0 +1,120 @@
+from ebook_build import *
+
+TITLE = "Hurmatul Qur'an 02: 15 Kehormatan Al-Qur'an"
+LB = "HURMATUL QUR'AN · 02"
+
+K = [  # (ikon, judul, arab, terjemah/penjelasan singkat, isi html)
+ ('kaaba', 'Menghadap kiblat', ['أَنْ يَسْتَقْبِلَ الْقِبْلَةَ', 'بِأَنَّهَا أَشْرَفُ الْجِهَاتِ'],
+  'Menghadap kiblat, karena kiblat adalah arah yang paling mulia.',
+  '<p>Membaca Al-Qur\'an sambil membelakangi kiblat berbeda pahalanya dengan membaca sambil menghadap kiblat. Sebab di situ terkumpul <b>dua pahala</b>:</p>'
+  + ck(['pahala membaca Al-Qur\'anul Karim', 'pahala duduk menghadap kiblat'])),
+ ('face', 'Berhenti saat menguap', ['وَأَنْ يُمْسِكَ عَنِ الْقِرَاءَةِ إِذَا تَثَاءَبَ', 'لِأَنَّهُ مِنَ الشَّيْطَانِ'],
+  'Menahan bacaan ketika menguap, karena menguap itu dari syaitan.',
+  '<p>Jangan campurkan menguap dengan bacaan Al-Qur\'an, karena akan <b>merusak penyebutan huruf</b> Al-Qur\'an. Berhenti sejenak, lalu lanjutkan.</p>'),
+ ('shield', "Membaca ta'awwudz", ['وَأَنْ يَسْتَعِيذَ بِاللَّهِ مِنَ الشَّيْطَانِ عِنْدَ ابْتِدَائِهِ'],
+  "Memohon perlindungan kepada Allah dari syaitan ketika memulai bacaan.",
+  '<p>Lafaznya boleh:</p>' + ar('أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 14) + ar('أَعُوذُ بِاللَّهِ السَّمِيعِ الْعَلِيمِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 14)
+  + '<div class="two">' + card('Awal surah', '<p>ta\'awwudz lalu <b>basmalah</b></p>', 'g') + card('Pertengahan surah', '<p>terserah: ta\'awwudz saja boleh, dengan basmalah pun boleh</p>', 'y') + '</div>'
+  + '<p>Yang penting adalah membaca <span class="hl">ta\'awwudz</span>; ini tidak mengurangi kehormatan Al-Qur\'an.</p>'),
+ ('speech', 'Tidak memotong bacaan', ['وَأَنْ لَا يَقْطَعَ الْقِرَاءَةَ سَاعَةً سَاعَةً لِمُكَلِّمٍ آدَمِيٍّ'],
+  'Tidak memutus bacaan sesaat-sesaat untuk berbicara dengan manusia.',
+  card('Yang keliru', '<p>sambil membaca Al-Qur\'an, lalu bercakap-cakap dengan orang, baca lagi, bercakap lagi.</p>', 'r')
+  + card('Yang benar', ck(['jika ingin menanya khabar, tanyalah terlebih dahulu', 'barulah membaca Al-Qur\'an']), 'g')
+  + '<p class="muted">Berbeda halnya dengan membaca selawat atau zikir <b>لَا إِلَهَ إِلَّا اللَّهُ</b>; urusan Al-Qur\'an lain daripada itu.</p>'),
+ ('wave', 'Tartil, indah & memahami', ['وَأَنْ يَقْرَأَهُ عَلَى تُؤَدَةٍ وَتَرْتِيلٍ وَتَحْسِينٍ', 'وَتَفَهُّمٍ وَإِسْمَاعِ نَفْسِهِ'],
+  'Membacanya dengan perlahan, tartil, memperindah, memahami, dan memperdengarkannya kepada diri sendiri.',
+  ck(['membaguskan sebutan huruf dan tajwidnya', 'membaguskan suaranya', 'lebih baik lagi: memahaminya'])
+  + card('Memperdengarkan kepada diri sendiri', '<p>Walau suaranya perlahan atau sayup-sayup, yang penting <b>terdengar oleh telinga sendiri</b>, misalnya saat solat subuh di rumah, juga saat menjadi makmum atau imam di masjid.</p>', 'y')),
+ ('book', 'Membaca sesuai tertib', ['أَنْ يَقْرَأَ الْقُرْآنَ عَلَى التَّرْتِيبِ'],
+  'Membaca Al-Qur\'an menurut tertib susunannya.',
+  '<p>Seperti dari Al-Fatihah, Al-Baqarah, lalu Ali \'Imran, dan seterusnya.</p>'
+  + '<div class="two">' + card('Afdhal', '<p>mengikuti susunan surah dalam mushaf</p>', 'g') + card('Tidak berurutan?', '<p>tidak apa-apa, hanya kurang afdhal</p>', 'y') + '</div>'),
+ ('rehal', 'Mushaf di tempat suci & tinggi', ['وَأَنْ يَضَعَ الْمُصْحَفَ عَلَى مَكَانٍ طَاهِرٍ مُرْتَفِعٍ أَوْ فِي حِجْرِهِ'],
+  'Meletakkan mushaf di tempat yang suci lagi tinggi, atau di pangkuannya.',
+  ck(['jangan diletakkan di lantai', 'jika bisa, pakai rehal atau alas'])
+  + card('Melihat ayat di tempat kotor?', '<p>Jika melihat Al-Qur\'an, ayat-ayatnya, nama-nama Allah, atau nama nabi dan rasul di tempat yang tidak elok, seperti tempat sampah, maka <b>wajib mengambilnya</b> dan meletakkannya di tempat yang suci dan tinggi. Dalam kajian disebutkan, bila tidak diambil, pendapat yang kuat hukumnya antara <b>haram atau kafir</b>.</p>', 'r')),
+ ('drop_r', 'Tidak menyapu dengan air liur', [],
+  '', '<p>Tidak boleh menyapu tulisan Al-Qur\'an dengan <b>air liur</b>, misalnya huruf-huruf Al-Qur\'an di papan tulis.</p>'
+  + card('Jika hendak menghapus', '<p>gunakan <b>air yang suci</b>.</p>', 'g')),
+ ('flame', 'Mushaf yang sudah rusak', [],
+  '', '<p>Al-Qur\'an yang sudah lama, kabur, lapuk, hancur, dan tidak bisa dibaca lagi:</p>'
+  + ck(['boleh <b>dibakar</b>', 'atau <b>dikubur</b> di tempat yang suci, jauh dari injakan kaki orang'])),
+ ('eye', 'Memberi hak kedua mata', [],
+  '', '<p>Lebih baik membaca dengan <b>memandang mushaf</b>, walaupun sudah hafal. Sebabnya:</p>'
+  + ck(['mensyukuri nikmat mata', 'menebus kesalahan mata yang pernah melihat hal tidak baik dan tidak bermanfaat'])
+  + card('Hadis', '<p>Baginda Rasulullah ﷺ bersabda: <i>"Paling afdal ibadah umatku adalah membaca Al-Qur\'an, melihat Al-Qur\'an, memandang-mandang Al-Qur\'an."</i></p>', 'y')),
+ ('brain', 'Tidak menafsir sendiri', [],
+  '', '<p>Jangan menakwil atau memaknai Al-Qur\'an dengan <b>pikiran dan hawa nafsu sendiri</b>. Tafsir sudah ada: dari Baginda Rasulullah ﷺ, para sahabat, dan para ulama terdahulu.</p>'
+  + card('Peringatan', '<p>Orang awam jangan sekali-kali berani menafsirkan Al-Qur\'an sesuka hati, walau sepotong ayat; ada ancaman yang berat. Hal ini juga dijelaskan dalam Tafsir Al-Qurthubi.</p>', 'r')),
+ ('music', 'Tidak berlebihan melagukan', [],
+  '', '<p><b>Berlagu boleh</b>, tetapi jangan melampaui batas, misalnya memanjang-manjangkan huruf terlalu panjang.</p>'),
+ ('pen', 'Memperbagus tulisan', [],
+  '', '<p>Jika menulis Al-Qur\'an, jangan asal-asalan: tulisan mestilah <b>bagus dan cantik</b>.</p>'),
+ ('market', 'Tidak membaca di pasar', [],
+  '', '<p>Tidak membaca Al-Qur\'an di pasar tempat jual beli, karena tidak sesuai tempatnya. Begitu pula di tempat ribut atau tempat orang bermain.</p>'),
+ ('loop', 'Setelah khatam, mulai lagi', [],
+  '', '<p>Bila tamat membaca Al-Qur\'an, <b>jangan langsung berhenti</b>. Kembali ke awal: baca <span class="hl">Surah Al-Fatihah</span> dan <span class="hl">lima ayat pertama Al-Baqarah</span>, baru beristirahat.</p>'),
+]
+
+
+def pages():
+    P = []
+    P.append(f'''<section class="page cover">
+<div class="label">{LB}</div>
+<div class="orn"><span></span></div>
+<div class="ar" style="margin-top:6mm"><span class="bigring">حُرْمَةُ الْقُرْآنِ</span></div>
+<h1>15 Kehormatan<br>Al-Qur'an</h1>
+<div class="sub">Adab-adab memuliakan Kalamullah yang sering terlupa</div>
+<div class="icons" style="margin-top:8mm">{icon('kaaba')}{icon('mushaf')}{icon('eye')}{icon('loop')}</div>
+<div class="foot">E-book pendamping video kajian · Episode 02</div>
+</section>''')
+    pg = [4 + i if i < 7 else 11 + (i - 7) // 2 for i in range(len(K))]
+    toc = ''.join(f'<li><span>{i+1}. {esc(k[1])}</span><span class="d"></span><b>{pg[i]}</b></li>' for i, k in enumerate(K))
+    P.append(page(f'''
+<span class="label">PENGANTAR</span>
+{ar('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 17)}
+<p>Alhamdulillah, kita lanjutkan kembali perihal <b>'Ulumul Qur'an</b>: kehormatan-kehormatan Al-Qur'anul Karim. E-book ini merangkum <span class="hl">15 kehormatan</span> sebagaimana dikatakan sebagian para ulama.</p>
+<span class="label" style="margin-top:2mm">DAFTAR ISI</span>
+<ul class="toc" style="font-size:9.5pt">{toc}<li><span>Penutup &amp; ceklis</span><span class="d"></span><b>15</b></li></ul>
+''', LB, 2))
+    P.append(page(f'''
+<h2>Ibadah paling afdal</h2>
+<p>Baginda Rasulullah ﷺ bersabda bahwa ibadah umatnya yang paling afdal adalah <b>membaca Al-Qur'an</b>, melihat dan memandang Al-Qur'an.</p>
+<div style="text-align:center">{icon('reader_g')}</div>
+<p>Namun Kalam yang mulia ini menuntut adab. Siapa memuliakannya, Al-Qur'an menjadi <b>syafaat dan rahmat</b>; siapa meremehkannya, Al-Qur'an bisa menjadi sebab <b>celaka</b>.</p>
+<div class="two">{card('Jika dihormati', ck(['membawa syafaat', 'membawa rahmat']), 'g')}{card('Jika diremehkan', ck(['mengutuk kita', 'mengakibatkan celaka'], x=True), 'r')}</div>
+''', LB, 3))
+    for i, (ic, title, arab, trn, body) in enumerate(K[:7]):
+        d = dalil(arab, trn, None, 15 if max(len(a) for a in arab) > 34 else 17) if arab else ''
+        P.append(page(f'''{chead(i + 1, esc(title), ic)}<div class="orn"><span></span></div>{d}{body}
+<div style="text-align:center;margin-top:4mm">{icon(ic)}</div>''', LB, 4 + i))
+    for j in range(7, len(K), 2):
+        inner = ''
+        for i in range(j, min(j + 2, len(K))):
+            ic, title, arab, trn, body = K[i]
+            inner += f'<div style="margin-bottom:6mm">{chead(i + 1, esc(title), ic)}<div class="orn"><span></span></div>{body}</div>'
+        P.append(page(inner, LB, 11 + (j - 7) // 2))
+    P.append(page(f'''
+<span class="label">PENUTUP DARI KAJIAN</span>
+<h2 style="margin-top:2mm">Saat selesai membaca</h2>
+<p>Ketika berhenti membaca, boleh mengucapkan (dan tidak dibaca pun tidak menjadi masalah):</p>
+{dalil(['صَدَقَ اللَّهُ الْعَظِيمُ، وَبَلَّغَ رَسُولُهُ الْكَرِيمُ', 'وَأَنَا عَلَى ذَلِكَ مِنَ الشَّاهِدِينَ وَالشَّاكِرِينَ', 'وَالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ'], 'Maha Benar Allah Yang Maha Agung, dan Rasul-Nya yang mulia telah menyampaikan, dan aku termasuk orang yang menyaksikan dan bersyukur. Segala puji bagi Allah, Tuhan semesta alam.', None, 14)}
+<span class="label">CEKLIS HARIANKU</span>
+<div class="card" style="font-size:9.6pt;margin-top:2mm">
+<p><span class="box"></span>Menghadap kiblat &amp; ta'awwudz</p>
+<p><span class="box"></span>Tidak memotong bacaan dengan obrolan</p>
+<p><span class="box"></span>Tartil &amp; terdengar oleh telingaku</p>
+<p><span class="box"></span>Mushaf di tempat suci &amp; tinggi</p>
+<p><span class="box"></span>Membaca sambil memandang mushaf</p>
+</div>
+''', LB, 15))
+    P.append(f'''<section class="page cover dark">
+<div class="label">{LB}</div>
+<div class="ar" style="margin-top:22mm;font-size:22pt">فَمَنْ وَقَّرَ الْقُرْآنَ فَقَدْ وَقَّرَ اللَّهَ</div>
+<p class="sub" style="margin-top:3mm">Siapa menghormati Al-Qur'an, berarti menghormati Allah.</p>
+<div class="orn" style="margin:10mm 15mm"><span></span></div>
+<p style="font-size:11pt">Semoga kita bisa membaca Al-Qur'an sesuai<br>kehormatan dan keagungannya.</p>
+<p class="sub" style="margin-top:8mm">Insya Allah, sampai jumpa di episode berikutnya.</p>
+<div class="foot">Kajian Hurmatul Qur'an</div>
+</section>''')
+    return P

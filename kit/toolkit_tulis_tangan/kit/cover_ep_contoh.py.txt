@@ -1,0 +1,21 @@
+from cover_ep import *
+import os
+P = '/home/claude/out/covers/'; os.makedirs(P, exist_ok=True)
+LB = "HURMATUL QUR'AN · 01"
+# Contoh 5 cover Episode 01 gaya lebar (wide=True); tema 'light'/'dark' bergantian
+make('light', LB, 'Manusia terbaik', 'menurut Rasulullah', 'siapa?', [('book', 'belajar'), '+', ('people', 'mengajarkan')],
+     ['خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ'], ['"Sebaik-baik kalian adalah yang belajar Al-Qur\'an dan mengajarkannya"'],
+     'HR. Al-Bukhari', P + 'Cover01_B_Khairukum_Terang_Lebar', saw=True, ars=58, bigs=118, wide=True)
+make('light', LB, 'Mulutmu adalah', "jalan Al-Qur'an", 'sudah bersih?', [('siwak', 'bersiwak'), '>', ('mushaf', 'baru membaca')],
+     ['إِنَّ أَفْوَاهَكُمْ طَرِيقٌ مِنْ طُرُقِ الْقُرْآنِ فَطَهِّرُوهَا', 'وَنَظِّفُوهَا مَا اسْتَطَعْتُمْ'],
+     ['"Mulut kalian adalah jalan Al-Qur\'an,', 'maka sucikan dan bersihkan ia semampu kalian"'],
+     "Yazid bin 'Abdul Malik", P + 'Cover01_D_Mulut_Terang_Lebar', ars=50, bigs=104, wide=True)
+make('dark', LB, 'Belajar 1 ayat', 'lebih baik dari', '100 rakaat?', [('book', 'belajar 1 ayat'), '>', ('house', 'salat 100 rakaat')],
+     ['لَأَنْ تَغْدُوَ فَتَتَعَلَّمَ آيَةً مِنْ كِتَابِ اللَّهِ', 'خَيْرٌ لَكَ مِنْ أَنْ تُصَلِّيَ مِئَةَ رَكْعَةٍ'],
+     ['"Engkau pergi belajar satu ayat dari Kitab Allah,', 'lebih baik bagimu daripada salat seratus rakaat"'], 'Hadis · kepada Abu Dzar', P + 'Cover01_A_AbuDzar_Gelap_Lebar', bigs=104, wide=True)
+make('dark', LB, "Pegang Al-Qur'an", 'tanpa wudhu,', 'boleh?', [('drop', 'wudhu dulu'), '>', ('mushaf', 'baru menyentuh')],
+     ['لَا يَمَسُّهُ إِلَّا الْمُطَهَّرُونَ'], ['"Tidak menyentuhnya kecuali orang-orang yang suci"'],
+     "QS. Al-Waqi'ah : 79", P + 'Cover01_C_AlWaqiah_Gelap_Lebar', ars=62, bigs=118, wide=True)
+make('dark', LB, "Meremehkan Al-Qur'an", 'berarti meremehkan', 'hak Allah', [('mushaf', "Al-Qur'an"), '=', (None, 'hak Allah', 'اللَّه')],
+     ['فَمَنْ وَقَّرَ الْقُرْآنَ فَقَدْ وَقَّرَ اللَّهَ', 'وَمَنِ اسْتَخَفَّ بِالْقُرْآنِ اسْتَخَفَّ بِحَقِّ اللَّهِ'],
+     ['"Siapa memuliakan Al-Qur\'an, ia memuliakan Allah;', 'siapa meremehkannya, ia meremehkan hak Allah"'], 'Hadis', P + 'Cover01_E_HakAllah_Gelap_Lebar', bigs=108, wide=True)

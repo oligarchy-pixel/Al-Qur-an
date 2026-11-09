@@ -1,0 +1,384 @@
+import numpy as np
+
+SR = 44100
+W6G = 0.18
+rng = np.random.default_rng(7)
+
+
+def t_(d):
+    return np.arange(int(SR * d)) / SR
+
+
+def bandnoise(d, lo, hi):
+    n = int(SR * d)
+    x = rng.normal(0, 1, n)
+    X = np.fft.rfft(x)
+    f = np.fft.rfftfreq(n, 1 / SR)
+    X[(f < lo) | (f > hi)] = 0
+    y = np.fft.irfft(X, n)
+    return y / (np.abs(y).max() + 1e-9)
+
+
+def env_ad(n, a, d_):
+    e = np.ones(n)
+    na = max(1, int(a * SR))
+    e[:na] = np.linspace(0, 1, na)
+    e *= np.exp(-np.maximum(0, np.arange(n) - na) / (d_ * SR))
+    return e
+
+
+def pop():
+    t = t_(0.12)
+    f = 260 + 520 * np.exp(-t / 0.025)
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    y = np.sin(ph) * env_ad(len(t), 0.002, 0.035)
+    y += 0.25 * bandnoise(0.12, 1500, 6000) * env_ad(len(t), 0.001, 0.006)
+    return 0.55 * y
+
+
+def click():
+    t = t_(0.06)
+    y = np.sin(2 * np.pi * 1900 * t) * env_ad(len(t), 0.0005, 0.012)
+    y += 0.5 * bandnoise(0.06, 2000, 8000) * env_ad(len(t), 0.0005, 0.004)
+    return 0.4 * y
+
+
+def subtick():
+    t = t_(0.05)
+    y = np.sin(2 * np.pi * 2600 * t) * env_ad(len(t), 0.0005, 0.008)
+    return 0.18 * y
+
+
+def tick():
+    t = t_(0.06)
+    y = np.sin(2 * np.pi * 1250 * t) * env_ad(len(t), 0.0005, 0.012)
+    y += 0.6 * bandnoise(0.06, 800, 5000) * env_ad(len(t), 0.0005, 0.005)
+    return 0.45 * y
+
+
+def soft():
+    d = 0.3
+    y = bandnoise(d, 300, 2200)
+    n = len(y)
+    e = np.sin(np.linspace(0, np.pi, n)) ** 2
+    return 0.16 * y * e
+
+
+def whoosh(d=0.55):
+    n = int(SR * d)
+    lo = bandnoise(d, 200, 900)
+    hi = bandnoise(d, 900, 4000)
+    u = np.linspace(0, 1, n)
+    y = lo * (1 - u) + hi * u
+    e = np.sin(np.pi * u) ** 1.5
+    return 0.22 * y * e
+
+
+def write(d):
+    d = max(0.2, min(d, 2.5))
+    n = int(SR * d)
+    y = bandnoise(d, 1800, 7000)
+    # stroke modulation
+    u = np.arange(n) / SR
+    rate = 9 + 3 * np.sin(u * 2.1)
+    am = 0.5 + 0.5 * np.sin(2 * np.pi * np.cumsum(rate) / SR) ** 2
+    am *= 0.6 + 0.4 * rng.random(n // 400 + 1).repeat(400)[:n]
+    e = np.minimum(1, np.minimum(u / 0.03, (d - u) / 0.06))
+    return 0.13 * y * am * e
+
+
+def paper():
+    d = 0.32
+    y = bandnoise(d, 400, 5000)
+    n = len(y)
+    u = np.linspace(0, 1, n)
+    e = (u ** 0.3) * np.exp(-u * 4)
+    crinkle = (rng.random(n) < 0.004).astype(float)
+    crinkle = np.convolve(crinkle, np.exp(-np.arange(200) / 30), 'same')
+    return 0.3 * y * e + 0.1 * bandnoise(d, 2000, 8000) * crinkle * e
+
+
+def thud():
+    t = t_(0.35)
+    f = 55 + 60 * np.exp(-t / 0.04)
+    y = np.sin(2 * np.pi * np.cumsum(f) / SR) * env_ad(len(t), 0.002, 0.09)
+    y += 0.5 * bandnoise(0.35, 100, 1200) * env_ad(len(t), 0.001, 0.03)
+    y += 0.3 * bandnoise(0.35, 2000, 6000) * env_ad(len(t), 0.0005, 0.006)
+    return 0.75 * y
+
+
+def swoosh(d=0.5):
+    d = max(0.18, min(d, 1.2))
+    n = int(SR * d)
+    y = bandnoise(d, 700, 3500)
+    u = np.linspace(0, 1, n)
+    e = np.sin(np.pi * u) ** 2
+    return 0.12 * y * e
+
+
+def marker(d=0.5):
+    d = max(0.2, min(d, 1.2))
+    n = int(SR * d)
+    u = np.arange(n) / SR
+    y = bandnoise(d, 2500, 6000) * (0.6 + 0.4 * np.sin(2 * np.pi * 14 * u))
+    sq = np.sin(2 * np.pi * (2100 + 200 * np.sin(2 * np.pi * 3 * u)) * u) * 0.25
+    e = np.minimum(1, np.minimum(u / 0.03, (d - u) / 0.08))
+    return 0.11 * (y + sq) * e
+
+
+def bell(f, d=0.9, g=1.0):
+    t = t_(d)
+    y = (np.sin(2 * np.pi * f * t) + 0.4 * np.sin(2 * np.pi * f * 2.01 * t) + 0.15 * np.sin(2 * np.pi * f * 3.02 * t))
+    return g * y * env_ad(len(t), 0.002, d / 4)
+
+
+def coin():
+    a = 0.16 * bell(2637, 0.35)
+    b = 0.10 * bell(3520, 0.3)
+    n = max(len(a), len(b)); out = np.zeros(n); out[:len(a)] += a; out[:len(b)] += b
+    return out
+
+
+def drip():
+    return 0.12 * bell(1900, 0.12)
+
+
+def ding():
+    return 0.2 * bell(1568, 1.1)
+
+
+def correct():
+    a = bell(1318, 0.5)
+    b = bell(1760, 0.7)
+    out = np.zeros(int(SR * 0.85))
+    out[:len(a)] += a
+    o = int(SR * 0.09)
+    out[o:o + len(b)] += b
+    return 0.16 * out
+
+
+def wrong():
+    t = t_(0.16)
+    def tone(f):
+        return (np.sign(np.sin(2 * np.pi * f * t)) * 0.3 + np.sin(2 * np.pi * f * t)) * env_ad(len(t), 0.003, 0.06)
+    out = np.zeros(int(SR * 0.36))
+    out[:len(t)] += tone(330)
+    o = int(SR * 0.13)
+    out[o:o + len(t)] += tone(262)
+    return 0.14 * out
+
+
+def rise(d=1.0):
+    d = max(0.3, min(d, 2.5))
+    t = t_(d)
+    f = 300 + 500 * (t / d) ** 1.5
+    y = np.sin(2 * np.pi * np.cumsum(f) / SR)
+    e = np.minimum(1, np.minimum(t / 0.05, (d - t) / 0.1))
+    return 0.08 * y * e
+
+
+def slide(d=0.4):
+    y = bandnoise(d, 150, 1500)
+    u = np.linspace(0, 1, len(y))
+    return 0.2 * y * np.sin(np.pi * u)
+
+
+
+# ---------------------------------------------------------------- pilihan suara stabilo
+def lowpass(y, fc):
+    Y = np.fft.rfft(y); f = np.fft.rfftfreq(len(y), 1 / SR); Y[f > fc] *= 0.1
+    return np.fft.irfft(Y, len(y))
+
+
+def marker1(d=0.5):
+    # spidol halus: gesekan lembut tanpa decit
+    d = max(0.25, min(d, 1.0)); n = int(SR * d); u = np.arange(n) / SR
+    y = bandnoise(d, 900, 3500) * (0.75 + 0.25 * np.sin(2 * np.pi * 9 * u))
+    e = np.minimum(1, np.minimum(u / 0.05, (d - u) / 0.12))
+    return 0.09 * y * e
+
+
+def marker2(d=0.5):
+    # sapuan kuas: desir lembut yang membesar lalu hilang
+    d = max(0.3, min(d, 1.0)); y = lowpass(bandnoise(d, 200, 4000), 2500); u = np.linspace(0, 1, len(y))
+    return 0.14 * y * np.sin(np.pi * u) ** 1.5
+
+
+def marker3(d=0.5):
+    # kertas digosok: dua gosokan pendek
+    a = bandnoise(0.16, 600, 5000) * np.sin(np.linspace(0, np.pi, int(SR * 0.16)))
+    out = np.zeros(int(SR * 0.42)); out[:len(a)] += a; o = int(SR * 0.2); out[o:o + len(a)] += 0.8 * a
+    return 0.12 * out
+
+
+def marker4(d=0.5):
+    # petikan nada lembut (kalimba)
+    t = t_(0.7); f = 1046.5
+    y = np.sin(2 * np.pi * f * t) + 0.25 * np.sin(2 * np.pi * f * 2.76 * t) * np.exp(-t / 0.05)
+    return 0.15 * y * env_ad(len(t), 0.003, 0.2)
+
+
+def marker5(d=0.5):
+    # desis sangat pelan (hampir tak terdengar)
+    return 0.4 * marker1(d)
+
+
+# ---------------------------------------------------------------- pilihan suara tulisan muncul
+def write1(d):
+    # pensil halus: goresan pensil yang lebih lembut dan redup
+    return 0.8 * lowpass(write(d), 2600)
+
+
+def write2(d):
+    # ketikan lembut: ketukan tuts pelan berirama
+    d = max(0.2, min(d, 2.5)); out = np.zeros(int(SR * d) + SR // 10); t = 0.0
+    while t < d:
+        n = int(SR * 0.035); tt = np.arange(n) / SR
+        f = 160 + 90 * rng.random()
+        k = np.sin(2 * np.pi * f * tt) * np.exp(-tt / 0.007) + 0.3 * bandnoise(0.035, 1200, 4000) * np.exp(-tt / 0.003)
+        i = int(t * SR); out[i:i + n] += 0.17 * k
+        t += 0.075 + 0.035 * rng.random()
+    return out
+
+
+def write3(d):
+    # spidol di papan: gesekan lebih bulat dan empuk
+    d = max(0.2, min(d, 2.5)); n = int(SR * d); u = np.arange(n) / SR
+    y = bandnoise(d, 500, 2200) * (0.55 + 0.45 * np.abs(np.sin(2 * np.pi * 4.5 * u)))
+    e = np.minimum(1, np.minimum(u / 0.04, (d - u) / 0.1))
+    return 0.11 * y * e
+
+
+def write4(d):
+    # petikan nada: satu nada kalimba lembut saat tulisan mulai muncul
+    t = t_(0.8); f = [784.0, 880.0, 1046.5, 1174.7][rng.integers(4)]
+    y = np.sin(2 * np.pi * f * t) + 0.22 * np.sin(2 * np.pi * f * 2.76 * t) * np.exp(-t / 0.05)
+    return 0.14 * y * env_ad(len(t), 0.003, 0.22)
+
+
+def write5(d):
+    # desir kertas: bisikan kertas tipis, sangat halus
+    d = max(0.25, min(d, 2.0)); y = lowpass(bandnoise(d, 300, 6000), 4000); u = np.linspace(0, 1, len(y))
+    return 0.09 * y * np.sin(np.pi * u) ** 0.8
+
+
+def write6(d):
+    # seperti video referensi: goresan pensil tipis bernada tinggi (5-12 kHz), ritme goresan ~10 Hz, pelan
+    d = max(0.2, min(d, 2.5)); n = int(SR * d); u = np.arange(n) / SR
+    y = bandnoise(d, 5000, 12000)
+    rate = 10 + 2 * np.sin(u * 1.7)
+    am = 0.35 + 0.65 * np.abs(np.sin(np.pi * np.cumsum(rate) / SR)) ** 1.5
+    am *= 0.7 + 0.3 * rng.random(n // 300 + 1).repeat(300)[:n]
+    e = np.minimum(1, np.minimum(u / 0.03, (d - u) / 0.06))
+    return W6G * y * am * e
+
+
+# ---------------------------------------------------------------- set suara "ref" (meniru video referensi ke-6, pilihan pengguna)
+# kertas & pensil, tanpa bunyi nada/elektronik; semuanya lembut di bawah suara rekaman
+SFXSET = __import__('os').environ.get('SFXSET', 'asli')  # 'ref' ditolak pengguna (hasil jelek)
+
+
+def _env(n, a, r):
+    u = np.arange(n) / SR; d = n / SR
+    return np.minimum(1, u / a) * np.minimum(1, np.maximum(0, (d - u) / r))
+
+
+def paper_swish(d=0.5):
+    # balik halaman / ganti adegan: desir kertas yang membesar lalu reda (1-8 kHz)
+    d = max(0.3, min(d, 0.8)); y = bandnoise(d, 900, 8000); n = len(y); u = np.linspace(0, 1, n)
+    crk = (rng.random(n) < 0.002).astype(float); crk = np.convolve(crk, np.exp(-np.arange(120) / 20), 'same')
+    e = np.sin(np.pi * u ** 0.7) ** 1.6
+    return 0.10 * y * e + 0.05 * bandnoise(d, 2500, 9000) * crk * e
+
+
+def paper_tap(f_lo=1800, f_hi=6000, g=1.0):
+    # kartu/elemen muncul: ketukan kertas pendek
+    d = 0.08; y = bandnoise(d, f_lo, f_hi); n = len(y)
+    body = np.sin(2 * np.pi * 240 * np.arange(n) / SR) * np.exp(-np.arange(n) / (SR * 0.012))
+    return g * (0.16 * y * np.exp(-np.arange(n) / (SR * 0.014)) + 0.10 * body)
+
+
+def pencil_tap(g=1.0):
+    d = 0.04; y = bandnoise(d, 3000, 9000); n = len(y)
+    return g * 0.12 * y * np.exp(-np.arange(n) / (SR * 0.006))
+
+
+def stamp_thock():
+    # stempel di atas kertas: hentakan empuk + klik kertas, tidak menggelegar
+    t = t_(0.22); f = 90 + 70 * np.exp(-t / 0.03)
+    y = np.sin(2 * np.pi * np.cumsum(f) / SR) * env_ad(len(t), 0.002, 0.05)
+    y += 0.6 * bandnoise(0.22, 1500, 5000) * env_ad(len(t), 0.0008, 0.012)
+    return 0.22 * y
+
+
+def paper_slide(d=0.6):
+    d = max(0.25, min(d, 1.5)); y = bandnoise(d, 600, 5000); u = np.linspace(0, 1, len(y))
+    return 0.07 * y * np.sin(np.pi * u) ** 1.2
+
+
+def get_ref(name, dur):
+    if name in ('whoosh', 'paper'): return paper_swish(0.5)
+    if name == 'swoosh': return 0.8 * paper_swish(min(max(dur, 0.3), 0.6))
+    if name == 'pop': return paper_tap()
+    if name == 'click': return paper_tap(2500, 7000, 0.8)
+    if name == 'tick': return pencil_tap()
+    if name == 'subtick': return pencil_tap(0.45)
+    if name == 'soft': return 0.8 * paper_slide(0.3)
+    if name == 'thud': return stamp_thock()
+    if name in ('rise', 'slide'): return paper_slide(min(max(dur, 0.3), 1.2))
+    if name == 'ding': return paper_tap(1500, 5000, 1.1)
+    if name == 'correct': return mixp_(paper_tap(), np.concatenate([np.zeros(int(SR * .09)), paper_tap(2200, 6500)]))
+    if name == 'wrong': return 0.8 * stamp_thock()
+    if name == 'coin': return paper_tap(2500, 8000, 1.0)
+    if name == 'drip': return pencil_tap(0.8)
+    if name == 'scratch': return 0.9 * write6(0.18)
+    if name == 'write': return write6(dur)
+    if name == 'marker': return marker1(dur)
+    return None
+
+
+def mixp_(*ys):
+    n = max(len(y) for y in ys); out = np.zeros(n)
+    for y in ys:
+        out[:len(y)] += y
+    return out
+
+def get(name, dur):
+    if SFXSET == 'ref':
+        y = get_ref(name, dur)
+        if y is not None:
+            return y
+    if name == 'pop': return pop()
+    if name == 'click': return click()
+    if name == 'subtick': return subtick()
+    if name == 'tick': return tick()
+    if name == 'soft': return soft()
+    if name == 'whoosh': return whoosh()
+    if name == 'write': return write(dur)
+    if name.startswith('write') and name[5:].isdigit(): return globals()[name](dur)
+    if name == 'paper': return paper()
+    if name == 'thud': return thud()
+    if name == 'swoosh': return swoosh(dur)
+    if name == 'marker': return marker(dur)
+    if name.startswith('marker') and name[6:].isdigit(): return globals()[name](dur)
+    if name == 'ding': return ding()
+    if name == 'coin': return coin()
+    if name == 'drip': return drip()
+    if name == 'correct': return correct()
+    if name == 'wrong': return wrong()
+    if name == 'rise': return rise(dur)
+    if name == 'slide': return slide(0.4)
+    if name == 'scratch': return write(0.3) * 1.3
+    raise KeyError(name)
+
+
+def build(events, total):
+    out = np.zeros(int(SR * total) + SR)
+    for (t, name, dur, gain) in events:
+        y = get(name, dur) * gain
+        i = int(t * SR)
+        if i < 0 or i >= len(out):
+            continue
+        j = min(len(out), i + len(y))
+        out[i:j] += y[:j - i]
+    return out

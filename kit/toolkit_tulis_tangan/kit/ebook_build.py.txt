@@ -1,0 +1,137 @@
+"""Pembuat e-book seri Hurmatul Qur'an (gaya Zamrud Kertas) -> HTML -> PDF A5 lewat Chromium."""
+import sys, json, html, importlib, asyncio, os
+from playwright.async_api import async_playwright
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+FD = '/home/claude/fonts/'
+
+CSS = """
+@font-face{font-family:Kalam;src:url('file://%(fd)sKalam-Regular.ttf');font-weight:400}
+@font-face{font-family:Kalam;src:url('file://%(fd)sKalam-Bold.ttf');font-weight:700}
+@font-face{font-family:Kalam;src:url('file://%(fd)sKalam-Light.ttf');font-weight:300}
+@font-face{font-family:Amiri;src:url('file://%(fd)sAmiri-Regular.ttf');font-weight:400}
+@font-face{font-family:Amiri;src:url('file://%(fd)sAmiri-Bold.ttf');font-weight:700}
+@page{size:148mm 210mm;margin:0}
+:root{--paper:#F0EFE7;--grid:#E2E1D8;--ink:#242C50;--green:#2C824C;--emer:#126848;--emerd:#0E4632;--gold:#CCA046;
+--red:#CE564E;--yel:#F7E078;--mint:#F0F9F4;--lgreen:#DEF0DE;--lred:#FAE2DE;--lyel:#FCF4D2;--gray:#8A8E9E}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:Kalam,cursive;color:var(--ink);font-size:10.6pt;line-height:1.5}
+.page{width:148mm;height:210mm;position:relative;overflow:hidden;page-break-after:always;
+ background-color:var(--paper);
+ background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+ background-size:6mm 6mm;padding:15mm 13mm 16mm}
+.page:last-child{page-break-after:auto}
+.folio{position:absolute;bottom:7mm;left:0;right:0;text-align:center;font-size:8pt;color:var(--gray)}
+.folio b{color:var(--emer);font-weight:700;letter-spacing:.6pt}
+.ar{font-family:Amiri,serif;direction:rtl;text-align:center;font-size:17pt;line-height:1.9;color:var(--emerd)}
+h1{font-weight:700;font-size:22pt;line-height:1.15;margin:0 0 3mm}
+h2{font-weight:700;font-size:16pt;line-height:1.2;margin:0 0 2.5mm}
+h3{font-weight:700;font-size:12pt;margin:4mm 0 1.5mm;color:var(--emer)}
+p{margin:0 0 2.6mm}
+.lead{font-size:11.5pt}
+.muted{color:var(--gray)}
+.label{display:inline-block;border:1.5px solid var(--emer);color:var(--emer);border-radius:20px;padding:.6mm 4mm;font-weight:700;font-size:8.5pt;letter-spacing:.8pt;background:#fff}
+.orn{display:flex;align-items:center;gap:3mm;margin:3mm 0}
+.orn:before,.orn:after{content:"";flex:1;height:1px;background:var(--gold)}
+.orn span{width:2.4mm;height:2.4mm;background:var(--gold);transform:rotate(45deg)}
+.dalil{background:var(--mint);border:1.6px solid var(--emer);border-radius:4mm;padding:4mm 5mm 3.5mm;margin:3.5mm 0 4mm;position:relative;box-shadow:0 1.5mm 3mm rgba(30,40,60,.08)}
+.dalil:after{content:"";position:absolute;inset:1.6mm;border:.5px solid var(--gold);border-radius:3mm;pointer-events:none}
+.dalil .tr{text-align:center;font-style:normal;font-size:10pt;margin-top:1.5mm}
+.sticky{position:absolute;top:-3.2mm;right:5mm;background:var(--yel);padding:.5mm 3mm;font-weight:700;font-size:8pt;transform:rotate(3deg);box-shadow:0 1mm 2mm rgba(0,0,0,.15);color:#3c321e}
+.card{background:#fff;border:1.5px solid var(--ink);border-radius:3mm;padding:3mm 4mm;margin:3mm 0}
+.card.g{background:var(--lgreen);border-color:var(--green)}
+.card.r{background:var(--lred);border-color:var(--red)}
+.card.y{background:var(--lyel);border-color:var(--gold)}
+.card h4{margin:0 0 1mm;font-size:10.5pt;font-weight:700}
+ul.ck{list-style:none;padding:0;margin:1mm 0}
+ul.ck li{padding-left:6.5mm;position:relative;margin:1.2mm 0}
+ul.ck li:before{content:"";position:absolute;left:.5mm;top:1.3mm;width:3.2mm;height:1.7mm;border-left:2.2px solid var(--green);border-bottom:2.2px solid var(--green);transform:rotate(-45deg)}
+ul.x li:before{content:"×";border:0;transform:none;top:-.6mm;color:var(--red);font-weight:700;font-size:13pt;width:auto;height:auto}
+.box{display:inline-block;width:3.6mm;height:3.6mm;border:1.6px solid var(--ink);border-radius:.8mm;margin-right:2mm;vertical-align:-.6mm;background:#fff}
+.chead{display:flex;align-items:center;gap:4mm;margin-bottom:2mm}
+.num{flex:none;width:11mm;height:11mm;border-radius:50%;background:var(--emer);color:#F0D9A0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13pt;border:1.5px solid var(--gold)}
+.ico{width:21mm;height:21mm;object-fit:contain}
+.icoS{width:13mm;height:13mm;object-fit:contain}
+.hl{background:linear-gradient(transparent 55%,rgba(247,224,120,.75) 55%);padding:0 .5mm}
+.hlg{background:linear-gradient(transparent 55%,rgba(150,220,160,.7) 55%);padding:0 .5mm}
+.toc{list-style:none;padding:0;margin:3mm 0}
+.toc li{display:flex;gap:2mm;margin:1.8mm 0;font-size:10.5pt}
+.toc li .d{flex:1;border-bottom:1.5px dotted var(--gray);transform:translateY(-1.2mm)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:3mm}
+.icons{display:flex;justify-content:center;gap:5mm;margin:3mm 0}
+.cover{background-image:none;background:radial-gradient(ellipse at 50% 42%,#FFFFFF 0%,#F4F3EC 60%,#E8E6DC 100%);text-align:center;padding-top:22mm}
+.cover.dark{background:radial-gradient(ellipse at 50% 40%,#16473A 0%,#0B2520 75%);color:#FAF4E2}
+.cover h1{font-size:30pt;margin:5mm 0 2mm}
+.cover .sub{font-size:12pt;color:var(--green)}
+.cover.dark .sub{color:#E8C060}
+.cover .ar{font-size:26pt}
+.cover.dark .ar{color:#FAF4E2}
+.cover .bigring{display:inline-block;border:2.4px solid var(--green);border-radius:50%;padding:3mm 9mm;transform:rotate(-2deg)}
+.cover.dark .bigring{border-color:#E8C060}
+.cover .foot{position:absolute;bottom:14mm;left:0;right:0;font-size:9.5pt;color:var(--gray)}
+.cover.dark .foot{color:#9DB7AA}
+.cover.dark .label{background:transparent;border-color:#DEBA62;color:#DEBA62}
+.note-lines{height:95mm;background-image:linear-gradient(transparent 7.4mm,var(--gray) 7.4mm,var(--gray) 7.6mm,transparent 7.6mm);background-size:100% 7.6mm;opacity:.5;margin-top:3mm}
+.sig{margin-top:6mm;text-align:center}
+"""
+
+def esc(s):
+    return html.escape(s, quote=False)
+
+
+def ar(t, size=None):
+    st = f' style="font-size:{size}pt"' if size else ''
+    return f'<div class="ar"{st}>{esc(t)}</div>'
+
+
+def dalil(arabic, tr, src=None, size=None):
+    s = f'<div class="sticky">{esc(src)}</div>' if src else ''
+    arr = arabic if isinstance(arabic, list) else [arabic]
+    a = ''.join(ar(x, size) for x in arr)
+    return f'<div class="dalil">{s}{a}<div class="tr">{tr}</div></div>'
+
+
+def icon(n, cls='ico'):
+    return f'<img class="{cls}" src="file://{HERE}/icons/{n}.png">'
+
+
+def card(title, body, kind=''):
+    return f'<div class="card {kind}"><h4>{title}</h4>{body}</div>'
+
+
+def ck(items, x=False):
+    return '<ul class="ck%s">' % (' x' if x else '') + ''.join(f'<li>{i}</li>' for i in items) + '</ul>'
+
+
+def page(inner, label, no=None, cls=''):
+    f = f'<div class="folio"><b>{esc(label)}</b>{" · " + str(no) if no else ""}</div>'
+    return f'<section class="page {cls}">{inner}{f}</section>'
+
+
+def chead(n, title, ic=None):
+    return f'<div class="chead"><div class="num">{n}</div><h2 style="margin:0;flex:1">{title}</h2>{icon(ic, "icoS") if ic else ""}</div>'
+
+
+async def to_pdf(html_path, pdf_path):
+    async with async_playwright() as p:
+        b = await p.chromium.launch()
+        pg = await b.new_page()
+        await pg.goto('file://' + html_path)
+        await pg.wait_for_timeout(600)
+        await pg.pdf(path=pdf_path, width='148mm', height='210mm', print_background=True, prefer_css_page_size=True)
+        await b.close()
+
+
+def build(mod_name, out_pdf):
+    m = importlib.import_module(mod_name)
+    pages = m.pages()
+    doc = f'<!doctype html><html lang="id"><head><meta charset="utf-8"><title>{esc(m.TITLE)}</title><style>{CSS.replace("%(fd)s", FD)}</style></head><body>' + ''.join(pages) + '</body></html>'
+    hp = os.path.join(HERE, mod_name + '.html')
+    open(hp, 'w').write(doc)
+    asyncio.run(to_pdf(hp, out_pdf))
+    print(out_pdf)
+
+
+if __name__ == '__main__':
+    build(sys.argv[1], sys.argv[2])

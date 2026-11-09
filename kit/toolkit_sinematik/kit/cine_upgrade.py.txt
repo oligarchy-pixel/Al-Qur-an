@@ -1,0 +1,59 @@
+"""Animasi elemen sinematik v6 otomatis di atas upgrade_v2 (selektif, ±1-2 efek per adegan).
+SCRIPT=cine_upgrade BASE=ep05 ... : ayat/doa Arab besar -> cahaya emas; Counter -> angka bergulir kabur;
+>=3 kartu ikon dalam satu adegan -> jatuh memantul; stempel/kata dilingkari pertama -> fokus masuk;
+satu kalimat Latin kunci (judul adegan) -> kata naik + kilau."""
+import engine
+from engine import *
+
+_orig = Txt.__init__
+
+
+def _init(self, t0, text, cx, cy, size=34, fn='kb', color=NAVY, *a, **kw):
+    _orig(self, t0, text, cx, cy, size, fn, color, *a, **kw)
+    self._text0, self._fn, self._color = text, fn, color
+
+
+Txt.__init__ = _init
+import upgrade_v2 as U
+from cine_fx import FocusW, GlowW, DropW, RiseWords, RollBlur
+
+ELS, SCENES, TOTAL, CAM = U.ELS, U.SCENES, U.TOTAL, U.CAM
+
+
+def swap(old, new):
+    i = ELS.index(old)
+    ELS[i] = new
+    for sc in SCENES:
+        if old in sc['els']:
+            sc['els'][sc['els'].index(old)] = new
+
+
+for sc in SCENES:
+    els = list(sc['els'])
+    # 1) ayat / doa Arab (ukuran >= 34): cahaya emas setelah selesai ditulis
+    for e in els:
+        if type(e) is Txt and e.ar and e.size >= 34 and e.mode == 'write' and e.rot == 0:
+            swap(e, GlowW(e, e.t0 + (e.dur or 1.0)))
+    # 2) Counter -> angka bergulir kabur
+    for e in els:
+        if type(e) is Counter:
+            r = RollBlur(e.t0, e.cx, e.cy, 0, e.n, dur=max(1.0, e.dur), suffix=e.suffix, size=e.size, color=e.color, sfx_on=False)
+            r.out, r.dim = e.out, e.dim
+            swap(e, r)
+    # 3) tiga kartu ikon atau lebih -> jatuh memantul
+    cards = [e for e in els if type(e).__name__ in ('Card', 'Card2') and getattr(e, '_icon', None)]
+    if len(cards) >= 3:
+        for e in cards:
+            swap(e, DropW(e))
+    # 4) stempel pertama -> fokus masuk
+    st = [e for e in els if type(e) is Stamp]
+    if st:
+        swap(st[0], FocusW(st[0]))
+    # 5) satu kalimat Latin kunci: Txt Latin pertama berukuran >= 30, satu baris, tulis
+    for e in els:
+        if (type(e) is Txt and not e.ar and e.size >= 30 and e.mode == 'write' and e.rot == 0 and len(e.sp.bands) == 1
+                and e.sp.w < 600 and len(e._text0.split()) >= 2):
+            r = RiseWords(e.t0, e._text0, e.cx, e.cy, e.size, color=e._color, fn=e._fn, sfx_on=False)
+            r.out, r.dim = e.out, e.dim
+            swap(e, r)
+            break

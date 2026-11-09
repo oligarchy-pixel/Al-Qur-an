@@ -1,0 +1,40 @@
+import os
+from engine import *
+ELS = []; SCENES = []; TOTAL = 3.3
+SCENES.append({'t0': 0, 't1': TOTAL, 'els': []})
+EMER = (14, 61, 46); GOLDL = (222, 186, 98); CREAM = (250, 244, 226)
+H = {
+ '1': dict(l1='Belajar 1 ayat', l2='lebih baik dari', big='100 rakaat?', bigc=GREEN, ell=RED, bs=88,
+           ar='لَأَنْ تَغْدُوَ فَتَتَعَلَّمَ آيَةً مِنْ كِتَابِ اللَّهِ خَيْرٌ لَكَ مِنْ أَنْ تُصَلِّيَ مِئَةَ رَكْعَةٍ', ars=31,
+           src='Hadis · kepada Abu Dzar', foot='jawabannya di video ini'),
+ '2': dict(l1='Manusia terbaik', l2='menurut Rasulullah', saw=True, big='siapa?', bigc=GREEN, ell=RED, bs=104,
+           ar='خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', ars=34, src='HR. Al-Bukhari', foot='semoga kita termasuk'),
+ '3': dict(l1='Ingin dicintai', l2='Allah & Rasul-Nya?', big='cek 1 hal ini', bigc=GREEN, ell=RED, bs=80,
+           ar='مَنْ أَحَبَّ أَنْ يُحِبَّهُ اللَّهُ وَرَسُولُهُ فَلْيَنْظُرْ', ars=30, src='Hadis', foot='simak sampai akhir', label="HURMATUL QUR'AN · 01"),
+ '5': dict(l1='Ibadah paling afdal', l2='umat Rasulullah', saw=True, big='apa?', bigc=GREEN, ell=RED, bs=110,
+           ar='أَفْضَلُ عِبَادَةِ أُمَّتِي قِرَاءَةُ الْقُرْآنِ', ars=36, src='Hadis', foot='simak sampai akhir', label="HURMATUL QUR'AN · 02"),
+ '6': dict(l1="Seluruh isi Al-Qur'an", l2='tergambar dalam', big='Al-Fatihah', bigc=GREEN, ell=RED, bs=90,
+           ar='الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', ars=40, src='QS. Al-Fatihah: 2', foot='simak sampai akhir', label="HURMATUL QUR'AN · 03"),
+ '4': dict(l1="Meremehkan Al-Qur'an", l2='berarti meremehkan', big='hak Allah', bigc=RED, ell=NAVY, bs=96,
+           ar='فَمَنْ وَقَّرَ الْقُرْآنَ فَقَدْ وَقَّرَ اللَّهَ', ars=34, src='Hadis', foot='simak sampai akhir'),
+}[os.environ['HOOK']]
+def A(el):
+    el.out = TOTAL + 0.3; ELS.append(el); el.register(); return el
+sfx(0.0, 'whoosh', 0, 0.8)
+A(Chip(0.05, 360, 250, H.get('label', "KAJIAN HURMATUL QUR'AN"), fill=EMER, col=GOLDL, border=GOLDL, size=22))
+A(Txt(0.12, H['l1'], 360, 380, 60, mode='pop'))
+if H.get('saw'):
+    w1 = tsprite(H['l2'], 'kb', 54).w; w2 = tsprite('ﷺ', 'ar', 62).w; left = 360 - (w1 + 6 + w2) / 2
+    A(Txt(0.45, H['l2'], left, 470, 54, mode='pop', ax='l'))
+    A(Txt(0.65, 'ﷺ', left + w1 + 6, 472, 62, fn='ar', mode='pop', ax='l'))
+else:
+    A(Txt(0.45, H['l2'], 360, 470, 60, mode='pop'))
+A(Txt(0.85, H['big'], 360, 595, H['bs'], color=H['bigc'], mode='pop', rot=-3))
+bw = tsprite(H['big'], 'kb', H['bs']).w
+A(Ellipse(1.05, 360, 600, bw / 2 + 55, H['bs'] * 0.75, color=H['ell'], width=6, dur=0.4))
+sfx(1.1, 'thud', 0, 0.9)
+A(Box(1.35, 50, 705, 670, 910, fill=EMER, col=GOLDL, width=3))
+A(Txt(1.45, H['ar'], 360, 782, H['ars'], fn='ar', color=CREAM, maxw=500, dur=0.9))
+A(Txt(2.1, H['src'], 360, 878, 20, color=GOLDL, mode='fade'))
+A(Chip(2.4, 360, 990, H['foot'], size=24))
+sfx(2.4, 'ding', 0, 0.6)

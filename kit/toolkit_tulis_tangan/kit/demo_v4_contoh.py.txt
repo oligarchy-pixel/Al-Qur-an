@@ -1,0 +1,73 @@
+"""Demo animasi v4 (infografis dari video contoh ke-4) dalam gaya Zamrud Kertas"""
+from engine import *
+
+ELS = []; SCENES = []; CUR = None
+D = 4.6
+TOTAL = 3.2 + 8 * D + 0.6
+
+
+def scene(t0, t1, wh=True):
+    global CUR
+    CUR = {'t0': t0, 't1': t1, 'els': []}; SCENES.append(CUR)
+    if wh:
+        sfx(t0, 'whoosh', 0, 0.5)
+
+
+def A(el):
+    if el.out is None:
+        el.out = CUR['t1']
+    CUR['els'].append(el); ELS.append(el); el.register(); return el
+
+
+def pill(t, n):
+    A(Chip(t, 360, 230, f'amalan {n} / 7', fill=(32, 96, 88), col=WHITE, border=(32, 96, 88), size=20))
+
+
+def src(t, s, y=930):
+    A(Txt(t, s, 360, y, 20, fn='kr', color=GRAY, mode='fade'))
+
+
+# 0 judul + tumpukan koin
+scene(0, 3.15, wh=False)
+A(Reveal(0.1, '7 amalan pembuka pintu rezeki', 360, 300, 40, maxw=560, per=0.18, hl=['rezeki']))
+A(underline(1.4, 230, 490, 365, color=GREEN))
+A(CoinBars(0.5, 130, 590, 640, n=7, maxc=11, dur=1.5))
+t = 3.2
+# 1 takwa: toples koin
+scene(t, t + D); pill(t, 1)
+A(CoinJar(t + .1, 360, 470, s=120, n=6, gap=0.4))
+A(Reveal(t + .6, 'Bertakwalah, Allah beri rezeki dari arah yang tidak disangka.', 360, 780, 30, per=0.14, hl=['disangka.', 'rezeki']))
+src(t + 2.4, "QS. Ath-Thalaq: 2-3"); t += D
+# 2 istighfar: hujan & tunas
+scene(t, t + D); pill(t, 2)
+A(RainGrow(t + .1, 360, 600, s=130, dur=2.6))
+A(Reveal(t + .6, 'Perbanyak istighfar, Allah turunkan hujan dan tambahkan harta.', 360, 780, 30, per=0.14, hl=['harta.', 'istighfar']))
+src(t + 2.4, 'QS. Nuh: 10-12'); t += D
+# 3 syukur: toples terisi
+scene(t, t + D); pill(t, 3)
+A(JarFill(t + .1, 360, 470, s=120, frac=1.0, dur=2.6))
+A(Reveal(t + .6, 'Bersyukurlah, niscaya nikmat-Nya ditambah.', 360, 780, 30, per=0.15, hl=['ditambah.']))
+src(t + 2.2, 'QS. Ibrahim: 7'); t += D
+# 4 sedekah: timbangan koin
+scene(t, t + D); pill(t, 4)
+A(CoinScale(t + .1, 360, 410, s=150, tdrop=t + 1.0, side='left', labels=('sedekah', 'harta')))
+A(Reveal(t + .8, 'Sedekah tidak pernah mengurangi harta.', 360, 780, 30, per=0.15, hl=['tidak', 'pernah', 'mengurangi']))
+src(t + 2.2, 'HR. Muslim'); t += D
+# 5 tawakal: matahari & sarang
+scene(t, t + D); pill(t, 5)
+A(NestArc(t + .1, 360, 560, r=170, dur=3.4, n=6))
+A(Reveal(t + .6, 'Tawakal seperti burung: pergi lapar, pulang kenyang.', 360, 780, 30, per=0.15, hl=['kenyang.']))
+src(t + 2.4, 'HR. At-Tirmidzi'); t += D
+# 6 silaturahim: jaringan
+scene(t, t + D); pill(t, 6)
+A(Network(t + .1, 360, 480, r=130, n=6, gap=0.22, labels=['ibu', 'ayah', 'saudara', 'kerabat', 'tetangga', 'sahabat']))
+A(Reveal(t + .7, 'Sambung silaturahim, rezeki dilapangkan.', 360, 780, 30, per=0.15, hl=['dilapangkan.']))
+src(t + 2.2, 'HR. Al-Bukhari'); t += D
+# 7 jujur berdagang: grafik
+scene(t, t + D); pill(t, 7)
+A(BarChart(t + .1, 190, 640, w=340, h=280, vals=(.25, .35, .45, .62, .9), dur=1.4))
+A(Reveal(t + .7, 'Jujur dalam jual beli, maka diberkahi.', 360, 780, 30, per=0.15, hl=['diberkahi.']))
+src(t + 2.2, 'HR. Al-Bukhari'); t += D
+# penutup singkat
+scene(t, TOTAL)
+A(Txt(t + .05, 'SIMPAN & AMALKAN', 360, 560, 44, color=GREEN, mode='pop'))

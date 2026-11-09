@@ -1,0 +1,183 @@
+from ebook_build import *
+
+TITLE = "Hurmatul Qur'an 01: Pembukaan & 4 Adab Sebelum Membaca"
+LB = "HURMATUL QUR'AN · 01"
+
+
+def pages():
+    P = []
+    # ---------------- sampul
+    P.append(f'''<section class="page cover">
+<div class="label">{LB}</div>
+<div class="orn"><span></span></div>
+<div class="ar" style="margin-top:6mm"><span class="bigring">حُرْمَةُ الْقُرْآنِ</span></div>
+<h1>Hurmatul Qur'an</h1>
+<div class="sub">Pembukaan Kajian &amp; 4 Adab Sebelum Membaca Al-Qur'an</div>
+<div class="icons" style="margin-top:9mm">{icon('drop')}{icon('siwak')}{icon('person_g')}{icon('shirt')}</div>
+<p class="muted" style="margin-top:6mm">suci · mulut bersih · duduk tegak · menutup aurat</p>
+<div class="foot">E-book pendamping video kajian · Episode 01</div>
+</section>''')
+    # ---------------- muqaddimah
+    P.append(page(f'''
+<span class="label">MUQADDIMAH</span>
+<h2 style="margin-top:3mm">Pembukaan</h2>
+{ar('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 19)}
+<p class="muted" style="text-align:center">Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang</p>
+<div class="orn"><span></span></div>
+{ar('الْحَمْدُ لِلَّهِ الَّذِي أَنْزَلَ الْقُرْآنَ عَلَى نَبِيِّنَا سَيِّدِنَا مُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ خَيْرِ الْإِنْسَانِ', 14.5)}
+<p class="muted" style="text-align:center">Segala puji bagi Allah yang menurunkan Al-Qur'an kepada Nabi kita, junjungan kita Muhammad ﷺ, sebaik-baik manusia.</p>
+{ar('أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ الْمَلِكُ الْمُؤْمِنُ', 14.5)}
+{ar('وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ إِلَى الْإِنْسِ وَالْجِنِّ', 14.5)}
+<p class="muted" style="text-align:center">Aku bersaksi tiada tuhan selain Allah, Yang Esa, tiada sekutu bagi-Nya; dan aku bersaksi bahwa Muhammad adalah hamba dan utusan-Nya kepada manusia dan jin.</p>
+{ar('اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَذُرِّيَّتِهِ وَأَتْبَاعِهِ إِلَى آخِرِ الزَّمَانِ', 14)}
+''', LB, 2))
+    # ---------------- daftar isi + pengantar
+    toc = [('Pengantar kajian', 3), ('Keutamaan belajar Al-Qur\'an', 4), ('Mengenal Hurmatul Qur\'an', 6),
+           ('Adab 1 · Suci saat menyentuh mushaf', 7), ('Adab 2 · Membersihkan mulut', 9),
+           ('Adab 3 · Duduk dengan tegak', 11), ('Adab 4 · Pakaian bersih & menutup aurat', 12),
+           ('Ringkasan & ceklis', 13), ('Catatan & doa penutup', 14)]
+    tl = ''.join(f'<li><span>{esc(a)}</span><span class="d"></span><b>{b}</b></li>' for a, b in toc)
+    P.append(page(f'''
+<span class="label">DAFTAR ISI</span>
+<ul class="toc">{tl}</ul>
+<div class="orn"><span></span></div>
+<h2>Pengantar kajian</h2>
+<p>Alhamdulillah, sebelumnya kita telah membahas beberapa nama Allah dari <b>Al-Asma'ul Husna</b>. Insya Allah, seiring dengan itu kita akan melanjutkan pembahasan tentang <b>Al-Qur'anul Karim</b>: satu per satu surah, <span class="hl">mulai dari Surah Al-Fatihah sampai Surah An-Nas</span>.</p>
+<p>Harapannya, kita dapat mengetahui <b>mengapa sebuah surah dinamakan demikian</b>, lalu membahas sebagian ayat yang perlu dibahas di setiap surahnya.</p>
+{card('Semoga kita bisa…', ck(['mengamalkan apa yang dipelajari', 'mengambil iktibar dan pelajaran', 'sama-sama belajar dan memahaminya']), 'g')}
+''', LB, 3))
+    # ---------------- keutamaan belajar
+    P.append(page(f'''
+<span class="label">BAB 1</span>
+<h2 style="margin-top:2mm">Keutamaan belajar Al-Qur'an</h2>
+<p>Baginda Rasulullah ﷺ bersabda:</p>
+{dalil('خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', '"Sebaik-baik kalian adalah orang yang belajar Al-Qur\'an dan mengajarkannya."', 'HR. Al-Bukhari', 19)}
+<p>Belajar Al-Qur'an itu luas maknanya. Termasuk di dalamnya:</p>
+<div class="two">
+{card(icon('mushaf','icoS') + ' Membaca', '<p class="muted">belajar membaca Al-Qur\'anul Karim</p>')}
+{card(icon('pen','icoS') + ' Menulis', '<p class="muted">belajar menulis Al-Qur\'an</p>')}
+{card(icon('book','icoS') + ' Tafsir', '<p class="muted">belajar tafsir Al-Qur\'an</p>')}
+{card(icon('sparkle','icoS') + ' Yang berkaitan', '<p class="muted">apa saja yang berhubungan dengan Al-Qur\'an</p>')}
+</div>
+<p>Semuanya mencakup <span class="hl">114 surah</span> yang akan kita bicarakan, insya Allah, satu per satu.</p>
+''', LB, 4))
+    P.append(page(f'''
+<h3>Ingin dicintai Allah dan Rasul-Nya?</h3>
+<p>Baginda Rasulullah ﷺ bersabda:</p>
+{dalil(['مَنْ أَحَبَّ أَنْ يُحِبَّهُ اللَّهُ وَرَسُولُهُ فَلْيَنْظُرْ', 'فَإِنْ كَانَ يُحِبُّ الْقُرْآنَ فَهُوَ يُحِبُّ اللَّهَ وَرَسُولَهُ'], '"Barang siapa ingin dicintai Allah dan Rasul-Nya, hendaklah ia melihat ke dalam dirinya; jika ia mencintai Al-Qur\'an, maka ia mencintai Allah dan Rasul-Nya."', 'Hadis', 15)}
+<p>Maka tanyakanlah kepada diri sendiri: <b>sudahkah aku mencintai Al-Qur'an?</b> Siapa yang mencintai Al-Qur'anul Karim akan mendapatkan cinta dari Allah Subhanahu wa Ta'ala dan Rasul-Nya.</p>
+<h3>Satu ayat lebih baik dari seratus rakaat</h3>
+<p>Kepada sahabat Abu Dzar Al-Ghifari radhiyallahu 'anhu, Baginda Rasulullah ﷺ bersabda:</p>
+{dalil(['يَا أَبَا ذَرٍّ، لَأَنْ تَغْدُوَ فَتَتَعَلَّمَ آيَةً مِنْ كِتَابِ اللَّهِ', 'خَيْرٌ لَكَ مِنْ أَنْ تُصَلِّيَ مِئَةَ رَكْعَةٍ'], '"Wahai Abu Dzar, engkau pergi dari rumah ke tempat pengajian lalu belajar satu ayat dari Kitab Allah, itu lebih baik bagimu daripada duduk di rumah mengerjakan salat sunah seratus rakaat."', 'Hadis', 15)}
+<p style="text-align:center"><b>آمِينَ يَا رَبَّ الْعَالَمِينَ</b></p>
+''', LB, 5))
+    # ---------------- hurmatul quran
+    P.append(page(f'''
+<span class="label">BAB 2</span>
+<h2 style="margin-top:2mm">Mengenal <span class="hlg">Hurmatul Qur'an</span></h2>
+<p>Sebelum membicarakan kandungan surah-surah dan ayat-ayat Al-Qur'anul Karim, kita <b>perlu dan wajib</b> terlebih dahulu mengetahui <b>حُرْمَةُ الْقُرْآنِ</b>, yaitu kehormatan-kehormatan Al-Qur'an yang mesti kita jaga.</p>
+{dalil(['الْقُرْآنُ أَفْضَلُ مِنْ كُلِّ شَيْءٍ', 'فَمَنْ وَقَّرَ الْقُرْآنَ فَقَدْ وَقَّرَ اللَّهَ', 'وَمَنِ اسْتَخَفَّ بِالْقُرْآنِ اسْتَخَفَّ بِحَقِّ اللَّهِ'], '"Al-Qur\'an lebih utama dari segala sesuatu, karena ia kalam Allah. Siapa menghormati Al-Qur\'an, ia menghormati Allah; siapa meremehkan Al-Qur\'an, ia meremehkan hak Allah."', 'Hadis', 15)}
+<div class="two">
+{card('Jika dihormati', '<p>Al-Qur\'an menjadi <b>bekal</b> dan <b>syafaat</b> bagi kita.</p>', 'g')}
+{card('Jika diremehkan', '<p>berarti meremehkan <b>hak Allah</b> Subhanahu wa Ta\'ala.</p>', 'r')}
+</div>
+<p>Para ulama, baik <b>mutaqaddimin</b> (terdahulu) maupun <b>mutaakhirin</b> (belakangan), menyimpulkan beberapa hal yang perlu diketahui oleh setiap orang yang berhubungan dengan Al-Qur'an. Empat di antaranya kita bahas dalam e-book ini.</p>
+''', LB, 6))
+    # ---------------- adab 1
+    P.append(page(f'''
+{chead(1, 'Suci saat menyentuh mushaf', 'drop')}
+<p>Disebutkan dalam kitab tafsir Imam Abu 'Abdillah Muhammad bin Ahmad Al-Anshari Al-Qurthubi:</p>
+{dalil('أَنْ لَا يَمَسَّهُ إِلَّا طَاهِرٌ', 'Tidak menyentuh Al-Qur\'an kecuali dalam keadaan suci.', 'Tafsir Al-Qurthubi', 16)}
+<p>Suci di sini meliputi:</p>
+<div class="two">
+{card(icon('drop','icoS') + ' Hadas kecil', '<p class="muted">suci dari hadas kecil</p>', 'g')}
+{card(icon('tap','icoS') + ' Hadas besar', '<p class="muted">suci dari hadas besar</p>', 'g')}
+</div>
+{card(icon('hand','icoS') + ' Tangan bersih', 'Ketika hendak menyentuh Al-Qur\'an, <b>tangan jangan sampai kotor atau ada najis</b>.', 'g')}
+<p>Allah Subhanahu wa Ta'ala berfirman:</p>
+{dalil('لَا يَمَسُّهُ إِلَّا الْمُطَهَّرُونَ', '"Tidak menyentuhnya kecuali orang-orang yang disucikan."', "QS. Al-Waqi'ah : 79", 17)}
+''', LB, 7))
+    P.append(page(f'''
+<h3>Contoh dalam keseharian</h3>
+<div style="display:flex;gap:4mm;align-items:center">{icon('mosque')}{icon('house')}{icon('cabinet')}</div>
+<p>Kita sedang di masjid atau di rumah, dan di situ ada lemari berisi mushaf Al-Qur'anul Karim.</p>
+{card('Jika belum suci', '<p>Maka <b>tidak boleh</b> kita menyentuhnya, menyentuh mushaf Al-Qur\'an.</p>', 'r')}
+{card('Yang benar', ck(['ambil wudhu terlebih dahulu', 'barulah menyentuh Al-Qur\'an']), 'g')}
+<p style="text-align:center;margin-top:4mm"><span class="label">DEMIKIAN ADABNYA</span></p>
+<div style="text-align:center;margin-top:3mm">{icon('ablution')}</div>
+''', LB, 8))
+    # ---------------- adab 2
+    P.append(page(f'''
+{chead(2, 'Membersihkan mulut', 'siwak')}
+{dalil('أَنْ يُنَظِّفَ فَاهُ مِنَ النَّجَاسَةِ وَمِنْ رِيحٍ كَرِيهَةٍ', 'Membersihkan mulutnya dari najis dan dari bau yang tidak sedap.', None, 16)}
+<p>Sebelum membaca Al-Qur'an, perhatikan: apakah <b>mulut kita bersih dan suci</b>? Karena itu ada sunnahnya <span class="hl">bersiwak</span>, atau anjuran membersihkan mulut sebelum membaca Al-Qur'anul Karim.</p>
+{card('Contoh', '<p>Jika <b>gusi berdarah</b>, atau di dalam rongga mulut ada darah dan najis, jangan membaca Al-Qur\'an dulu. Ada pendapat ulama yang mengatakan hukumnya <b>haram</b>.</p>', 'r')}
+<p>Seorang imam, Yazid bin 'Abdul Malik, berkata:</p>
+{dalil(['إِنَّ أَفْوَاهَكُمْ طَرِيقٌ مِنْ طُرُقِ الْقُرْآنِ', 'فَطَهِّرُوهَا وَنَظِّفُوهَا مَا اسْتَطَعْتُمْ'], '"Mulut kalian adalah salah satu jalan Al-Qur\'an, maka sucikan dan bersihkan ia semampu kalian."', "Yazid bin 'Abdul Malik", 15)}
+''', LB, 9))
+    P.append(page(f'''
+<h3>Keadaan yang tidak boleh membaca Al-Qur'an</h3>
+{ck(['dalam keadaan mulut ada najis atau bau tidak sedap', 'dalam keadaan junub', 'dalam keadaan haid dan nifas', 'di tempat qadha hajat'], x=True)}
+{card('Pengecualian yang disebutkan dalam kajian', ck(['perempuan penghafal Al-Qur\'an: boleh membaca walau dalam keadaan haid', 'perempuan guru Al-Qur\'an: boleh membaca dengan cara separuh-separuh atau terpotong-potong']), 'y')}
+<h3>Saat buang angin ketika membaca</h3>
+<p>Sebagian ulama berpendapat <b>haram</b> melanjutkan bacaan setelah buang angin; sebagian lagi mengatakan <b>makruh</b>. Yang benar dilakukan:</p>
+<div style="display:flex;align-items:center;justify-content:space-between;margin:3mm 0">
+<div style="text-align:center">{icon('clock','icoS')}<br>berhenti</div><b style="color:var(--gold)">&gt;</b>
+<div style="text-align:center">{icon('drop','icoS')}<br>ambil wudhu</div><b style="color:var(--gold)">&gt;</b>
+<div style="text-align:center">{icon('mushaf','icoS')}<br>membaca lagi</div></div>
+''', LB, 10))
+    # ---------------- adab 3
+    P.append(page(f'''
+{chead(3, 'Duduk dengan tegak', 'person_g')}
+{dalil('أَنْ يَسْتَوِيَ قَاعِدًا وَلَا يَكُونَ مُتَّكِئًا', 'Duduk dengan tegak, tidak bersandar.', None, 17)}
+<div style="text-align:center">{icon('reader_g')}</div>
+<div class="two">
+{card('Afdhal', '<p>duduk dengan <b>tegak</b> ketika membaca Al-Qur\'an</p>', 'g')}
+{card('Bersandar?', '<p><b>tidak haram</b>, dan <b>tidak pula makruh</b>; hanya saja kurang afdhal</p>', 'y')}
+</div>
+<p>Jadi, ketika kita hendak membaca Al-Qur'an, <span class="hl">duduklah dengan tegak</span>. Itulah yang afdhal.</p>
+''', LB, 11))
+    # ---------------- adab 4
+    P.append(page(f'''
+{chead(4, 'Pakaian bersih & menutup aurat', 'shirt')}
+{dalil('أَنْ يَلْبَسَ ثِيَابًا نَظِيفَةً وَتَجَمُّلًا، لِأَنَّهُ يُنَاجِي رَبَّهُ', 'Memakai pakaian yang bersih lagi elok, karena ia sedang bermunajat kepada Tuhannya.', None, 15)}
+<p>Ketika membaca Al-Qur'an, perhatikan pakaian kita: <b>bersih, elok, dan menutup aurat</b>, walaupun sendirian, di tempat yang sunyi, atau di kamar yang terkunci.</p>
+{card('Perhatian khusus', '<p>untuk para perempuan dan ibu-ibu: sebaiknya menutup aurat ketika hendak membaca Al-Qur\'an.</p>', 'y')}
+<p>Mengapa? Karena…</p>
+{ck(['yang dipegang adalah <b>kitab Allah</b>', 'yang dibaca adalah <b>kalam Allah</b>', 'yang dihadapi adalah <b>Allah</b> Subhanahu wa Ta\'ala: kita sedang berdialog dengan-Nya'])}
+''', LB, 12))
+    # ---------------- ringkasan
+    P.append(page(f'''
+<span class="label">RINGKASAN</span>
+<h2 style="margin-top:2mm">Ceklis sebelum membaca Al-Qur'an</h2>
+<p class="muted">Centang setiap kali sebelum membuka mushaf.</p>
+<div class="card" style="font-size:11pt">
+<p><span class="box"></span>Aku dalam keadaan suci dari hadas kecil &amp; besar</p>
+<p><span class="box"></span>Tanganku bersih dari kotoran &amp; najis</p>
+<p><span class="box"></span>Mulutku bersih, sudah bersiwak / berkumur</p>
+<p><span class="box"></span>Aku duduk dengan tegak</p>
+<p><span class="box"></span>Pakaianku bersih, elok, dan menutup aurat</p>
+<p><span class="box"></span>Aku membaca dengan hati yang menghormati kalam Allah</p>
+</div>
+{dalil('فَمَنْ وَقَّرَ الْقُرْآنَ فَقَدْ وَقَّرَ اللَّهَ', '"Siapa menghormati Al-Qur\'an, ia menghormati Allah."', 'Hadis', 17)}
+''', LB, 13))
+    # ---------------- catatan & doa
+    P.append(page(f'''
+<span class="label">CATATAN</span>
+<h2 style="margin-top:2mm">Pelajaran untukku</h2>
+<p class="muted">Tuliskan satu adab yang ingin kamu perbaiki mulai hari ini.</p>
+<div class="note-lines"></div>
+<div class="sig">{ar('آمِينَ يَا اللَّهُ، آمِينَ يَا رَبَّ الْعَالَمِينَ', 16)}
+<p class="muted">Semoga Al-Qur'an menjadi syafaat bagi kita.</p></div>
+''', LB, 14))
+    # ---------------- sampul belakang
+    P.append(f'''<section class="page cover dark">
+<div class="label">{LB}</div>
+<div class="ar" style="margin-top:22mm;font-size:22pt">خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ</div>
+<p class="sub" style="margin-top:3mm">Sebaik-baik kalian adalah yang belajar Al-Qur'an dan mengajarkannya.</p>
+<div class="orn" style="margin:10mm 15mm"><span></span></div>
+<p style="font-size:11pt">Tonton video kajiannya, simpan e-book ini,<br>dan bagikan kepada insan tersayang.</p>
+<p class="sub" style="margin-top:8mm">Berikutnya · Episode 02<br><b>15 Kehormatan Al-Qur'an</b></p>
+<div class="foot">Kajian Hurmatul Qur'an</div>
+</section>''')
+    return P

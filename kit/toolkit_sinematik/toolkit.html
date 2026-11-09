@@ -1,0 +1,76 @@
+<title>Toolkit Video Kajian</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Amiri&display=swap">
+<style>
+/* layout: one narrow column on grid paper, like the videos themselves */
+:root{--bg:#f0efe7;--grid:#e1e0d6;--ink:#242c50;--muted:#6d7084;--green:#2c824c;--note:#f7e078;--card:#ffffff;
+--hand:'Kalam',ui-rounded,'Comic Sans MS',cursive;--body:system-ui,-apple-system,'Segoe UI',sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1f2b;--grid:#272b3a;--ink:#e8e9f2;--muted:#a3a7bb;--green:#6cc58e;--note:#d8bf52;--card:#252a3a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1f2b;--grid:#272b3a;--ink:#e8e9f2;--muted:#a3a7bb;--green:#6cc58e;--note:#d8bf52;--card:#252a3a;color-scheme:dark}
+body{background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px;color:var(--ink);font-family:var(--body);line-height:1.6}
+main{max-width:680px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+h1{font-family:var(--hand);font-size:2.4rem;line-height:1.1;margin:0;text-wrap:balance}
+.ar{font-family:'Amiri',serif;font-size:1.7rem;color:var(--green)}
+.note{justify-self:start;background:var(--note);color:#3c321e;font-family:var(--hand);font-weight:700;padding:4px 14px;transform:rotate(-2deg)}
+section{background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:16px 18px}
+h2{font-family:var(--hand);font-size:1.4rem;margin:0 0 6px}
+p,li{color:var(--ink)} .muted{color:var(--muted)}
+ul{margin:0;padding-left:20px;display:grid;gap:4px}
+code{font-family:var(--mono);font-size:.9em;overflow-wrap:anywhere}
+</style>
+<main>
+  <span class="note">Kajian Al-Qur'an</span>
+  <h1>Toolkit Video Kajian</h1>
+  <div class="ar">حُرْمَةُ الْقُرْآنِ</div>
+  <p class="muted">Mesin pembuat video portrait gaya kertas bergaris dan tulisan tangan, dipakai untuk seri Kehormatan Al-Qur'an dan Hurmatul Qur'an. Claude mengunduh file di halaman ini setiap kali membuat episode baru.</p>
+  <section>
+    <h2>Pilihan pengguna terbaru</h2>
+    <ul>
+      <li><b>Suara stabilo: pop lembut</b> (<code>marker7</code>), dipilih di episode 04. Hanya sapuan stabilo yang berubah; diatur lewat <code>STABILO_SFX</code> di <code>engine.py</code> (bawaan <code>marker7</code>, <code>marker</code> = suara lama). Suara lain tetap suara asli.</li>
+      <li><b>Kirim video versi asli</b> kualitas penuh, jangan dikompres.</li>
+      <li><b>E-book TETAP gaya lama</b> (Zamrud Kertas, <code>ebook_build.py</code>, seperti episode 01–05). Gaya baru (animasi sinematik v6 + full screen v7) <b>hanya untuk video</b>.</li>
+      <li><b>Sejak episode 06: animasi elemen sinematik v6</b> (disetujui pengguna). Render final dengan <code>SCRIPT=cine_upgrade BASE=&lt;naskah&gt;</code> (membungkus <code>upgrade_v2</code>). Otomatis &amp; selektif: ayat/doa Arab besar → cahaya emas + kilau; Counter → angka bergulir kabur; ≥3 kartu ikon dalam satu adegan → jatuh memantul; stempel pertama → fokus masuk; satu kalimat Latin kunci per adegan → kata naik + kilau. Tulisan tangan pensil tetap gaya utama. Efek layar penuh (<code>CINE</code> di render.py) TIDAK dipakai (bawaan 0).</li>
+      <li><b>Episode 06: subtitle DITAMPILKAN lagi (render dengan <code>NOSUB=0</code>) dan TANPA carousel</b> (permintaan pengguna). Paket ep06: video + e-book + caption.</li>
+      <li><b>Episode 05: tanpa subtitle</b> (pengguna menilai tidak pas). Bawaan <code>render.py</code>/<code>subs.py</code> kini tanpa subtitle &amp; tanpa bunyi tik subtitle; <code>NOSUB=0</code> untuk menampilkan lagi. Transkrip tetap dipakai untuk waktu animasi. Bila durasi audio lebih pendek dari timestamp transkrip (jeda dipendekkan), <code>align_transkrip_blok.py</code> menyekalakan waktu otomatis.</li>
+      <li><b>Ikon surga:</b> pakai ikon <code>surga</code> (gerbang taman emas, dua pohon, sungai, kilau; tanpa sosok), bukan <code>lamp</code> atau <code>door</code>.</li>
+      <li><b>Sejak episode 05: TANPA pembuka apa pun dan TANPA cover.</b> Video langsung dimulai dari awal kajian (keputusan akhir pengguna). Alat pembuka tetap tersimpan, dipakai hanya bila diminta: <code>opener.py</code> + <code>make_opener.sh</code> (kartu ayat/hadis/doa), <code>hook_potongan.sh</code> (potongan video), <code>hookgen.py</code> (hook pancingan, tema warna).</li>
+      <li>Bila suatu saat hook buatan diminta lagi: <code>hookgen.py</code> kini punya tema warna <code>th='malam'|'zamrud'|'krem'</code> (bawaan kertas).</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Isi toolkit</h2>
+    <ul>
+      <li><code>engine.py</code>: kertas grid, teks tulis tangan dan Arab, kartu ikon, stempel, garis, efek suara per elemen</li>
+      <li><code>subs.py</code>: subtitle karaoke di bawah, sinkron per kata dari transkrip bertimestamp</li>
+      <li><code>sfx_synth.py</code>: efek suara pensil, pop, kertas, stempel, ding, whoosh; pilihan stabilo <code>marker6</code>–<code>marker10</code> (desir halus, pop lembut, kertas disapu, denting kecil, tanpa suara)</li>
+      <li><code>demo_marker.py</code>: video contoh berlabel nomor untuk memilih suara stabilo</li>
+      <li><code>render.py</code>, <code>make.sh</code>, <code>build_audio.py</code>: render paralel ke HD 1080×1920 dan mixing suara</li>
+      <li><code>ep_template.py</code>, <code>sheet.py</code>: contoh naskah adegan dan lembar pratinjau</li>
+      <li><code>demo_v2_contoh.py</code>, <code>upgrade_v2.py</code>: animasi v2 (kamera, balik halaman, stabilo, ikon hidup, ilustrasi, percikan bintang, kartu kesimpulan)</li>
+      <li><code>demo_v3_contoh.py</code>: animasi v3 (gambar garis, orang berjalan, angka berubah, kurung kurawal, catatan berpenjepit, timbangan, batang perbandingan, deretan ikon, lengkung matahari, sorotan, meteran, malam, kata besar dilingkari)</li>
+      <li><code>demo_v4_contoh.py</code>: animasi v4 infografis (tumpukan koin bertingkat, toples koin, hujan & tunas berbunga, toples terisi, timbangan koin, matahari & sarang burung, jaringan silaturahim, grafik batang, teks muncul kata demi kata)</li>
+      <li><code>demo_v5_contoh.py</code>: animasi v5 "pembawa pesan" (gerbang tanya-jawab, jejak titik menuju label, turus pensil berhitung, penggeser jauh-dekat, celah kata yang hilang, angka bergulir, garis tanpa perantara, kotak isian, coretan silang, kerumunan titik)</li>
+      <li><code>cine_fx.py</code>, <code>cine_upgrade.py</code>, <code>demo_v6_sinematik.py</code>: animasi v6 sinematik (Focus/FocusW fokus masuk, RiseWords kata naik + kilau, DropIcon/DropW jatuh memantul, RollBlur angka bergulir, GlowAr/GlowW kaligrafi bercahaya)</li>
+      <li><code>cine_fx2.py</code>, <code>demo_v7_referensi.py</code>, <code>demo_v8_tambahan.py</code>: animasi v7 "full screen" dari video referensi ke-7 (disetujui pengguna, mulai episode 06): FrameZoom (bingkai di dinding), GridMultiply (kartu berlipat / gray=True satu berwarna), SealStack (stempel ١٢٣ bertumpuk), InkWipe (transisi tinta), TypeScatter (ketik lalu berhamburan), TornLayer + HalftoneSun + Flock (kolase kertas sobek), OneTake (satu tarikan kamera turun), NightFest (malam berlentera + kembang api), Iris (lingkaran membuka), Ambient (kabut + daun gugur), ZoomThrough (zoom menembus), Scroll (gulungan dibuka). <b>Ritme:</b> gerak full screen di 3–5 pergantian bagian besar &amp; momen puncak; penjelasan tetap bergerak halus; ayat/doa tenang lalu bercahaya.</li>
+      <li><code>hookgen.py</code>, <code>make_hook.sh</code>: pembuka 3 detik berisi pancingan dan hadis, ditempel di awal video (episode 04 memakai hook <code>8</code>)</li>
+      <li><code>cover_variants.py</code>, <code>cover_hook.py</code>, <code>cover_template.py</code>: cover 1080×1920 untuk Instagram</li>
+      <li><code>cover_ep.py</code>, <code>cover_ep_contoh.py</code>: cover standar seri (terang/gelap, susunan lebar, adegan + hadis)</li>
+      <li><code>feed.py</code>, <code>carousel_contoh_01.py</code>, <code>carousel_contoh_02.py</code>: carousel feed 1080×1350, 6 slide</li>
+      <li><code>script_ep05_contoh.py</code>, <code>carousel_contoh_05.py</code>, <code>ebook_ep05_contoh.py</code>: paket episode 05 (Hukum &amp; Adab Basmalah), contoh terbaru; kotak doa otomatis menyesuaikan tinggi teks Arab + terjemahan</li>
+      <li><code>align_transkrip_blok.py</code>: penyelaras umum untuk transkrip per blok, baik .txt maupun markdown <code>**[mm:ss–mm:ss]**</code> (judul, kutipan &gt;, tebal, emoji dibersihkan)</li>
+      <li><code>hook_potongan.sh</code>: menempelkan potongan adegan video sebagai pembuka</li>
+      <li><code>script_ep04_contoh.py</code>, <code>cover_ep04_contoh.py</code>, <code>carousel_contoh_04.py</code>, <code>ebook_ep04_contoh.py</code>: paket lengkap episode 04 (Al-Fatihah &amp; Basmalah) sebagai contoh terbaru; naskah memakai pencarian kata yang tidak peka harakat</li>
+      <li><code>script_ep03_contoh.py</code>, <code>cover_ep03_contoh.py</code>, <code>carousel_contoh_03.py</code>, <code>ebook_ep03_contoh.py</code>: paket lengkap episode 03</li>
+      <li><code>align_transkrip_blok_ep04.py</code>: transkrip yang timestamp-nya per blok panjang diubah menjadi baris per kalimat, diselaraskan dengan jeda suara rekaman; istilah Arab di kalimat Latin ditransliterasi (tidak peka urutan harakat)</li>
+      <li><code>clean_transkrip_ep03.py</code>: mengubah transkrip .docx berformat [jj:mm:dd.ddd – ...] dan mengganti istilah Arab di kalimat Latin menjadi transliterasi</li>
+      <li><code>ebook_build.py</code>, <code>ebook_ep01_contoh.py</code>, <code>ebook_ep02_contoh.py</code>: e-book PDF A5 per episode (gaya Zamrud Kertas); memakai Chromium bawaan <code>/opt/pw-browsers/chromium</code> bila ada; font cadangan Amiri agar simbol ﷺ di teks Latin tampil rapi</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Yang dibutuhkan tiap episode</h2>
+    <ul>
+      <li>Rekaman suara (mp3)</li>
+      <li>Transkrip .txt atau .docx dengan baris <code>[mm:ss.s - mm:ss.s] teks</code>, atau transkrip per blok <code>[mm:ss.s–mm:ss.s]</code> berisi paragraf (diselaraskan dengan <code>align_transkrip_blok_ep04.py</code>)</li>
+    </ul>
+  </section>
+</main>

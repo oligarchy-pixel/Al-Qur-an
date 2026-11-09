@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+@font-face{font-family:Kalam;src:url('file:///home/claude/fonts/Kalam-Regular.ttf')}
+@font-face{font-family:Kalam;font-weight:700;src:url('file:///home/claude/fonts/Kalam-Bold.ttf')}
+:root{--w:#f7f1e8;--r:#e0a49a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1350px;overflow:hidden;background:#000}
+.ab{position:absolute}
+.k{font-family:Kalam,cursive;line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.25)}
+.ar{font-family:Amiri,serif;direction:rtl}
+.book{position:absolute;font-family:Amiri,serif;color:#2b2420;text-align:center}
+</style></head><body><div id="c"></div>
+<script>
+const S = 1080 / 736, OY = 250;
+const heart = (s, c = 'var(--r)', fill = 'none') => `<svg width="${s}" height="${s}" viewBox="0 0 24 24"><path d="M12 20 C-3 10 4 0 12 7 C20 0 27 10 12 20Z" fill="${fill}" stroke="${c}" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+const dash = (x, y, rot, l = 34) => `<div class="ab" style="left:${x}px;top:${y}px;width:${l}px;height:4px;border-radius:2px;background:var(--w);transform:rotate(${rot}deg)"></div>`;
+const bk = (y, t, fs) => `<div class="book" style="left:${20 * S}px;width:${185 * S}px;top:${(y * S) - OY + 8}px;font-size:${fs}px">${t}</div>`;
+document.getElementById('c').innerHTML = `<div style="position:relative;width:1080px;height:1350px;overflow:hidden">
+ <img src="file:///home/claude/covers/bg/kucing_bersih.jpg" style="position:absolute;left:0;top:${-OY}px;width:1080px;height:${1307 * S}px">
+ <div class="ab ar" style="left:150px;width:660px;top:40px;text-align:center;font-size:44px;color:var(--r)">حُرْمَةُ الْقُرْآنِ</div>
+ <div class="ab k" style="left:150px;width:660px;top:118px;text-align:center;font-size:28px;color:var(--w);letter-spacing:.2em">· EP 01 ·</div>
+ <div class="ab k" style="left:150px;width:660px;top:170px;text-align:center;font-size:118px;color:var(--w)">Muliakan</div>
+ <div class="ab k" style="left:150px;width:660px;top:300px;text-align:center;font-size:132px;font-weight:700;color:var(--r)">Al-Qur'an</div>
+ <svg class="ab" style="left:250px;top:430px" width="460" height="40"><path d="M10 26 Q200 6 450 14" stroke="var(--r)" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M40 32 Q220 18 420 24" stroke="var(--r)" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/></svg>
+ <div class="ab k" style="left:150px;width:660px;top:478px;text-align:center;font-size:104px;color:var(--w)">dengan adab</div>
+ ${dash(150, 300, 35)}${dash(118, 372, 0, 40)}${dash(800, 300, -35)}${dash(820, 372, 0, 40)}
+ <div class="ab" style="left:770px;top:150px">${heart(52)}</div>
+ <div class="ab k" style="left:96px;width:500px;top:628px;font-size:40px;color:var(--r);font-weight:700">isi videonya ${heart(30)}</div>
+ <svg class="ab" style="left:96px;top:676px" width="250" height="14"><path d="M4 9 Q120 2 246 6" stroke="var(--r)" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>
+ ${[['01', 'sebaik-baik kalian', 'belajar & mengajarkan'], ['02', "Al-Qur'an", 'jamuan Allah'], ['03', 'mulut kita', "jalan Al-Qur'an"], ['04', 'kehormatan', "Al-Qur'an (al-Qurthubi)"]].map((x, i) => `<div class="ab k" style="left:96px;width:520px;top:${706 + i * 74}px;font-size:34px;color:var(--w);line-height:1.05;text-shadow:0 2px 6px rgba(0,0,0,.75),0 0 14px rgba(0,0,0,.5)"><span style="color:var(--r);font-weight:700">${x[0]} ·</span> ${x[1]}<br><span style="font-size:26px;opacity:.95;margin-left:58px">${x[2]}</span></div>`).join('')}
+ <div class="ab k" style="left:845px;width:220px;top:40px;text-align:center;font-size:40px;color:var(--r);line-height:1.12">Berwudu ${heart(22)}<br><br>Hadap<br>kiblat ${heart(22)}<br><br>Tartil ${heart(22)}</div>
+ <div class="ab" style="left:930px;top:1050px">${heart(54)}</div>
+ <div class="ab k" style="left:845px;width:220px;top:1125px;text-align:center;font-size:42px;color:var(--r);line-height:1.12">hormati<br>mushaf</div>
+ <svg class="ab" style="left:880px;top:1230px" width="150" height="20"><path d="M6 14 Q70 4 144 8" stroke="var(--r)" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+ <div class="ab k" style="left:845px;width:220px;top:1268px;text-align:center;font-size:26px;color:var(--w)">@alurziyadahku</div>
+ ${bk(975, "Hurmatul Qur'an", 30)}${bk(1017, 'Adab Membaca', 30)}${bk(1058, 'Tartil', 30)}
+</div>`;
+</script></body></html>

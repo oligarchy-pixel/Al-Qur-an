@@ -1,0 +1,100 @@
+import os
+from engine import *
+ELS = []; SCENES = []; TOTAL = 3.3
+SCENES.append({'t0': 0, 't1': TOTAL, 'els': []})
+EMER = (14, 61, 46); GOLDL = (222, 186, 98); CREAM = (250, 244, 226)
+H = {
+ '1': dict(l1='Belajar 1 ayat', l2='lebih baik dari', big='100 rakaat?', bigc=GREEN, ell=RED, bs=88,
+           ar='لَأَنْ تَغْدُوَ فَتَتَعَلَّمَ آيَةً مِنْ كِتَابِ اللَّهِ خَيْرٌ لَكَ مِنْ أَنْ تُصَلِّيَ مِئَةَ رَكْعَةٍ', ars=31,
+           src='Hadis · kepada Abu Dzar', foot='jawabannya di video ini'),
+ '2': dict(l1='Manusia terbaik', l2='menurut Rasulullah', saw=True, big='siapa?', bigc=GREEN, ell=RED, bs=104,
+           ar='خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', ars=34, src='HR. Al-Bukhari', foot='semoga kita termasuk'),
+ '3': dict(l1='Ingin dicintai', l2='Allah & Rasul-Nya?', big='cek 1 hal ini', bigc=GREEN, ell=RED, bs=80,
+           ar='مَنْ أَحَبَّ أَنْ يُحِبَّهُ اللَّهُ وَرَسُولُهُ فَلْيَنْظُرْ', ars=30, src='Hadis', foot='simak sampai akhir', label="HURMATUL QUR'AN · 01"),
+ '5': dict(l1='Ibadah paling afdal', l2='umat Rasulullah', saw=True, big='apa?', bigc=GREEN, ell=RED, bs=110,
+           ar='أَفْضَلُ عِبَادَةِ أُمَّتِي قِرَاءَةُ الْقُرْآنِ', ars=36, src='Hadis', foot='simak sampai akhir', label="HURMATUL QUR'AN · 02"),
+ '6': dict(l1="Seluruh isi Al-Qur'an", l2='tergambar dalam', big='Al-Fatihah', bigc=GREEN, ell=RED, bs=90,
+           ar='الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', ars=40, src='QS. Al-Fatihah: 2', foot='simak sampai akhir', label="HURMATUL QUR'AN · 03"),
+ '4': dict(l1="Meremehkan Al-Qur'an", l2='berarti meremehkan', big='hak Allah', bigc=RED, ell=NAVY, bs=96,
+           ar='فَمَنْ وَقَّرَ الْقُرْآنَ فَقَدْ وَقَّرَ اللَّهَ', ars=34, src='Hadis', foot='simak sampai akhir'),
+ '7': dict(l1='Setiap ucap basmalah,', l2='surga pun', big='berkata!', bigc=GREEN, ell=RED, bs=100,
+           ar='بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', ars=40, src='QS. An-Naml: 30', foot='simak sampai akhir', label="HURMATUL QUR'AN · 04"),
+ '8': dict(l1='Kurang 1 huruf saja,', l2='bacaan Al-Fatihah', big='tidak sah!', bigc=RED, ell=NAVY, bs=96,
+           ar='الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', ars=40, src='QS. Al-Fatihah: 2', foot='simak sampai akhir', label="HURMATUL QUR'AN · 04"),
+ '9': dict(l1='Basmalah itu ayat', l2='Al-Fatihah atau', big='bukan?', bigc=GREEN, ell=RED, bs=110,
+           ar='بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', ars=40, src='QS. An-Naml: 30', foot='kata 4 imam, simak sampai akhir', label="HURMATUL QUR'AN · 04"),
+ '10': dict(l1='Lupa basmalah', l2='saat makan?', big='kurang berkah', bigc=RED, ell=NAVY, bs=84,
+           ar='بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', ars=40, src='QS. An-Naml: 30', foot='simak sampai akhir', label="HURMATUL QUR'AN · 04"),
+ '11': dict(l1='Satu-satunya surah', l2='yang WAJIB dihafal', big='apa?', bigc=GREEN, ell=RED, bs=110,
+           ar='اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', ars=40, src='QS. Al-Fatihah: 6', foot='simak sampai akhir', label="HURMATUL QUR'AN · 04"),
+ '12': dict(l1='Baca bismillah', l2='sebelum maksiat?', big='HARAM!', bigc=RED, ell=NAVY, bs=120,
+           ar='بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', ars=40, src='QS. An-Naml: 30', foot='4 hukum basmalah, simak sampai akhir', label="HURMATUL QUR'AN · 05"),
+ '13': dict(l1='Tidak semua hal baik', l2='dimulai dengan', big='basmalah lengkap', bigc=GREEN, ell=RED, bs=72,
+           ar='بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', ars=40, src='QS. An-Naml: 30', foot='simak sampai akhir', label="HURMATUL QUR'AN · 05"),
+ '14': dict(l1='Doa sebelum tidur,', l2='harapan wafat dalam', big='husnul khatimah', bigc=GREEN, ell=RED, bs=72,
+           ar='بِاسْمِكَ اللَّهُمَّ أَحْيَا وَبِاسْمِكَ أَمُوتُ', ars=38, src='doa sebelum tidur', foot='simak sampai akhir', label="HURMATUL QUR'AN · 05"),
+ '15': dict(l1='Masuk jamban tanpa', l2='bismillah? setan', big='melihat auratmu', bigc=RED, ell=NAVY, bs=72,
+           ar='بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ', ars=30, src='doa masuk jamban', foot='simak sampai akhir', label="HURMATUL QUR'AN · 05"),
+ '16': dict(th='malam', l1='Doa sebelum tidur,', l2='harapan wafat dalam', big='husnul khatimah', bigc=GOLDL, ell=CREAM, bs=72,
+           ar='بِاسْمِكَ اللَّهُمَّ أَحْيَا وَبِاسْمِكَ أَمُوتُ', ars=38, src='doa sebelum tidur', foot='simak sampai akhir', label="HURMATUL QUR'AN · 05"),
+ '17': dict(th='zamrud', l1='Kalau malam ini', l2='wafat dalam tidur...', big='husnul khatimah?', bigc=GOLDL, ell=CREAM, bs=70,
+           ar='بِاسْمِكَ اللَّهُمَّ أَحْيَا وَبِاسْمِكَ أَمُوتُ', ars=38, src='doa sebelum tidur', foot='amalkan doa ini', label="HURMATUL QUR'AN · 05"),
+ '18': dict(th='krem', l1='Doa sebelum tidur,', l2='bekal untuk', big='akhir hayat', bigc=(32, 110, 70), ell=(206, 86, 78), bs=96,
+           ar='بِاسْمِكَ اللَّهُمَّ أَحْيَا وَبِاسْمِكَ أَمُوتُ', ars=38, src='doa sebelum tidur', foot='simak sampai akhir', label="HURMATUL QUR'AN · 05"),
+ '19': dict(th='malam', l1='Sebelum tidur, bukan', l2='basmalah lengkap,', big='tapi ini!', bigc=GOLDL, ell=CREAM, bs=96,
+           ar='بِاسْمِكَ اللَّهُمَّ أَحْيَا وَبِاسْمِكَ أَمُوتُ', ars=38, src='doa sebelum tidur', foot='simak sampai akhir', label="HURMATUL QUR'AN · 05"),
+}[os.environ['HOOK']]
+# tema warna hook: kertas (bawaan), malam, zamrud, krem
+THEMES = {
+ 'kertas': dict(bg=None, ink=NAVY, chip=(EMER, GOLDL), box=(EMER, GOLDL), ar=CREAM, src=GOLDL, foot=(WHITE, NAVY), deco=None),
+ 'malam': dict(bg=(22, 30, 60), grid=(32, 42, 78), ink=CREAM, chip=((40, 52, 96), GOLDL), box=((34, 46, 88), GOLDL), ar=CREAM, src=GOLDL,
+               foot=(GOLDL, (22, 30, 60)), deco='malam'),
+ 'zamrud': dict(bg=(12, 58, 44), grid=(22, 72, 56), ink=CREAM, chip=(CREAM, EMER), box=(CREAM, GOLDL), ar=EMER, src=(150, 110, 40),
+                foot=(GOLDL, EMER), deco='kilau'),
+ 'krem': dict(bg=(250, 238, 214), grid=(238, 222, 192), ink=(70, 46, 30), chip=((120, 70, 40), CREAM), box=((120, 70, 40), GOLDL), ar=CREAM,
+              src=GOLDL, foot=(WHITE, (120, 70, 40)), deco='kilau'),
+}
+TH = THEMES[H.get('th', 'kertas')]
+
+
+class Bg(El):
+    z = -100
+
+    def draw(self, fr, t):
+        d = ImageDraw.Draw(fr)
+        d.rectangle((0, 0, fr.width, fr.height), fill=TH['bg'])
+        for x in range(0, fr.width, 36):
+            d.line([(x, 0), (x, fr.height)], fill=TH['grid'], width=1)
+        for y in range(0, fr.height, 36):
+            d.line([(0, y), (fr.width, y)], fill=TH['grid'], width=1)
+
+
+def A(el):
+    el.out = TOTAL + 0.3; ELS.append(el); el.register(); return el
+if TH['bg']:
+    A(Bg(0))
+if TH['deco'] == 'malam':
+    A(LineArt(0.1, 'moon', 600, 150, 46, color=GOLDL, dur=0.5, snd=False))
+    for k, (x, y, z) in enumerate([(110, 140, 26), (200, 1080, 22), (560, 1110, 30), (640, 330, 18), (80, 560, 18)]):
+        A(Icon(0.2 + k * 0.1, 'star', x, y, z, sfx_on=False))
+elif TH['deco'] == 'kilau':
+    for k, (x, y, z) in enumerate([(110, 150, 30), (620, 160, 26), (90, 1090, 24), (630, 1080, 30)]):
+        A(Icon(0.2 + k * 0.1, 'sparkle', x, y, z, col=GOLDL, sfx_on=False))
+sfx(0.0, 'whoosh', 0, 0.8)
+A(Chip(0.05, 360, 250, H.get('label', "KAJIAN HURMATUL QUR'AN"), fill=TH['chip'][0], col=TH['chip'][1], border=TH['chip'][1], size=22))
+A(Txt(0.12, H['l1'], 360, 380, 60, color=TH['ink'], mode='pop'))
+if H.get('saw'):
+    w1 = tsprite(H['l2'], 'kb', 54).w; w2 = tsprite('ﷺ', 'ar', 62).w; left = 360 - (w1 + 6 + w2) / 2
+    A(Txt(0.45, H['l2'], left, 470, 54, color=TH['ink'], mode='pop', ax='l'))
+    A(Txt(0.65, 'ﷺ', left + w1 + 6, 472, 62, fn='ar', color=TH['ink'], mode='pop', ax='l'))
+else:
+    A(Txt(0.45, H['l2'], 360, 470, 60, color=TH['ink'], mode='pop'))
+A(Txt(0.85, H['big'], 360, 595, H['bs'], color=H['bigc'], mode='pop', rot=-3))
+bw = tsprite(H['big'], 'kb', H['bs']).w
+A(Ellipse(1.05, 360, 600, bw / 2 + 55, H['bs'] * 0.75, color=H['ell'], width=6, dur=0.4))
+sfx(1.1, 'thud', 0, 0.9)
+A(Box(1.35, 50, 705, 670, 910, fill=TH['box'][0], col=TH['box'][1], width=3))
+A(Txt(1.45, H['ar'], 360, 782, H['ars'], fn='ar', color=TH['ar'], maxw=500, dur=0.9))
+A(Txt(2.1, H['src'], 360, 878, 20, color=TH['src'], mode='fade'))
+A(Chip(2.4, 360, 990, H['foot'], fill=TH['foot'][0], col=TH['foot'][1], border=TH['foot'][1], size=24))
+sfx(2.4, 'ding', 0, 0.6)

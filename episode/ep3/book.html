@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+:root{--em:#0f4d3a;--em2:#0b3a2c;--gold:#b8913f;--gold2:#d9b86a;--paper:#f6efdf;--ink:#2b2219}
+*{margin:0;padding:0;box-sizing:border-box}
+body{overflow:hidden;font-family:Amiri,serif}
+.ar{font-family:Amiri,serif;direction:rtl}
+.book{position:relative;background:var(--paper);background-image:radial-gradient(ellipse at 50% 35%,#fbf6ea,#efe4cc 80%);color:var(--ink);overflow:hidden}
+.fr{position:absolute;border:3px solid var(--gold)}
+.fr2{position:absolute;border:1.5px solid var(--gold)}
+.corner{position:absolute;width:120px;height:120px}
+.cap{letter-spacing:.32em;text-transform:uppercase;font-weight:700;color:var(--em)}
+</style></head><body><div id="c"></div>
+<script>
+const v = new URLSearchParams(location.search).get('v') || 'reel';
+const W = v === 'yt' ? 1920 : 1080, H = v === 'yt' ? 1080 : 1920;
+document.body.style.width = W + 'px'; document.body.style.height = H + 'px';
+// ornamen sudut: bintang delapan + sulur
+const star = (s, c) => `<svg width="${s}" height="${s}" viewBox="-50 -50 100 100"><g fill="none" stroke="${c}" stroke-width="2.4"><rect x="-26" y="-26" width="52" height="52"/><rect x="-26" y="-26" width="52" height="52" transform="rotate(45)"/><circle r="12"/></g><circle r="4" fill="${c}"/></svg>`;
+const corner = (rot) => `<svg class="corner" viewBox="0 0 120 120" style="transform:rotate(${rot}deg)"><g fill="none" stroke="#b8913f" stroke-width="2.2"><path d="M8 112 V8 H112"/><path d="M20 112 V20 H112"/><path d="M20 60 Q40 40 60 20"/><path d="M20 90 Q55 55 90 20"/></g><g transform="translate(20 20)"><circle r="7" fill="#b8913f"/></g></svg>`;
+// pola geometris tipis (girih) sebagai latar
+const pat = `<svg width="100%" height="100%" style="position:absolute;inset:0;opacity:.09"><defs><pattern id="g" width="90" height="90" patternUnits="userSpaceOnUse"><g fill="none" stroke="#0f4d3a" stroke-width="1.4"><rect x="27" y="27" width="36" height="36"/><rect x="27" y="27" width="36" height="36" transform="rotate(45 45 45)"/><path d="M0 45 H27 M63 45 H90 M45 0 V27 M45 63 V90"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`;
+
+function corners(w, h, F) { const m = F(40), L = F(110), g = F(14); const c = (x, y, sx, sy) => `<path d="M${x} ${y + sy * L} V${y} H${x + sx * L}" /><path d="M${x + sx * g} ${y + sy * L} V${y + sy * g} H${x + sx * L}"/><path d="M${x + sx * g} ${y + sy * F(60)} Q${x + sx * F(40)} ${y + sy * F(40)} ${x + sx * F(60)} ${y + sy * g}"/><circle cx="${x + sx * g}" cy="${y + sy * g}" r="${F(7)}" fill="#b8913f"/>`;
+  return `<svg width="${w}" height="${h}" style="position:absolute;inset:0"><g fill="none" stroke="#b8913f" stroke-width="${Math.max(1.5, F(3))}">${c(m, m, 1, 1)}${c(w - m, m, -1, 1)}${c(w - m, h - m, -1, -1)}${c(m, h - m, 1, -1)}</g></svg>`; }
+function cover(w, h) { // sampul buku tegak
+  const s = w / 1080, F = x => Math.round(x * s);
+  const tall = h / s > 1700, archW = F(tall ? 560 : 500), archH = F(tall ? 600 : 470);
+  return `<div class="book" style="width:${w}px;height:${h}px">${pat}
+  <div class="fr" style="inset:${F(40)}px"></div><div class="fr2" style="inset:${F(58)}px"></div>
+  ${corners(w, h, F)}
+  <div style="position:absolute;left:0;right:0;top:${F(130)}px;text-align:center">
+    <div class="cap" style="font-size:${F(26)}px">Seri Kajian Al-Qur'an · Jilid 03</div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:${F(18)}px;margin-top:${F(18)}px"><div style="width:${F(140)}px;height:2px;background:var(--gold)"></div>${star(F(40), '#b8913f')}<div style="width:${F(140)}px;height:2px;background:var(--gold)"></div></div>
+    <div class="ar" style="font-size:${F(150)}px;font-weight:700;color:var(--em);line-height:1.35;margin-top:${F(40)}px;padding-top:${F(20)}px">نُزُولُ الْقُرْآنِ</div>
+    <div style="font-size:${F(92)}px;font-weight:700;letter-spacing:.06em;color:var(--ink);line-height:1;margin-top:${F(30)}px">TURUNNYA</div>
+    <div style="font-size:${F(92)}px;font-weight:700;letter-spacing:.06em;color:var(--em);line-height:1.15">AL-QUR'AN</div>
+    <div style="font-size:${F(38)}px;font-style:italic;color:#5a4a33;margin-top:${F(14)}px">dari Lauh Mahfuzh sampai Mushaf di Tanganmu</div>
+  </div>
+  <div style="position:absolute;left:${(w - archW) / 2}px;top:${F(tall ? 900 : 820)}px;width:${archW}px;height:${archH}px;border-radius:${archW / 2}px ${archW / 2}px ${F(10)}px ${F(10)}px;padding:${F(14)}px;background:linear-gradient(var(--gold2),var(--gold));box-shadow:0 ${F(18)}px ${F(40)}px rgba(60,40,10,.35)">
+    <div style="width:100%;height:100%;border-radius:${archW / 2}px ${archW / 2}px ${F(4)}px ${F(4)}px;overflow:hidden;border:${F(6)}px solid var(--em)"><img src="file:///home/claude/proj3/user_photo.jpg" style="width:100%;height:100%;object-fit:cover;object-position:48% 60%"></div></div>
+  <div style="position:absolute;left:0;right:0;bottom:${F(110)}px;text-align:center">
+    <div class="cap" style="font-size:${F(22)}px;color:#7a6440">Disampaikan oleh</div>
+    <div style="font-size:${F(62)}px;font-weight:700;letter-spacing:.14em;color:var(--ink);margin-top:${F(6)}px">ALUR ZIYADAHKU</div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:${F(14)}px;margin-top:${F(10)}px"><div style="width:${F(90)}px;height:1.5px;background:var(--gold)"></div><div style="font-size:${F(26)}px;color:var(--em);letter-spacing:.08em">@alurziyadahku</div><div style="width:${F(90)}px;height:1.5px;background:var(--gold)"></div></div>
+  </div></div>`;
+}
+let html = '';
+if (v === 'yt') {
+  // meja kayu terang + buku tegak 3D + teks kanan
+  html = `<div style="position:relative;width:${W}px;height:${H}px;background:radial-gradient(ellipse at 35% 45%,#efe2c4,#d8c39a 75%);overflow:hidden">${pat}
+  <div style="position:absolute;left:150px;top:70px;width:600px;height:940px;transform:perspective(2200px) rotateY(16deg);transform-origin:left center;box-shadow:30px 40px 70px rgba(50,30,5,.45)">
+    <div style="position:absolute;left:-28px;top:0;width:30px;height:100%;background:linear-gradient(90deg,#0b3a2c,#13644b);"></div>${cover(600, 940)}</div>
+  <div style="position:absolute;left:880px;top:90px;width:960px">
+    <div class="cap" style="font-size:28px">Seri Kajian Al-Qur'an · Jilid 03</div>
+    <div class="ar" style="font-size:120px;font-weight:700;color:var(--em);line-height:1.4;text-align:left;margin-top:40px;margin-bottom:24px">نُزُولُ الْقُرْآنِ</div>
+    <div style="font-size:120px;font-weight:700;line-height:.95;color:var(--ink);letter-spacing:.02em">TURUNNYA<br><span style="color:var(--em)">AL-QUR'AN</span></div>
+    <div style="width:520px;height:3px;background:var(--gold);margin:34px 0 24px"></div>
+    <div style="font-size:46px;font-style:italic;color:#4a3b26;line-height:1.25">dari Lauh Mahfuzh<br>sampai Mushaf di Tanganmu</div>
+    <div class="cap" style="font-size:22px;color:#7a6440;margin-top:44px">Disampaikan oleh</div>
+    <div style="font-size:54px;font-weight:700;letter-spacing:.14em;color:var(--ink)">ALUR ZIYADAHKU</div>
+  </div></div>`;
+} else html = cover(W, H);
+document.getElementById('c').innerHTML = html;
+</script></body></html>

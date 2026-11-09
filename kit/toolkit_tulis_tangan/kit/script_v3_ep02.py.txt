@@ -1,0 +1,598 @@
+from engine import *
+from subs import W, register_sub_sfx
+
+ELS = []
+SCENES = []
+CUR = None
+TOTAL = 587.4
+
+
+def scene(t0, t1, wh=True):
+    global CUR
+    CUR = {'t0': t0, 't1': t1, 'els': []}
+    SCENES.append(CUR)
+    if wh:
+        sfx(t0, 'whoosh', 0, 0.55)
+
+
+def A(el):
+    if el.out is None:
+        el.out = CUR['t1']
+    CUR['els'].append(el)
+    ELS.append(el)
+    el.register()
+    return el
+
+
+def DIM(t, *keep):
+    for el in CUR['els']:
+        if el.dim is None and el.t0 < t and el not in keep:
+            el.dim = t
+
+
+def head(t, n, tt=None):
+    A(Ticks(t, n))
+    A(Txt(tt or t + 0.15, f'Kehormatan ke-{n}', 360, 262, 30))
+
+
+def rasul(t, cx, cy, size=26, color=NAVY, extra=''):
+    txt = 'Rasulullah' + extra
+    w1 = tsprite(txt, 'kb', size, color).w
+    w2 = tsprite('ﷺ', 'ar', int(size * 1.25), color).w
+    left = cx - (w1 + 4 + w2) / 2
+    A(Txt(t, txt, left, cy, size, color=color, ax='l'))
+    A(Txt(t + 0.3, 'ﷺ', left + w1 + 4, cy + 2, int(size * 1.25), fn='ar', color=color, ax='l', mode='pop'))
+
+
+AR = dict(fn='ar')
+
+# ===================================================================== 0 Basmalah
+scene(0.0, 1.62, wh=False)
+A(Box(0.05, 95, 505, 625, 665, fill=WHITE, col=NAVY))
+A(Txt(0.15, 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 360, 565, 38, dur=1.0, **AR))
+A(Txt(0.75, 'Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang', 360, 625, 17, fn='kr', maxw=500, mode='fade'))
+
+# ===================================================================== 1 Alhamdulillah
+scene(1.62, 5.85)
+A(Txt(1.65, 'الْحَمْدُ لِلَّهِ', 360, 300, 50, **AR))
+A(Sticky(W(1.5, 'melanjutkan'), 175, 430, 'lanjutan', 'kajian sebelumnya', rot=-5))
+A(Card(W(1.5, "'Ulumul") - 0.7, 360, 620, 230, 210, icon='book', label="'Ulumul Qur'an", isize=120, lsize=22))
+A(Txt(W(1.5, "'Ulumul") - 0.1, 'عُلُومُ الْقُرْآنِ', 360, 790, 36, **AR))
+A(Ellipse(W(1.5, "Qur'an") + 0.2, 360, 620, 150, 140, dur=0.6))
+
+# ===================================================================== 2 Title
+scene(5.85, 8.75)
+A(Txt(5.9, 'Kehormatan', 360, 290, 50))
+A(Txt(W(5.9, 'daripada'), "Al-Qur'an Al-Karim", 360, 365, 40, color=GREEN))
+A(Card(W(5.9, "Al-Qur'an"), 360, 590, 200, 240, icon='mushaf', isize=160))
+A(Ellipse(W(5.9, 'Al-Karim'), 360, 590, 150, 160, dur=0.6))
+sfx(W(5.9, 'Al-Karim') + 0.3, 'ding', 0, 0.8)
+A(Txt(7.3, 'adab-adab memuliakan Al-Qur\'an', 360, 790, 26, fn='kr'))
+A(Dots(7.6, [(200 + i * 40, 850) for i in range(9)], r=5, gap=0.07))
+
+# ===================================================================== 3 Adab 1 kiblat
+scene(8.8, 18.25)
+head(8.8, 1)
+A(Txt(8.95, 'أَنْ يَسْتَقْبِلَ الْقِبْلَةَ', 360, 345, 40, dur=1.2, **AR))
+A(Txt(W(10.4, 'menghadap'), 'menghadap kiblat', 360, 425, 24, fn='kr'))
+c1 = A(Card(W(10.4, 'membaca'), 170, 610, 160, 175, icon='mushaf', label='membaca', isize=80))
+A(arrow(W(10.4, 'menghadap'), 262, 600, 452, 600, color=GREEN, bend=-28, dur=0.5))
+c2 = A(Card(W(10.4, 'kiblat'), 550, 610, 160, 175, icon='kaaba', label='kiblat', isize=90))
+DIM(14.2, c2)
+A(Txt(14.25, 'بِأَنَّهَا أَشْرَفُ الْجِهَاتِ', 360, 790, 36, dur=1.3, **AR))
+A(Txt(W(15.9, 'semulia-mulia'), 'arah yang paling mulia', 360, 860, 28, color=GREEN))
+for i, (nm, x) in enumerate([('utara', 115), ('timur', 270), ('selatan', 440), ('barat', 600)]):
+    A(Chip(15.95 + i * 0.12, x, 960, nm, fill=WHITE, col=GRAY, border=LGRAY, size=19))
+A(Ellipse(W(15.9, 'kiblat'), 550, 610, 108, 112, dur=0.5))
+A(Icon(W(15.9, 'arah'), 'star', 625, 525, 50))
+
+# ===================================================================== 4 compare
+scene(18.3, 31.25)
+A(Txt(18.35, 'Contohnya', 360, 205, 34))
+L1 = A(Card(W(18.3, 'membelakangi'), 190, 430, 230, 215, icon='person_r', label='membelakangi\nkiblat', isize=90, fill=LRED))
+A(Icon(W(18.3, 'membelakangi') + 0.25, 'kaaba', 255, 375, 44))
+R1 = A(Card(W(18.3, 'menghadap'), 530, 430, 230, 215, icon='person_g', label='menghadap\nkiblat', isize=90, fill=LGREEN))
+A(Icon(W(18.3, 'menghadap') + 0.25, 'kaaba', 600, 375, 44))
+A(Txt(W(18.3, 'vs') if False else W(18.3, 'dengan'), 'vs', 360, 430, 34, color=GRAY, mode='pop'))
+A(Txt(W(18.3, 'lain'), 'pahalanya berbeda', 360, 600, 30, color=RED))
+A(underline(W(18.3, 'pahalanya'), 225, 495, 625, color=RED))
+DIM(25.7, L1, R1)
+A(Txt(25.72, 'Kenapa?', 360, 690, 44, color=RED, mode='pop'))
+t1 = W(26.3, 'pahala')
+A(Icon(t1, 'star', 110, 800, 46))
+A(Chip(t1 + 0.1, 360, 800, "pahala membaca Al-Qur'an", size=22))
+A(Icon(t1 + 0.2, 'star', 190, 300, 40))
+A(Icon(t1 + 0.3, 'star', 500, 300, 40))
+t2 = W(28.9, 'pahalanya')
+A(Txt(t2 - 0.3, '+', 360, 848, 36, mode='pop'))
+A(Icon(t2, 'star', 110, 895, 46))
+A(Chip(t2 + 0.1, 370, 895, 'pahala menghadap kiblat', fill=LGREEN, col=GREEN, border=GREEN, size=22))
+A(Icon(t2 + 0.3, 'star', 560, 300, 40))
+A(Stamp(30.3, 360, 1010, 'PAHALA BERLIPAT', col=GREEN, rot=-6))
+
+# ===================================================================== 5 Adab 2 menguap
+scene(31.3, 49.85)
+head(31.3, 2)
+A(Txt(31.45, 'وَأَنْ يُمْسِكَ عَنِ الْقِرَاءَةِ إِذَا تَثَاءَبَ، لِأَنَّهُ مِنَ الشَّيْطَانِ', 360, 365, 32, maxw=600, dur=3.2, **AR))
+A(Txt(W(36.5, 'berhenti'), 'berhenti membaca ketika menguap', 360, 470, 24, fn='kr'))
+m1 = A(Card(W(36.5, 'membaca'), 160, 640, 170, 180, icon='mushaf', label='membaca', isize=80))
+A(Icon(W(36.5, 'ketika'), 'pause', 360, 640, 60))
+m2 = A(Card(W(36.5, 'menguap'), 560, 640, 170, 180, icon='face', label='menguap', isize=90))
+A(arrow(W(40.2, 'menguap'), 560, 735, 560, 775, color=RED, dur=0.3))
+A(Chip(W(40.2, 'syaitan'), 560, 805, 'dari syaitan', fill=LRED, col=RED, border=RED))
+DIM(42.3)
+A(Stamp(W(42.3, 'dicampurkan'), 360, 640, 'JANGAN DICAMPUR', size=30))
+A(Txt(W(42.3, 'membaca'), 'ا   ب   ت   ث   ج', 360, 905, 46, dur=0.8, **AR))
+A(Wave(W(42.3, 'merusak'), 215, 505, 905, 12, 5, color=RED, dur=0.6))
+A(Txt(W(42.3, 'huruf'), 'merusak sebutan huruf', 360, 990, 28, color=RED))
+
+# ===================================================================== 6 Adab 3 isti'adzah
+scene(49.9, 72.95)
+head(49.9, 3)
+A(Txt(50.05, 'وَأَنْ يَسْتَعِيذَ بِاللَّهِ مِنَ الشَّيْطَانِ عِنْدَ ابْتِدَائِهِ', 360, 360, 32, maxw=600, dur=2.6, **AR))
+A(Txt(W(53.8, 'mengucap'), "membaca ta'awwudz ketika memulai", 360, 465, 24, fn='kr'))
+A(Card(W(53.8, "a'udzubillah"), 200, 610, 170, 175, icon='shield', label="isti'adzah", isize=80))
+A(arrow(W(53.8, 'memulai'), 292, 610, 425, 610, color=GREEN, bend=-25))
+A(Card(W(53.8, 'membaca'), 520, 610, 170, 175, icon='book', label='mulai membaca', isize=85))
+DIM(57.7)
+A(Sticky(57.7, 115, 770, 'lafaz 1', rot=-6))
+v1 = A(Txt(57.8, 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 420, 770, 31, dur=3.0, **AR))
+A(Sticky(61.5, 115, 885, 'lafaz 2', rot=4))
+A(Txt(61.6, 'أَعُوذُ بِاللَّهِ السَّمِيعِ الْعَلِيمِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 420, 885, 27, maxw=480, dur=4.2, **AR))
+A(Chip(W(66.6, 'basmalah'), 360, 1010, '+ basmalah  (boleh)', fill=LGREEN, col=GREEN, border=GREEN))
+A(Ellipse(W(70.3, 'penting'), 420, 770, 235, 42, dur=0.6))
+A(Txt(W(70.3, "a'udzubillah"), 'yang penting!', 600, 700, 24, color=GREEN, rot=6, mode='pop'))
+sfx(W(70.3, "a'udzubillah") + 0.2, 'ding', 0, 0.7)
+
+# ===================================================================== 7 awal / tengah surah
+scene(73.0, 91.65)
+A(Txt(73.05, 'awal surah', 190, 205, 30))
+A(Ruler(73.0, 360, 290, 600))
+A(Txt(73.3, 'satu surah', 360, 330, 18, fn='kr', color=GRAY))
+A(Line(73.4, [(80, 255), (80, 325)], GREEN, 6, 0.25, snd='tick'))
+A(Chip(W(74.2, 'أَعُوذُ'), 190, 420, "a'udzubillah", fill=LGREEN, col=GREEN, border=GREEN))
+A(Mark(W(74.2, 'أَعُوذُ') + 0.4, 'check', 320, 420, 18))
+A(Chip(W(74.2, 'بِسْمِ'), 190, 490, 'bismillah', fill=LGREEN, col=GREEN, border=GREEN))
+A(Mark(W(74.2, 'بِسْمِ') + 0.4, 'check', 300, 490, 18))
+a1 = A(Txt(74.3, 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 360, 640, 30, dur=2.6, **AR))
+a2 = A(Txt(W(74.2, 'بِسْمِ'), 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 360, 715, 30, dur=2.0, **AR))
+DIM(80.5)
+A(Txt(80.55, 'pertengahan surah', 530, 205, 30))
+A(Line(80.6, [(420, 255), (420, 325)], BLUE, 6, 0.25, snd='tick'))
+A(Txt(W(80.5, 'terserah'), 'terserah', 530, 390, 32, color=BLUE, mode='pop'))
+A(Chip(W(83.0, "a'udzubillah"), 530, 470, "a'udzubillah", fill=LGREEN, col=GREEN, border=GREEN))
+A(Mark(W(83.0, 'sahaja') + 0.2, 'check', 660, 470, 18))
+A(Chip(W(83.0, 'bismillah'), 530, 540, 'bismillah', fill=WHITE, col=GRAY, border=GRAY))
+A(Txt(W(83.0, 'bismillah') + 0.3, 'boleh / tidak', 530, 590, 20, fn='kr', color=GRAY))
+DIM(87.6)
+A(Icon(W(87.6, 'tidak'), 'shield', 360, 820, 90))
+A(Txt(W(87.6, 'mengurangi'), "tidak mengurangi kehormatan Al-Qur'an", 360, 930, 28, color=GREEN, maxw=560))
+A(Mark(W(87.6, 'Al-Karim'), 'check', 360, 1010, 24))
+
+# ===================================================================== 8 Adab 4 tidak memotong
+scene(91.7, 117.95)
+head(91.7, 4)
+A(Txt(91.85, 'وَأَنْ لَا يَقْطَعَ الْقِرَاءَةَ سَاعَةً سَاعَةً لِمُكَلِّمٍ آدَمِيٍّ', 360, 360, 32, maxw=600, dur=3.5, **AR))
+A(Txt(W(99.4, 'memotong'), 'tidak memotong bacaan untuk berbicara', 360, 465, 24, fn='kr'))
+A(Line(W(99.4, 'bacaan'), [(70, 570), (650, 570)], GREEN, 6, 0.8))
+A(Txt(W(99.4, 'bacaan') + 0.2, 'bacaan', 110, 540, 20, fn='kr', color=GREEN))
+A(Icon(W(99.4, 'berkata-kata'), 'speech', 360, 570, 60))
+A(Mark(W(99.4, 'manusia'), 'cross', 360, 570, 34))
+DIM(104.7)
+A(Card(W(104.7, 'membaca'), 180, 760, 170, 180, icon='mushaf', label='membaca', isize=80))
+A(Icon(W(104.7, 'tangan'), 'hand', 255, 835, 46))
+A(Card(W(110.0, 'bercakap-cakap'), 540, 760, 170, 180, icon='speech', label='bercakap', isize=80))
+A(arrow(W(110.0, 'bercakap-cakap') + 0.2, 275, 725, 445, 725, color=RED, bend=-22, dur=0.4))
+A(arrow(W(110.0, 'orang'), 445, 800, 275, 800, color=RED, bend=-22, dur=0.4))
+for i, (nm, x) in enumerate([('baca', 105), ('ngobrol', 250), ('baca', 400), ('ngobrol', 550)]):
+    ok = nm == 'baca'
+    A(Chip(W(113.9, 'Memotong-motong') + i * 0.35, x, 945, nm, fill=LGREEN if ok else LRED,
+           col=GREEN if ok else RED, border=GREEN if ok else RED, size=20))
+A(Mark(W(113.9, 'bercakap-cakap'), 'cross', 650, 945, 22))
+A(Txt(W(113.9, 'ketika'), 'bacaan terputus-putus', 360, 1020, 24, color=RED, fn='kr'))
+
+# ===================================================================== 9 urutan yang benar
+scene(118.0, 134.65)
+A(Txt(118.05, 'yang benar', 360, 205, 34, color=GREEN))
+A(Chip(W(118.0, 'menanya'), 95, 300, '1', size=22))
+A(Card(W(118.0, 'menanya'), 190, 400, 200, 180, icon='speech', label='tanya khabar dulu', isize=80, fill=LGREEN))
+A(arrow(W(118.0, 'dahulu') - 0.2, 300, 400, 420, 400, color=GREEN, bend=-20))
+A(Chip(W(118.0, 'dahulu'), 435, 300, '2', size=22))
+A(Card(W(118.0, 'dahulu'), 530, 400, 200, 180, icon='mushaf', label='baru membaca', isize=80))
+A(Stamp(W(123.1, 'sambil'), 360, 575, 'JANGAN SAMBIL MEMBACA', size=27))
+DIM(124.7)
+A(Txt(W(124.7, 'Beda'), 'beda halnya:', 360, 680, 30))
+A(Card(W(124.7, 'selawat'), 190, 830, 210, 175, arabic='صَلَوَات', ar_size=38, label='selawat', fill=WHITE))
+A(Mark(W(124.7, 'selawat') + 0.4, 'check', 285, 750, 20))
+A(Card(W(124.7, 'zikir'), 530, 830, 230, 175, arabic='لَا إِلَٰهَ إِلَّا اللَّهُ', ar_size=30, label='zikir'))
+A(Mark(W(124.7, 'illallah'), 'check', 635, 750, 20))
+A(Txt(W(124.7, 'urusan'), "urusan Al-Qur'an lain", 360, 990, 30, color=GREEN))
+A(underline(W(124.7, 'lain'), 210, 510, 1015))
+
+# ===================================================================== 10 ulang Arab adab 4
+scene(134.7, 139.55)
+A(Sticky(134.75, 150, 240, 'diulang', rot=-6))
+A(Txt(134.85, 'وَأَنْ لَا يَقْطَعَ الْقِرَاءَةَ سَاعَةً سَاعَةً لِمُكَلِّمٍ آدَمِيٍّ', 360, 400, 34, maxw=600, dur=3.4, **AR))
+A(Icon(136.3, 'mushaf', 280, 620, 90))
+A(Icon(136.7, 'speech', 450, 620, 80))
+A(Mark(137.6, 'cross', 450, 620, 40))
+A(Txt(138.0, 'jaga bacaan tetap bersambung', 360, 760, 26, fn='kr'))
+
+# ===================================================================== 11 Adab 5 tartil
+scene(139.6, 162.15)
+head(139.6, 5)
+A(Txt(139.75, 'وَأَنْ يَقْرَأَهُ عَلَى تُؤَدَةٍ وَتَرْتِيلٍ وَتَحْسِينٍ وَتَفَهُّمٍ وَإِسْمَاعِ نَفْسِهِ', 360, 365, 31, maxw=600, dur=4.5, **AR))
+A(Txt(W(147.4, 'membaca'), 'membaca dengan baik dan tartil', 360, 470, 24, fn='kr'))
+xs = [98, 268, 452, 622]
+A(Card(W(147.4, 'tartil'), xs[0], 640, 150, 165, icon='clock', label='tartil', isize=70))
+A(Card(W(150.9, 'hurufnya'), xs[1], 640, 150, 165, arabic='بَ تَ ثَ', ar_size=30, label='tajwid'))
+A(Ellipse(W(150.9, 'tajwidnya'), xs[1], 640, 92, 100, dur=0.5))
+A(Card(W(150.9, 'suaranya'), xs[2], 640, 150, 165, icon='wave', label='suara bagus', isize=70))
+A(Card(W(159.0, 'memahaminya'), xs[3], 640, 150, 165, icon='bulb', label='memahami', isize=70, fill=LYEL))
+for i, tt in enumerate([W(147.4, 'tartil') + 0.4, W(150.9, 'tajwidnya') + 0.3, W(150.9, 'suaranya') + 0.4, W(159.0, 'memahaminya') + 0.4]):
+    A(Mark(tt, 'check', xs[i], 760, 18))
+A(Txt(W(159.0, 'lebih'), 'lebih baik lagi: memahaminya', 360, 850, 28, color=GREEN))
+A(Icon(W(159.0, 'lebih') + 0.5, 'star', 110, 935, 40))
+A(Icon(W(159.0, 'lebih') + 0.6, 'star', 610, 935, 40))
+
+# ===================================================================== 12 isma' nafsih
+scene(162.2, 188.65)
+A(Txt(162.25, 'وَإِسْمَاعِ نَفْسِهِ', 360, 225, 44, dur=0.9, **AR))
+A(Txt(W(163.5, 'memperdengarkan'), 'memperdengarkan bacaan kepada diri sendiri', 360, 305, 24, fn='kr', maxw=560))
+A(Card(W(166.1, 'mendengari') - 0.6, 200, 480, 175, 175, icon='wave', label='suara bacaan', isize=80))
+A(arrow(W(166.1, 'mendengari'), 295, 450, 425, 450, color=GREEN, bend=-35))
+A(Card(W(166.1, 'mendengari'), 520, 480, 175, 175, icon='ear', label='telinga sendiri', isize=80, fill=LGREEN))
+DIM(172.5)
+A(Txt(W(172.5, 'subuh'), 'solat subuh', 160, 600, 22, fn='kr'))
+A(LineArt(W(172.5, 'subuh'), 'moon', 285, 640, 28, dur=0.5))
+A(LineArt(W(172.5, 'rumah') - 0.3, 'house', 170, 745, 75, dur=0.8))
+A(LineArt(W(172.5, 'rumah') + 0.5, 'stick', 170, 770, 30, dur=0.4, color=GREEN))
+A(Txt(W(179.8, 'perlahan-lahan') - 0.3, 'volume suara', 545, 665, 20, fn='kr'))
+A(Bar(W(179.8, 'perlahan-lahan'), 545, 712, 230, 30, 0, 0.28, dur=0.8, col=BLUE))
+A(Txt(W(179.8, 'sayup-sayup'), 'pelan · sayup-sayup', 545, 760, 20, fn='kr', color=BLUE))
+A(Chip(W(179.8, 'terdengar'), 330, 880, 'yang penting: terdengar telinga', fill=LGREEN, col=GREEN, border=GREEN))
+A(Icon(W(179.8, 'telinga'), 'ear', 600, 880, 50))
+A(Txt(W(186.4, 'Itulah'), "= membaca Al-Qur'an", 360, 990, 34, color=GREEN))
+A(underline(W(186.4, 'dinamakan'), 200, 520, 1020))
+
+# ===================================================================== 13 masjid
+scene(188.7, 194.25)
+A(LineArt(188.75, 'mosque', 360, 410, 110, dur=1.0))
+A(Txt(189.5, 'solat di masjid', 360, 555, 26))
+tm_ = W(188.7, 'makmum')
+for i, x in enumerate((150, 220, 290)):
+    A(LineArt(tm_ + i * 0.15, 'stick', x, 725, 45, dur=0.35, snd=(i == 0)))
+A(Txt(tm_ + 0.4, 'makmum', 220, 820, 24, fn='kr'))
+ti_ = tm_ + 0.9
+A(LineArt(ti_, 'stick', 520, 715, 52, dur=0.4, color=GREEN))
+A(Txt(ti_ + 0.3, 'imam', 520, 820, 24, fn='kr', color=GREEN))
+A(Brace(193.0, 110, 600, 860, 'sama: bacaan terdengar diri sendiri', color=GREEN, size=24))
+
+# ===================================================================== 14 shadaqallah
+scene(194.3, 210.95)
+A(Sticky(194.35, 360, 225, 'ketika selesai membaca', rot=-3))
+r1 = A(Txt(194.45, 'إِذَا انْتَهَتْ قِرَاءَتُهُ فَيَقُولُ', 360, 320, 28, dur=1.5, **AR))
+r2 = A(Txt(W(194.3, 'صَدَقَ'), 'صَدَقَ اللَّهُ الْعَظِيمُ', 360, 410, 40, dur=1.4, **AR))
+r3 = A(Txt(W(194.3, 'وَبَلَّغَ'), 'وَبَلَّغَ رَسُولُهُ الْكَرِيمُ', 360, 495, 38, dur=1.4, **AR))
+r4 = A(Txt(W(194.3, 'وَأَنَا'), 'وَأَنَا عَلَى ذَلِكَ مِنَ الشَّاهِدِينَ وَالشَّاكِرِينَ', 360, 580, 33, dur=2.2, **AR))
+r5 = A(Txt(W(194.3, 'وَالْحَمْدُ'), 'وَالْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', 360, 665, 36, dur=1.5, **AR))
+A(Box(194.4, 40, 270, 680, 720, col=NAVY, width=3))
+A(Chip(W(205.3, 'berhenti'), 360, 800, 'dibaca ketika berhenti membaca', fill=WHITE))
+A(Chip(W(207.8, 'tidak'), 360, 875, 'tidak dibaca pun tidak apa', fill=LYEL, border=GOLD))
+A(Mark(W(207.8, 'masalah'), 'check', 360, 960, 26))
+
+# ===================================================================== 15 makna
+scene(211.0, 222.55)
+A(Box(211.0, 40, 205, 680, 380, fill=WHITE))
+q1 = A(Txt(211.1, 'صَدَقَ اللَّهُ الْعَظِيمُ', 360, 265, 40, dur=1.2, **AR))
+A(Txt(212.4, 'Maha Benar Allah Yang Maha Agung', 360, 335, 22, fn='kr'))
+A(Box(213.8, 40, 410, 680, 585, fill=WHITE))
+A(Txt(213.9, 'وَبَلَّغَ رَسُولُهُ الْكَرِيمُ', 360, 470, 38, dur=1.2, **AR))
+A(Txt(W(215.5, 'menyampaikan'), 'dan Rasul-Nya yang mulia telah menyampaikan', 360, 540, 22, fn='kr', maxw=600))
+A(Box(218.4, 40, 615, 680, 790, fill=WHITE))
+A(Txt(218.5, 'وَأَنَا عَلَى ذَلِكَ مِنَ الشَّاهِدِينَ', 360, 675, 36, dur=1.3, **AR))
+A(Txt(W(220.1, 'aku'), 'dan aku termasuk orang yang menyaksikannya', 360, 745, 22, fn='kr', maxw=600))
+A(Icon(W(220.1, 'menyaksikannya'), 'eye', 360, 870, 70))
+
+# ===================================================================== 16 Adab 6 tertib
+scene(222.6, 246.55)
+head(222.6, 6, tt=W(222.6, 'kehormatan-kehormatan'))
+A(Txt(226.7, 'أَنْ يَقْرَأَ الْقُرْآنَ عَلَى التَّرْتِيبِ', 360, 345, 38, dur=1.6, **AR))
+A(Txt(W(229.0, 'menurut'), 'membaca sesuai tertib susunan mushaf', 360, 425, 24, fn='kr'))
+A(Ruler(W(231.8, 'surah'), 360, 540, 620))
+cx_ = [120, 310, 500]
+for i, (kw, nm) in enumerate([('Al-Fatihah', 'Al-Fatihah'), ('Al-Baqarah', 'Al-Baqarah'), ('Imran', "Ali 'Imran")]):
+    tt = W(231.8, kw)
+    A(Txt(tt, str(i + 1), cx_[i], 500, 22, color=GRAY, mode='pop', sfx_on=False))
+    A(Chip(tt, cx_[i], 600, nm, fill=LGREEN, col=GREEN, border=GREEN, size=21))
+    if i:
+        A(arrow(tt - 0.15, cx_[i - 1] + 72, 600, cx_[i] - 72, 600, color=GREEN, dur=0.25, head=10))
+A(Txt(W(231.8, 'seterusnya'), '...', 640, 595, 34, color=GREEN))
+A(Mark(W(231.8, 'seterusnya') + 0.3, 'check', 640, 660, 20))
+DIM(236.2)
+A(Txt(236.3, 'contoh lain:', 360, 720, 24, fn='kr'))
+pos = [(110, 800, 'Hud', 'Hud'), (280, 880, 'Al-Nasr', 'An-Nasr'), (440, 790, 'At-Tin', 'At-Tin'), (580, 900, "Iqra'", "Al-'Alaq")]
+prev = None
+for (x, y, kw, nm) in pos:
+    tt = W(236.2, kw)
+    A(Chip(tt, x, y, nm, size=21))
+    if prev:
+        A(Line(tt - 0.2, [(prev[0], prev[1] + 22), ((prev[0] + x) / 2, max(prev[1], y) + 40), (x, y + 22)], GRAY, 3, 0.3, dashed=True, snd=None))
+    prev = (x, y)
+A(Txt(W(236.2, 'Az-Zaitun'), 'وَالتِّينِ وَالزَّيْتُونِ', 440, 735, 24, **AR))
+A(Txt(W(236.2, 'bismi'), 'اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ', 470, 975, 26, **AR))
+
+# ===================================================================== 17 afdhal
+scene(246.6, 263.35)
+A(Txt(246.65, 'mana yang afdhal?', 360, 205, 34))
+cl = A(Card(W(246.6, 'afdhalnya'), 190, 420, 240, 215, icon='star', label='ikut susunan\nmushaf', isize=80, fill=LGREEN))
+A(Txt(W(246.6, 'aturan'), '1 · 2 · 3', 190, 570, 26, color=GREEN))
+cr = A(Card(W(252.7, 'tidak'), 530, 420, 240, 215, icon='scroll', label='tidak sesuai\nsusunan', isize=80))
+A(Txt(W(252.7, 'susunan'), '3 · 1 · 2', 530, 570, 26, color=GRAY))
+A(Txt(W(252.7, 'apa-apa'), 'tidak apa-apa', 530, 640, 26, color=BLUE, mode='pop'))
+A(Mark(W(252.7, 'apa-apa') + 0.4, 'check', 530, 700, 18))
+A(Stamp(W(259.0, 'afdhalnya'), 190, 680, 'LEBIH AFDHAL', col=GREEN, rot=-7))
+for i in range(3):
+    A(Icon(W(259.0, 'menuruti') + i * 0.15, 'star', 110 + i * 80, 820, 42))
+
+# ===================================================================== 18 Adab 7 tempat mushaf
+scene(263.4, 279.75)
+head(263.4, 7)
+A(Txt(263.55, 'وَأَنْ يَضَعَ الْمُصْحَفَ عَلَى مَكَانٍ طَاهِرٍ مُرْتَفِعٍ أَوْ فِي حِجْرِهِ', 360, 365, 31, maxw=600, dur=3.6, **AR))
+A(Txt(W(269.2, 'meletakkan'), 'letakkan mushaf di tempat suci & tinggi', 360, 470, 24, fn='kr'))
+A(Card(W(269.2, 'tinggi'), 125, 640, 170, 175, icon='up', label='tempat tinggi', isize=70, fill=LGREEN))
+A(Card(W(269.2, 'suci'), 360, 640, 170, 175, icon='sparkle', label='tempat suci', isize=75, fill=LGREEN))
+A(Card(W(269.2, 'lantai') - 0.3, 595, 640, 170, 175, icon='mushaf', label='di lantai', isize=70, fill=LRED))
+A(Mark(W(269.2, 'lantai') + 0.1, 'cross', 595, 630, 44))
+A(Card(W(277.2, 'rehal'), 360, 880, 220, 185, icon='rehal', label='pakai rehal / alas', isize=100))
+A(Mark(W(277.2, 'alasnya'), 'check', 495, 810, 22))
+
+# ===================================================================== 19 mushaf di tempat kotor
+scene(279.8, 296.95)
+A(Card(W(279.8, 'kotor'), 160, 340, 170, 175, icon='paper', label="ayat Al-Qur'an", isize=75))
+A(arrow(W(279.8, 'sampah') - 0.3, 255, 340, 445, 340, color=GRAY, dur=0.35, dashed=True))
+A(Card(W(279.8, 'sampah'), 540, 340, 170, 175, icon='trash', label='tempat sampah', isize=75, fill=LRED))
+A(Icon(W(279.8, 'wajib'), 'hand', 360, 520, 70))
+A(arrow(W(279.8, 'wajib') + 0.1, 520, 440, 410, 510, color=GREEN, bend=-20, dur=0.4))
+A(Txt(W(289.8, 'mengambilnya'), 'WAJIB diambil', 360, 620, 38, color=GREEN))
+A(underline(W(289.8, 'mengambilnya') + 0.4, 220, 500, 650))
+DIM(290.9)
+A(Txt(W(290.9, 'tidak'), 'jika tidak diambil:', 360, 750, 26, fn='kr', color=RED))
+A(Chip(W(293.7, 'haram'), 230, 840, 'haram', fill=LRED, col=RED, border=RED, size=26))
+A(Txt(W(293.7, 'atau'), 'atau', 360, 840, 22, fn='kr'))
+A(Chip(W(293.7, 'kafir'), 490, 840, 'kafir', fill=LRED, col=RED, border=RED, size=26))
+A(Sticky(W(293.7, 'Pendapat'), 360, 940, 'dua pendapat ulama', rot=3))
+A(Icon(W(293.7, 'adabnya'), 'warning', 600, 980, 50))
+
+# ===================================================================== 20 nama Allah, ayat, nabi
+scene(297.0, 316.55)
+A(Txt(297.05, 'jika melihat di tempat tidak elok:', 360, 205, 26, fn='kr'))
+k1 = A(Card(W(297.0, 'Allah'), 125, 380, 185, 175, arabic='اللَّه', ar_size=54, label='nama Allah'))
+k2 = A(Card(W(297.0, 'ayat-ayat'), 360, 380, 185, 175, arabic='آيَات', ar_size=48, label="ayat Al-Qur'an"))
+k3 = A(Card(W(297.0, 'Nabi'), 595, 380, 185, 175, arabic='نَبِيّ وَرَسُول', ar_size=32, label='nama Nabi & Rasul'))
+A(Chip(W(297.0, 'elok'), 360, 535, 'tempat tidak elok', fill=LRED, col=RED, border=RED))
+A(Txt(W(297.0, 'kewajiban'), 'kewajiban kita', 360, 620, 30, color=NAVY))
+for (x0, x1, kw) in [(125, 300, 'mengambilnya'), (360, 360, 'mengambilnya'), (595, 420, 'mengambilnya')]:
+    A(arrow(W(308.1, kw) + (x0 - 125) / 1000, x0, 680, x1, 800, color=GREEN, bend=0, dur=0.4))
+A(Card(W(308.1, 'meletakkan'), 360, 900, 320, 170, icon='sparkle', label='tempat suci & tinggi', isize=70, fill=LGREEN))
+A(Mark(W(308.1, 'tinggi'), 'check', 560, 840, 24))
+
+# ===================================================================== 21 dibakar
+scene(316.6, 321.45)
+A(Card(316.65, 210, 520, 190, 190, icon='torn', label='tidak layak pakai', isize=90))
+A(arrow(W(316.6, 'boleh'), 315, 520, 400, 520, color=ORANGE, dur=0.3))
+A(Card(W(316.6, 'dibakar'), 500, 520, 190, 190, icon='flame', label='boleh dibakar', isize=90))
+A(Txt(W(316.6, 'kertas'), 'kertas yang bertulisan', 360, 700, 28, fn='kr'))
+
+# ===================================================================== 22 Adab 8 air liur
+scene(321.5, 343.45)
+head(321.5, 8)
+A(Txt(W(322.6, 'tidak'), "tidak menyapu Al-Qur'an dengan air liur", 360, 345, 30, maxw=600))
+A(Card(W(322.6, "Al-Qur'an"), 200, 540, 170, 175, icon='mushaf', label='tulisan Al-Qur\'an', isize=75))
+A(Card(W(322.6, 'liur'), 520, 540, 170, 175, icon='drop_r', label='air liur', isize=75, fill=LRED))
+A(Mark(W(322.6, 'liur') + 0.4, 'cross', 520, 530, 40))
+DIM(332.2)
+A(Card(W(332.2, 'papan'), 360, 790, 330, 200, arabic='ا ب ت ث ج', ar_size=46, label='papan tulis'))
+A(Stamp(W(332.2, 'tidak'), 360, 790, 'TIDAK BOLEH', size=32))
+A(Card(W(339.8, 'air'), 250, 1010, 170, 150, icon='drop', label='air yang suci', isize=60, fill=LBLUE))
+A(Mark(W(339.8, 'suci'), 'check', 400, 1010, 26))
+
+# ===================================================================== 23 Adab 9 mushaf rusak
+scene(343.5, 368.85)
+head(343.5, 9)
+A(Txt(W(343.5, 'membakar'), 'mushaf yang sudah rusak', 360, 345, 32))
+A(Card(W(343.5, 'hancur'), 160, 545, 175, 185, icon='torn', label='hancur / lapuk', isize=85))
+A(Txt(W(343.5, 'dibaca'), 'tidak bisa dibaca', 160, 665, 21, fn='kr', color=RED))
+A(Card(W(343.5, 'membakar'), 430, 545, 150, 165, icon='flame', label='dibakar', isize=70))
+A(Card(W(359.9, 'dikubur'), 600, 545, 150, 165, icon='mound', label='dikubur', isize=70))
+A(Ellipse(W(359.9, 'dikubur') + 0.3, 600, 545, 92, 100, dur=0.5))
+DIM(350.5)
+A(Txt(350.6, 'di tempat yang suci, jauh dari:', 360, 735, 24, fn='kr'))
+A(Card(W(350.5, 'terinjak-injak'), 360, 860, 180, 165, icon='foot', label='injakan kaki', isize=70, fill=LRED))
+A(Mark(W(350.5, 'betis'), 'cross', 360, 850, 40))
+for i, kw in enumerate(['lama', 'kabur', 'lapuk']):
+    A(Chip(W(359.9, kw), 150 + i * 210, 1020, 'sudah ' + kw, fill=LYEL, border=GOLD, size=20))
+
+# ===================================================================== 24 Adab 10 hak mata
+scene(368.9, 397.15)
+head(368.9, 10, tt=W(368.9, 'kehormatan'))
+A(Txt(W(372.4, 'mata'), 'memberi hak kedua mata', 360, 345, 32))
+A(Card(W(372.4, 'kedua'), 190, 520, 190, 170, icon='eye', label='kedua mata', isize=80))
+A(arrow(W(372.4, 'memandangi') - 0.2, 290, 520, 430, 520, color=NAVY, dashed=True, dur=0.4))
+A(Card(W(372.4, 'memandangi'), 530, 520, 190, 170, icon='mushaf', label='memandang mushaf', isize=75))
+A(Chip(W(381.4, 'mushaf'), 360, 660, 'lebih baik memakai mushaf', fill=LGREEN, col=GREEN, border=GREEN))
+DIM(386.1)
+A(Card(W(386.1, 'hafal'), 190, 830, 190, 170, icon='brain', label='sudah hafal', isize=80))
+A(Txt(W(386.1, 'namun'), '+', 360, 830, 44, mode='pop'))
+A(Card(W(386.1, 'mushaf'), 530, 830, 190, 170, icon='mushaf', label='tetap lihat mushaf', isize=75, fill=LGREEN))
+A(Icon(W(386.1, 'baik'), 'star', 620, 745, 46))
+A(Stamp(W(393.7, 'hak'), 360, 1010, 'MENUNAIKAN HAK MATA', col=GREEN, size=27, rot=-5))
+
+# ===================================================================== 25 apa sebabnya
+scene(397.2, 415.05)
+A(Txt(397.25, 'Apa sebabnya?', 360, 210, 42, color=RED, mode='pop'))
+A(Card(W(398.0, 'pertama'), 190, 420, 240, 200, icon='eye', label='1. syukur\nnikmat mata', isize=75, fill=LGREEN))
+A(Icon(W(398.0, 'nikmat'), 'heart', 290, 330, 40))
+A(Card(W(400.1, 'kedua'), 530, 420, 240, 200, icon='eye', label='2. menebus\nkesalahan mata', isize=75, fill=LYEL))
+c_a = A(Chip(W(400.1, 'baik'), 530, 580, 'melihat yang tidak baik', fill=LRED, col=RED, border=RED, size=19))
+c_b = A(Chip(W(400.1, 'bermanfaat'), 530, 640, 'yang tidak bermanfaat', fill=LRED, col=RED, border=RED, size=19))
+DIM(410.0)
+A(Card(W(410.0, 'melihat'), 360, 780, 260, 140, icon='mushaf', label="melihat Al-Qur'an", isize=60, fill=WHITE))
+A(arrow(W(410.0, 'maka'), 360, 855, 360, 920, color=GREEN, dur=0.3))
+A(Txt(W(410.0, 'terhapus'), 'kesalahan terhapus', 360, 970, 36, color=GREEN))
+A(strike(W(410.0, 'kesalahan'), 420, 640, 580, color=GREEN))
+A(strike(W(410.0, 'kesalahan') + 0.15, 430, 630, 640, color=GREEN))
+
+# ===================================================================== 26 hadis
+scene(415.1, 429.35)
+A(Txt(415.15, 'سُبْحَانَ اللَّهِ', 360, 215, 44, dur=0.8, **AR))
+A(Box(W(415.9, 'Baginda'), 50, 300, 670, 700, fill=WHITE))
+A(Icon(W(415.9, 'Baginda') + 0.2, 'quote', 105, 345, 46))
+rasul(W(415.9, 'Rasulullah'), 360, 360, 28, extra=' bersabda:')
+A(Txt(W(415.9, 'Paling'), '"Paling afdal ibadah umatku adalah membaca Al-Qur\'an"', 360, 480, 30, maxw=520, dur=2.2))
+for i, (kw, nm, seg) in enumerate([('membaca', 'membaca', 415.9), ('melihat', 'melihat', 426.3), ('memandang-pandang', 'memandang', 426.3)]):
+    A(Chip(W(seg, kw), 160 + i * 200, 630, nm, fill=LGREEN, col=GREEN, border=GREEN))
+A(Sticky(W(415.9, 'bersabda'), 560, 285, 'Hadis', rot=6))
+A(Icon(W(426.3, 'memandang-pandang') + 0.4, 'eye', 360, 800, 70))
+
+# ===================================================================== 27 Adab 11 tafsir sendiri
+scene(429.4, 446.85)
+head(429.4, 11, tt=W(429.4, 'kehormatan'))
+A(Txt(W(432.0, 'menakwil-nakwil'), 'jangan menakwil sendiri', 360, 345, 32))
+A(Card(W(432.0, 'pikirannya'), 190, 550, 190, 180, icon='brain', label='pikiran sendiri', isize=80))
+A(Mark(W(432.0, 'sendiri'), 'cross', 190, 540, 40))
+A(Card(W(439.3, 'nafsunya'), 530, 550, 190, 180, icon='heart', label='nafsu sendiri', isize=75))
+A(Mark(W(439.3, 'sendiri'), 'cross', 530, 540, 40))
+A(Txt(W(442.8, 'memaknai'), "memaknai Al-Qur'an", 360, 740, 30))
+A(Stamp(W(442.8, 'nafsunya'), 360, 840, 'JANGAN', size=38))
+
+# ===================================================================== 28 kenapa - rantai tafsir
+scene(446.9, 469.15)
+A(Txt(446.95, 'Kenapa?', 360, 205, 40, color=RED, mode='pop'))
+A(Txt(W(447.8, 'tafsir'), 'tafsir sudah ada', 360, 285, 30))
+A(Card(W(447.8, 'Rasulullah'), 125, 450, 180, 165, arabic='ﷺ', ar_size=58, label='Rasulullah'))
+A(arrow(W(447.8, 'sahabat') - 0.2, 220, 450, 270, 450, dur=0.2, head=10))
+A(Card(W(447.8, 'sahabat'), 360, 450, 180, 165, icon='people', label='para sahabat', isize=75))
+A(arrow(W(447.8, 'ulama') - 0.2, 455, 450, 505, 450, dur=0.2, head=10))
+A(Card(W(447.8, 'ulama'), 595, 450, 180, 165, icon='book', label='para ulama', isize=75))
+A(Brace(W(447.8, 'terdahulu') - 0.3, 40, 680, 545, 'yang hebat-hebat terdahulu', color=GREEN, size=22))
+DIM(456.8)
+A(Card(W(456.8, 'awam'), 190, 720, 180, 170, icon='person', label='orang awam', isize=80))
+A(arrow(W(456.8, 'berani'), 285, 720, 430, 720, color=RED, dur=0.35))
+A(Card(W(456.8, 'menafsirkan'), 530, 720, 180, 170, icon='brain', label='tafsir sendiri', isize=75, fill=LRED))
+A(Mark(W(456.8, 'pikiran'), 'cross', 530, 710, 40))
+A(Card(W(462.7, 'ancaman'), 360, 950, 330, 150, icon='warning', label='ancaman yang berat', isize=60, fill=LYEL))
+
+# ===================================================================== 29 tafsir al-qurthubi
+scene(469.2, 479.75)
+A(Card(W(469.2, 'kitab'), 330, 400, 260, 220, icon='book', label='kitab tafsir', isize=120))
+A(Sticky(W(469.2, 'Al-Qurthubi'), 555, 300, 'Al-Qurthubi', 'kitab tafsir', rot=6))
+A(Txt(W(469.2, 'sesuka'), 'tidak boleh sesuka hati', 360, 600, 34, color=RED))
+A(Chip(W(469.2, 'sepotong'), 360, 690, 'walau sepotong ayat', fill=LRED, col=RED, border=RED))
+A(Txt(W(469.2, 'apalagi'), 'apalagi lebih!', 360, 780, 32, color=RED, mode='pop'))
+
+# ===================================================================== 30 Adab 12 lagu
+scene(479.8, 495.05)
+head(479.8, 12)
+A(Txt(W(479.8, 'melampau-lampaui'), 'jangan melampaui batas melagukan', 360, 345, 30))
+A(Icon(W(479.8, 'melagu-lagui'), 'music', 360, 430, 50))
+for y in (480, 580):
+    A(Line(W(485.5, 'Berlagu') - 0.3, [(70, y), (640, y)], GRAY, 3, 0.4, dashed=True, snd=None))
+A(Txt(W(485.5, 'Berlagu') - 0.2, 'batas', 670, 530, 20, fn='kr', color=GRAY))
+A(Wave(W(485.5, 'boleh'), 80, 630, 530, 34, 3.5, color=GREEN, dur=0.9))
+A(Txt(W(485.5, 'boleh') + 0.4, 'berlagu: boleh', 200, 625, 24, color=GREEN))
+A(Mark(W(485.5, 'boleh') + 0.9, 'check', 360, 625, 18))
+for y in (720, 820):
+    A(Line(W(488.1, 'Kepanjang-panjangan') - 0.3, [(70, y), (640, y)], GRAY, 3, 0.4, dashed=True, snd=None))
+A(Wave(W(488.1, 'Kepanjang-panjangan'), 80, 630, 770, 85, 2.2, color=RED, dur=1.4))
+A(Txt(W(488.1, 'hurufnya'), 'kelewat panjang', 210, 905, 26, color=RED))
+A(Mark(W(488.1, 'hurufnya') + 0.4, 'cross', 370, 905, 20))
+A(Stamp(W(492.2, 'jangan'), 360, 1015, 'JANGAN LEWAT BATAS', size=28))
+
+# ===================================================================== 31 Adab 13 tulisan
+scene(495.1, 509.65)
+head(495.1, 13, tt=W(495.1, 'kehormatan'))
+A(Txt(W(497.7, 'memperbagus'), "memperbagus tulisan Al-Qur'an", 360, 345, 30))
+A(Box(W(497.7, 'menulis') - 0.3, 230, 470, 690, 630, fill=WHITE))
+A(Txt(W(497.7, 'menulis'), 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 460, 550, 34, dur=1.8, **AR))
+A(Icon(W(497.7, 'menulis') - 0.2, 'pen', 140, 550, 100))
+A(Chip(W(504.0, 'asal-asal'), 170, 760, 'asal-asalan', fill=LRED, col=RED, border=RED))
+A(Mark(W(504.0, 'asal-asal') + 0.4, 'cross', 170, 760, 26))
+A(Chip(W(504.0, 'bagus'), 400, 760, 'bagus', fill=LGREEN, col=GREEN, border=GREEN))
+A(Chip(W(504.0, 'cantik'), 570, 760, 'cantik', fill=LGREEN, col=GREEN, border=GREEN))
+A(Icon(W(504.0, 'cantik') + 0.3, 'sparkle', 485, 870, 70))
+
+# ===================================================================== 32 Adab 14 pasar
+scene(509.7, 525.05)
+head(509.7, 14)
+A(Txt(W(509.7, 'pasar'), 'tidak membaca di pasar', 360, 345, 32))
+A(Card(W(509.7, 'pasar') + 0.2, 360, 555, 270, 225, icon='market', label='pasar · jual beli', isize=120))
+A(Icon(W(509.7, 'jual'), 'coin', 200, 470, 46))
+A(Icon(W(509.7, 'beli'), 'coin', 530, 650, 40))
+A(Mark(W(509.7, 'sesuai'), 'cross', 520, 470, 34))
+A(Txt(W(509.7, 'tempatnya'), 'tidak sesuai tempatnya', 360, 705, 24, fn='kr', color=RED))
+DIM(518.2)
+for i, (kw, ic, lb) in enumerate([('syaitan', 'warning', 'tempat syaitan'), ('ribut', 'wave', 'tempat ribut'), ('bermain', 'people', 'tempat bermain')]):
+    x = 125 + i * 235
+    A(Card(W(518.2, kw), x, 860, 180, 165, icon=ic, label=lb, isize=70, fill=LRED))
+    A(Mark(W(518.2, kw) + 0.4, 'cross', x + 70, 790, 18))
+
+# ===================================================================== 33 Adab 15 khatam
+scene(525.1, 548.65)
+head(525.1, 15, tt=W(525.1, 'terakhir'))
+A(Txt(W(525.1, 'terakhir'), '(terakhir)', 360, 305, 22, fn='kr', color=GRAY))
+A(Txt(W(528.8, 'tamat'), "khatam Al-Qur'an", 360, 375, 32))
+A(Tape(W(528.8, 'tamat'), 90, 640, 455, 'juz 1 ... juz 30', dur=1.4))
+A(Stamp(W(528.8, 'jangan'), 360, 590, 'JANGAN STOP', size=32))
+DIM(539.4)
+A(NumberMorph(W(539.4, 'balik'), 360, 715, 'juz 30', 'juz 1', W(539.4, 'awal'), size=64, new_col=GREEN))
+A(Icon(W(539.4, 'balik'), 'loop', 590, 715, 60))
+A(Txt(W(539.4, 'awal'), 'kembali ke awal', 360, 810, 24, fn='kr', color=GREEN))
+A(Chip(W(539.4, 'Al-Fatihah'), 190, 890, 'Al-Fatihah', fill=LGREEN, col=GREEN, border=GREEN))
+A(arrow(W(539.4, 'dilanjutkan'), 290, 890, 375, 890, color=GREEN, dur=0.3, head=10))
+A(Chip(W(539.4, 'lima'), 505, 890, 'Al-Baqarah 1–5', fill=LGREEN, col=GREEN, border=GREEN))
+A(Txt(W(546.4, 'istirahat'), 'baru istirahat', 330, 1000, 30, color=GREEN))
+A(Mark(W(546.4, 'istirahat') + 0.4, 'check', 470, 1000, 20))
+
+# ===================================================================== 34 hadis & ulama
+scene(548.7, 561.35)
+A(Card(W(548.7, 'tercantum'), 360, 380, 240, 200, icon='scroll', label='hadis', isize=95))
+rasul(W(548.7, 'Rasulullah'), 360, 520, 30)
+DIM(553.7)
+A(Txt(W(553.7, 'ulamak'), 'dikatakan para ulama', 360, 650, 28, fn='kr'))
+A(Icon(W(553.7, 'ulamak') + 0.3, 'book', 360, 745, 80))
+A(Txt(W(553.7, 'kehormatan-kehormatan'), "15 kehormatan Al-Qur'an", 360, 860, 34, color=GREEN))
+A(Ticks(W(553.7, 'kehormatan-kehormatan') + 0.3, 15, cy=960))
+
+# ===================================================================== 35 dua akibat
+scene(561.4, 574.65)
+A(Txt(561.45, "Al-Qur'an bisa...", 360, 205, 36))
+A(Line(561.6, [(360, 270), (360, 870)], LGRAY, 3, 0.5, dashed=True, snd=None))
+A(Card(W(561.4, 'syafaat'), 190, 390, 230, 170, icon='heart', label='membawa syafaat', isize=70, fill=LGREEN))
+A(Card(W(561.4, 'rahmat'), 190, 600, 230, 170, icon='sparkle', label='membawa rahmat', isize=70, fill=LGREEN))
+A(Chip(W(561.4, 'menghormati'), 190, 760, 'jika menghormati', fill=LGREEN, col=GREEN, border=GREEN))
+A(Mark(W(561.4, 'menghormati') + 0.4, 'check', 190, 830, 22))
+A(Card(W(567.5, 'mengutuk'), 530, 390, 230, 170, icon='warning', label='mengutuk kita', isize=70, fill=LRED))
+A(Card(W(567.5, 'celaka'), 530, 600, 230, 170, icon='flame', label='celaka', isize=70, fill=LRED))
+A(Chip(W(567.5, 'tidak'), 530, 760, 'jika tidak menghormati', fill=LRED, col=RED, border=RED, size=20))
+A(Mark(W(567.5, 'menghormati') + 0.4, 'cross', 530, 830, 22))
+
+# ===================================================================== 36 penutup
+scene(574.7, TOTAL)
+A(Txt(574.8, 'الْقُرْآنُ الْكَرِيمُ', 360, 300, 52, dur=1.2, **AR))
+A(Ellipse(W(574.7, 'membaca'), 360, 300, 200, 70, dur=0.6))
+A(Txt(W(574.7, 'kehormatan'), 'sesuai kehormatan', 360, 420, 32))
+A(Txt(W(574.7, 'keagungannya'), 'dan keagungannya', 360, 475, 32, color=GREEN))
+A(Icon(W(574.7, 'keagungannya') + 0.3, 'mushaf', 360, 610, 110))
+DIM(581.6)
+tb_ = W(581.6, 'bertemu')
+A(Txt(tb_, 'sampai jumpa kembali', 360, 700, 36))
+A(LineArt(581.8, 'ground', 360, 925, 320, dur=0.5, snd=False))
+A(LineArt(581.9, 'mountains', 150, 870, 60, dur=0.6))
+A(LineArt(582.2, 'tree', 300, 885, 45, dur=0.4))
+A(LineArt(582.4, 'sun', 600, 800, 40, dur=0.5, fill=YEL))
+A(LineArt(582.6, 'stick', 470, 885, 45, dur=0.4))
+A(Spotlight(tb_ + 0.4, 470, 875, r=58, label='kita'))
+A(Txt(585.45, 'إِنْ شَاءَ اللَّهُ', 360, 1005, 42, dur=0.7, **AR))
+
+register_sub_sfx()
