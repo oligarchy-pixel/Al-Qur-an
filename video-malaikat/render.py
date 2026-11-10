@@ -82,10 +82,10 @@ TOTAL = t + OUTRO
 NFRAMES = int(round(TOTAL * FPS))
 
 # ---------------- geometry ----------------
-CX, CY = 540, 905
-R_OUT = 448
-R_RING_IN = 226
-R_INNER = 206
+CX, CY = 540, 795
+R_OUT = 385
+R_RING_IN = 196
+R_INNER = 178
 STEP = 360.0 / N
 
 def ease(x):
@@ -141,17 +141,17 @@ def make_static_wheel_deco():
     pts = []
     for k in range(24):
         a = math.radians(k * 15 - 90)
-        r = 190 if k % 2 == 0 else 132
+        r = 162 if k % 2 == 0 else 112
         pts.append((CX + r * math.cos(a), CY + r * math.sin(a)))
     d.polygon(pts, outline=(52, 48, 40, 255))
     for k in range(12):
         a1 = math.radians(k * 30 - 90); a2 = math.radians(k * 30 + 150 - 90)
-        d.line((CX + 190 * math.cos(a1), CY + 190 * math.sin(a1), CX + 190 * math.cos(a2), CY + 190 * math.sin(a2)),
+        d.line((CX + 162 * math.cos(a1), CY + 162 * math.sin(a1), CX + 162 * math.cos(a2), CY + 162 * math.sin(a2)),
                fill=(34, 32, 28, 255), width=1)
-    d.ellipse((CX - 132, CY - 132, CX + 132, CY + 132), outline=(40, 38, 34, 255))
+    d.ellipse((CX - 112, CY - 112, CX + 112, CY + 112), outline=(40, 38, 34, 255))
     # center glow
     gl = Image.new("L", (W, H), 0)
-    ImageDraw.Draw(gl).ellipse((CX - 170, CY - 170, CX + 170, CY + 170), fill=70)
+    ImageDraw.Draw(gl).ellipse((CX - 145, CY - 145, CX + 145, CY + 145), fill=70)
     gl = gl.filter(ImageFilter.GaussianBlur(70))
     glow = Image.new("RGBA", (W, H), (120, 92, 40, 0)); glow.putalpha(gl)
     L = Image.alpha_composite(L, glow)
@@ -204,7 +204,7 @@ def make_wheel(cur):
         if cur >= N or i < cur: col = GOLD + (235,)
         elif i == cur: col = GOLD_L + (255,)
         else: col = GREY + (170,)
-        fs = 25
+        fs = 23
         while F(MONT, fs).getlength(name) > R_OUT - 46 - R_RING_IN - 8: fs -= 1
         im = label_img(name, col, F(MONT, fs))
         th = i * STEP
@@ -282,18 +282,18 @@ def build():
     HEADER = layer(lambda d: (
         draw_spaced(d, (540, 40), "AL-MALA'IKAH", F(MONO, 44), WHITE, 14),
         draw_spaced(d, (540, 92), "NAMA-NAMA MALAIKAT & TUGASNYA", F(MONO, 22), GOLD, 7)), h=130)
-    fname = F(LORA_B, 76); fepi = F(LORA_I, 44); ftask = F(LORA_R, 33); fmono = F(MONO, 30)
+    fname = F(LORA_B, 80); fepi = F(LORA_I, 46); ftask = F(LORA_R, 37); fmono = F(MONO, 27)
     flab = F(MONO, 21)
     dd = ImageDraw.Draw(Image.new("L", (1, 1)))
     ANG_L = []
     for i, (lat, ar, epi, task, sec) in enumerate(ANGELS):
-        arf = fit_arabic([ar], 320, 116)
+        arf = fit_arabic([ar], 280, 104)
         arl = gold_text_layer([ar], arf)
         cnt = layer(lambda d, i=i: draw_spaced(d, (540, 30), f"{i+1:02d} / {N}", fmono, (190, 186, 178), 10), h=60)
         nm = layer(lambda d: d.text((540, 55), lat, font=fname, fill=WHITE, anchor="mm"), h=110)
         ep = layer(lambda d: d.text((540, 35), epi, font=fepi, fill=GOLD, anchor="mm"), h=75)
-        tl = wrap(task, ftask, 900, dd)
-        tk = text_block(tl, ftask, (205, 202, 195), 47)
+        tl = wrap(task, ftask, 920, dd)
+        tk = text_block(tl, ftask, (222, 219, 212), 52)
         lab = "BAGIAN 1 · 10 MALAIKAT WAJIB DIIMANI" if sec == 1 else "BAGIAN 2 · KELOMPOK MALAIKAT LAINNYA"
         lb = layer(lambda d: draw_spaced(d, (540, 20), lab, flab, (120, 118, 112), 5), h=40)
         ANG_L.append(dict(ar=arl, cnt=cnt, nm=nm, ep=ep, tk=tk, lb=lb))
@@ -310,7 +310,7 @@ def build():
               F(LORA_I, 44), 920, dd)
     oar = ["كُلٌّ آمَنَ بِاللَّهِ", "وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ"]
     OUTRO_L = dict(
-        ar=gold_text_layer(oar, fit_arabic(oar, 340, 64), line_gap=1.0),
+        ar=gold_text_layer(oar, fit_arabic(oar, 300, 58), line_gap=1.0),
         q=text_block(oq, F(LORA_I, 44), WHITE, 58),
         s=layer(lambda d: draw_spaced(d, (540, 20), "QS. AL-BAQARAH 2:285", flab, GOLD, 6), h=40),
         c=layer(lambda d: draw_spaced(d, (540, 20), "SIMPAN & BAGIKAN SEBAGAI PENGINGAT", flab, TEAL, 5), h=40),
@@ -335,11 +335,11 @@ def fade(t, t0, dur=0.6):
 
 def progress_bar(frame, frac, t):
     d = ImageDraw.Draw(frame)
-    x0, x1, y0, y1 = 140, 940, 300, 340
+    x0, x1, y0, y1 = 140, 940, 322, 358
     fl = F(MONO, 22)
-    draw_spaced(d, (x0, 282), "IMAN KEPADA MALAIKAT", fl, (200, 198, 190), 4, anchor="l")
+    draw_spaced(d, (x0, 304), "IMAN KEPADA MALAIKAT", fl, (200, 198, 190), 4, anchor="l")
     pct = f"{int(round(frac * 100))}%"
-    draw_spaced(d, (x1, 282), pct, fl, TEAL, 2, anchor="r")
+    draw_spaced(d, (x1, 304), pct, fl, TEAL, 2, anchor="r")
     d.rounded_rectangle((x0, y0, x1, y1), radius=7, outline=(80, 80, 82), width=2, fill=(10, 11, 13))
     segs = N
     sw = (x1 - x0 - 10) / segs
@@ -377,7 +377,7 @@ def render(fi):
         if b > 150:
             r = 1.0 + (b - 150) / 120
             d.ellipse((x - r, y - r, x + r, y + r), fill=(b, b, b, 255))
-    frame.alpha_composite(HEADER, (0, 150))
+    frame.alpha_composite(HEADER, (0, 152))
     st = state_at(t)
     # progress
     if st < 0: frac = 0.0
@@ -390,33 +390,33 @@ def render(fi):
     wl = WHEELS[wk].rotate(wheel_angle(t), resample=Image.BICUBIC)
     frame.alpha_composite(wl, (int(CX - WC), int(CY - WC)))
     frame.alpha_composite(PTR)
-    BOT = CY + R_OUT + 32
+    BOT = CY + R_OUT + 30
     if st < 0:
         a = fade(t, 0.3, 0.8) * (1 - fade(t, INTRO - 0.5, 0.5))
         put_c(frame, INTRO_L["c"], CX, CY, a)
         put(frame, INTRO_L["q"], CX, BOT + 40, fade(t, 2.0, 0.8) * (1 - fade(t, INTRO - 0.5, 0.5)), dy=(1 - fade(t, 2.0, 0.8)) * 20)
         put(frame, INTRO_L["s"], CX, BOT + 120, fade(t, 2.6, 0.8) * (1 - fade(t, INTRO - 0.5, 0.5)))
-        put(frame, INTRO_L["k"], CX, BOT + 420, fade(t, 3.0, 0.8) * (1 - fade(t, INTRO - 0.5, 0.5)))
+        put(frame, INTRO_L["k"], CX, 1660, fade(t, 3.0, 0.8) * (1 - fade(t, INTRO - 0.5, 0.5)))
     elif st < N:
         L = ANG_L[st]; t0 = starts[st]; t1 = t0 + durs[st]
         out = 1 - fade(t, t1 - 0.35, 0.35)
         a1 = fade(t, t0 + 0.25, 0.5) * out
-        put_c(frame, L["ar"], CX, CY - 22, a1, 0.94 + 0.06 * fade(t, t0 + 0.25, 0.7))
-        put_c(frame, L["cnt"], CX, CY + 100, a1)
+        put_c(frame, L["ar"], CX, CY - 18, a1, 0.94 + 0.06 * fade(t, t0 + 0.25, 0.7))
+        put_c(frame, L["cnt"], CX, CY + 86, a1)
         a2 = fade(t, t0 + 0.45, 0.5) * out
         put(frame, L["nm"], CX, BOT, a2, dy=(1 - a2) * 16 if out > .99 else 0)
         a3 = fade(t, t0 + 0.65, 0.5) * out
-        put(frame, L["ep"], CX, BOT + 95, a3)
+        put(frame, L["ep"], CX, BOT + 92, a3)
         a4 = fade(t, t0 + 1.0, 0.7) * out
-        put(frame, L["tk"], CX, BOT + 180, a4, dy=(1 - fade(t, t0 + 1.0, 0.7)) * 14)
-        put(frame, L["lb"], CX, 1835, a2)
+        put(frame, L["tk"], CX, BOT + 168, a4, dy=(1 - fade(t, t0 + 1.0, 0.7)) * 14)
+        put(frame, L["lb"], CX, BOT + 178 + L["tk"].height, a2)
     else:
         t0 = OUTRO_START
         a = fade(t, t0 + 0.3, 0.9)
         put_c(frame, OUTRO_L["ar"], CX, CY, a, 0.95 + 0.05 * a)
         put(frame, OUTRO_L["q"], CX, BOT + 20, fade(t, t0 + 1.4, 0.9), dy=(1 - fade(t, t0 + 1.4, 0.9)) * 18)
         put(frame, OUTRO_L["s"], CX, BOT + 30 + OUTRO_L["q"].height, fade(t, t0 + 2.2, 0.8))
-        put(frame, OUTRO_L["c"], CX, 1835, fade(t, t0 + 3.2, 0.8))
+        put(frame, OUTRO_L["c"], CX, 1660, fade(t, t0 + 3.2, 0.8))
     # global fade in/out
     g = min(fade(t, 0, 0.6), 1 - fade(t, TOTAL - 0.8, 0.8))
     rgb = frame.convert("RGB")
@@ -436,66 +436,51 @@ def worker(args):
     p.stdin.close(); p.wait()
     return out
 
-# ---------------- audio ----------------
+# ---------------- audio (SFX meniru referensi) ----------------
 def make_audio(path):
     sr = 44100
-    n = int(TOTAL * sr) + sr
+    n = int(TOTAL * sr)
     tt = np.arange(n) / sr
     out = np.zeros(n, np.float64)
-    def note(f): return 440.0 * 2 ** ((f - 69) / 12)
-    # slow pad chord progression (D minor-ish, calm)
-    chords = [[50, 57, 62, 65, 69], [46, 53, 58, 62, 65], [48, 55, 60, 64, 67], [45, 52, 57, 61, 64]]
-    seg = 12.0
     rng = np.random.default_rng(3)
-    for ci in range(int(TOTAL / seg) + 2):
-        ch = chords[ci % 4]; s0 = ci * seg - 2.0
-        i0 = max(0, int(s0 * sr)); i1 = min(n, int((s0 + seg + 4.0) * sr))
-        if i1 <= i0: continue
-        lt = tt[i0:i1] - s0
-        env = np.clip(lt / 3.0, 0, 1) * np.clip((seg + 4.0 - lt) / 3.0, 0, 1)
-        env = env ** 1.5
-        for m in ch:
-            f = note(m)
-            for det in (-0.12, 0.0, 0.12):
-                ph = rng.uniform(0, 6.28)
-                out[i0:i1] += 0.02 * env * np.sin(2 * np.pi * f * (1 + det / 100) * lt + ph) * (1 + 0.3 * np.sin(2 * np.pi * 0.13 * lt))
-                out[i0:i1] += 0.006 * env * np.sin(2 * np.pi * 2 * f * lt + ph)
-    # sub drone
-    out += 0.03 * np.sin(2 * np.pi * note(38) * tt) * np.clip(tt / 4, 0, 1)
-    # chimes at each angel
-    def chime(t0, base, amp=0.16):
-        i0 = int(t0 * sr); L = int(4.5 * sr); lt = np.arange(L) / sr
-        s = np.zeros(L)
-        for h, a, dk in ((1, 1.0, 1.6), (2.76, 0.35, 2.6), (5.4, 0.15, 4.0), (2.0, 0.25, 2.0)):
-            s += a * np.sin(2 * np.pi * base * h * lt) * np.exp(-lt * dk)
-        s *= np.clip(lt / 0.005, 0, 1)
-        e = min(n, i0 + L); out[i0:e] += amp * s[:e - i0]
-    scale = [74, 77, 79, 81, 84, 81, 79, 77]
-    chime(0.4, note(62), 0.12)
-    for i, st in enumerate(starts):
-        chime(st + 0.05, note(scale[i % len(scale)]), 0.13 if i else 0.15)
-    chime(OUTRO_START + 0.1, note(74), 0.16); chime(OUTRO_START + 0.4, note(81), 0.10)
-    # simple reverb: feedback delays
-    rev = np.zeros_like(out)
-    for dl, g in ((0.031, 0.5), (0.047, 0.45), (0.071, 0.4), (0.113, 0.35), (0.173, 0.3)):
-        k = int(dl * sr); y = out.copy()
-        for _ in range(6):
-            y = np.concatenate([np.zeros(k), y[:-k]]) * g
-            rev += y
-    out = out + 0.35 * rev
-    out = out[:int(TOTAL * sr)]
-    fin = np.clip(np.arange(len(out)) / (1.0 * sr), 0, 1) * np.clip((len(out) - np.arange(len(out))) / (2.5 * sr), 0, 1)
-    out *= fin
-    out = out / (np.abs(out).max() + 1e-9) * 0.8
-    st = np.stack([out, np.roll(out, 300)], 1)
+    # 1) dengung bass A1 (55 Hz) + harmonik 110/165 seperti referensi
+    fade_in = np.clip(tt / 2.5, 0, 1)
+    lfo = 1 + 0.08 * np.sin(2 * np.pi * 0.07 * tt)
+    out += fade_in * lfo * (0.30 * np.sin(2 * np.pi * 55 * tt) + 0.11 * np.sin(2 * np.pi * 110 * tt + 1.0)
+                            + 0.06 * np.sin(2 * np.pi * 165 * tt + 2.0) + 0.012 * np.sin(2 * np.pi * 220 * tt))
+    # 2) pad lembut A minor (nada D3, E4, A4, B4, D5, E5 seperti spektrum referensi), sangat pelan
+    pad_notes = [146.8, 220.0, 329.6, 440.0, 493.9, 587.3, 659.3]
+    for k, f in enumerate(pad_notes):
+        env = 0.5 + 0.5 * np.sin(2 * np.pi * (0.021 + 0.007 * k) * tt + k * 1.7)
+        out += 0.010 * fade_in * env * (np.sin(2 * np.pi * f * tt + k) + 0.3 * np.sin(2 * np.pi * f * 1.003 * tt))
+    # 3) "tik" per nama: 1800 Hz + 3400 Hz, peluruhan ~11 ms, plus klik transien
+    L = int(0.12 * sr); lt = np.arange(L) / sr
+    tick = (1.0 * np.sin(2 * np.pi * 1800 * lt) + 0.5 * np.sin(2 * np.pi * 3400 * lt)) * np.exp(-lt / 0.011)
+    click = rng.standard_normal(L) * np.exp(-lt / 0.0012) * 0.35
+    tick = (tick + click) * np.clip(lt / 0.0004, 0, 1)
+    def add(sig, t0, g):
+        i0 = int(t0 * sr); e = min(n, i0 + len(sig))
+        if i0 < n: out[i0:e] += g * sig[:e - i0]
+    for st in starts:
+        add(tick, st + 0.02, 0.42)
+    # 4) nada "selesai" C5 523 Hz (+ harmonik 2,3,4) di awal penutup, ~1 detik
+    L2 = int(1.6 * sr); lt2 = np.arange(L2) / sr
+    tone = sum(a * np.sin(2 * np.pi * 523.25 * h * lt2) for h, a in ((1, 1.0), (2, 0.45), (3, 0.18), (4, 0.07)))
+    tone *= np.clip(lt2 / 0.01, 0, 1) * np.exp(-lt2 / 0.9) * np.clip((1.6 - lt2) / 0.25, 0, 1)
+    add(tone, OUTRO_START + 0.05, 0.22)
+    out *= np.clip((n - np.arange(n)) / (2.5 * sr), 0, 1)
+    out = out / (np.abs(out).max() + 1e-9) * 0.89
+    st_ = np.stack([out, out], 1)
     with wave.open(path, "wb") as w:
         w.setnchannels(2); w.setsampwidth(2); w.setframerate(sr)
-        w.writeframes((st * 32767).astype(np.int16).tobytes())
+        w.writeframes((st_ * 32767).astype(np.int16).tobytes())
 
 if __name__ == "__main__":
     mode = sys.argv[1]
     outdir = os.path.join(S, "out"); os.makedirs(outdir, exist_ok=True)
-    if mode == "still":
+    if mode == "audio":
+        make_audio(os.path.join(outdir, "audio.wav"))
+    elif mode == "still":
         build()
         for tt_ in map(float, sys.argv[2:]):
             render(int(tt_ * FPS)).save(os.path.join(outdir, f"still_{tt_:06.1f}.png"))
