@@ -449,16 +449,7 @@ def make_audio(path):
     tt = np.arange(n) / sr
     out = np.zeros(n, np.float64)
     rng = np.random.default_rng(3)
-    # 1) dengung bass A1 (55 Hz) + harmonik 110/165 seperti referensi
-    fade_in = np.clip(tt / 2.5, 0, 1)
-    lfo = 1 + 0.08 * np.sin(2 * np.pi * 0.07 * tt)
-    out += fade_in * lfo * (0.30 * np.sin(2 * np.pi * 55 * tt) + 0.11 * np.sin(2 * np.pi * 110 * tt + 1.0)
-                            + 0.06 * np.sin(2 * np.pi * 165 * tt + 2.0) + 0.012 * np.sin(2 * np.pi * 220 * tt))
-    # 2) pad lembut A minor (nada D3, E4, A4, B4, D5, E5 seperti spektrum referensi), sangat pelan
-    pad_notes = [146.8, 220.0, 329.6, 440.0, 493.9, 587.3, 659.3]
-    for k, f in enumerate(pad_notes):
-        env = 0.5 + 0.5 * np.sin(2 * np.pi * (0.021 + 0.007 * k) * tt + k * 1.7)
-        out += 0.010 * fade_in * env * (np.sin(2 * np.pi * f * tt + k) + 0.3 * np.sin(2 * np.pi * f * 1.003 * tt))
+    # dengung & pad dihapus: hanya bunyi ting
     # 3) "tik" per nama: 1800 Hz + 3400 Hz, peluruhan ~11 ms, plus klik transien
     L = int(0.12 * sr); lt = np.arange(L) / sr
     tick = (1.0 * np.sin(2 * np.pi * 1800 * lt) + 0.5 * np.sin(2 * np.pi * 3400 * lt)) * np.exp(-lt / 0.011)
