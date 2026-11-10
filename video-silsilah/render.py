@@ -27,7 +27,7 @@ WHITE = (240, 238, 232)
 # (latin, arabic, subtitle, catatan, bagian)
 ITEMS = [
     ("Baginda Rasulullah shalallahu alaihi wasallam (Muhammad)", "مُحَمَّدٌ\nصَلَّى اللهُ عَلَيْهِ وَسَلَّمَ", "", "Nama lengkap: Muhammad bin Abdullah bin Abdul Mutthalib.", 2),
-    ("Abdullah", "عَبْدُ اللهِ", "Ayah Rasulullah", "Wafat saat Nabi shalallahu alaihi wasallam masih di dalam kandungan.", 2),
+    ("Abdullah", "عَبْدُ اللهِ", "Ayah Baginda Rasulullah shalallahu alaihi wasallam", "Wafat saat Baginda Rasulullah shalallahu alaihi wasallam masih di dalam kandungan.", 2),
     ("Abdul Mutthalib", "عَبْدُ الْمُطَّلِبِ", "Kakek · nama asli Syaibah", "", 2),
     ("Hasyim", "هَاشِمٌ", "Nama asli Amr", "", 2),
     ("Abdu Manaf", "عَبْدُ مَنَافٍ", "Nama asli Al-Mughirah", "", 2),
@@ -55,32 +55,32 @@ ITEMS = [
     ("Ya'rub", "يَعْرُبُ", "", "", 3),
     ("Yasyjub", "يَشْجُبُ", "", "", 3),
     ("Nabit", "نَابِتٌ", "", "", 3),
-    ("Ismail", "إِسْمَاعِيلُ", "Nabi Ismail alaihissalam", "Nabi shalallahu alaihi wasallam adalah keturunan Ibrahim melalui Ismail.", 3),
-    ("Ibrahim", "إِبْرَاهِيمُ", "Nabi Ibrahim alaihissalam", "Khalilullah, kekasih Allah.", 3),
+    ("Nabi Ismail", "إِسْمَاعِيلُ\nعَلَيْهِ السَّلَامُ", "alaihissalam", "Baginda Rasulullah shalallahu alaihi wasallam adalah keturunan Nabi Ibrahim alaihissalam melalui Nabi Ismail alaihissalam.", 3),
+    ("Nabi Ibrahim", "إِبْرَاهِيمُ\nعَلَيْهِ السَّلَامُ", "alaihissalam", "Khalilullah, kekasih Allah.", 3),
     ("Tarah", "تَارَحُ", "Dikenal juga Azar", "", 4),
     ("Nahur", "نَاحُورُ", "", "", 4),
     ("Sarug", "سَارُوغُ", "", "", 4),
     ("Ra'u", "رَاعُو", "", "", 4),
     ("Falij", "فَالِغُ", "", "", 4),
-    ("Abir", "عَابِرُ", "Nabi Hud alaihissalam", "", 4),
+    ("Abir", "عَابِرُ\nعَلَيْهِ السَّلَامُ", "Nabi Hud alaihissalam", "", 4),
     ("Syalih", "شَالِخُ", "", "", 4),
     ("Arfakhsyad", "أَرْفَخْشَذُ", "", "", 4),
     ("Sam", "سَامٌ", "", "", 4),
-    ("Nuh", "نُوحٌ", "Nabi Nuh alaihissalam", "", 4),
+    ("Nabi Nuh", "نُوحٌ\nعَلَيْهِ السَّلَامُ", "alaihissalam", "", 4),
     ("Lamik", "لَامَكُ", "", "", 4),
     ("Matusyalakh", "مَتُوشَلَخُ", "", "", 4),
-    ("Idris", "إِدْرِيسُ", "Nabi Idris alaihissalam · Akhnukh", "", 4),
+    ("Nabi Idris", "إِدْرِيسُ\nعَلَيْهِ السَّلَامُ", "alaihissalam · dikenal juga Akhnukh", "", 4),
     ("Yarid", "يَرْدُ", "", "", 4),
     ("Mahlail", "مَهْلَائِيلُ", "", "", 4),
     ("Qainan", "قَيْنَانُ", "", "", 4),
     ("Anusy", "أَنُوشُ", "", "", 4),
-    ("Syits", "شِيثٌ", "Nabi Syits alaihissalam", "", 4),
-    ("Adam", "آدَمُ", "Nabi Adam alaihissalam", "Bapak seluruh umat manusia.", 4),
+    ("Nabi Syits", "شِيثٌ\nعَلَيْهِ السَّلَامُ", "alaihissalam", "", 4),
+    ("Nabi Adam", "آدَمُ\nعَلَيْهِ السَّلَامُ", "alaihissalam", "Bapak seluruh umat manusia.", 4),
 ]
 N = len(ITEMS)
 SECTION_LABEL = {2: "BAGIAN 2 · AYAH HINGGA ADNAN · DISEPAKATI ULAMA",
                  3: "BAGIAN 3 · ADNAN HINGGA NABI IBRAHIM ALAIHISSALAM",
-                 4: "BAGIAN 4 · NABI IBRAHIM HINGGA NABI ADAM ALAIHIMASSALAM"}
+                 4: "BAGIAN 4 · NABI IBRAHIM ALAIHISSALAM HINGGA NABI ADAM ALAIHISSALAM"}
 SEC_COL = {2: TEAL, 3: (226, 200, 120), 4: (240, 226, 196)}
 
 FAMILY = [("AYAH", "Abdullah bin Abdul Mutthalib"), ("IBU", "Aminah binti Wahb"),
@@ -227,7 +227,7 @@ def make_wheel(cur):
     d.ellipse((WC - (R_OUT - 34), WC - (R_OUT - 34), WC + (R_OUT - 34), WC + (R_OUT - 34)), outline=(40, 40, 40, 255), width=1)
     d.ellipse((WC - R_RING_IN + 8, WC - R_RING_IN + 8, WC + R_RING_IN - 8, WC + R_RING_IN - 8), outline=(45, 44, 42, 255), width=1)
     for i, a_ in enumerate(ITEMS):
-        name = "Muhammad" if i == 0 else a_[0]
+        name = "Baginda Rasulullah" if i == 0 else a_[0]
         if cur >= N or i < cur: col = GOLD + (235,)
         elif i == cur: col = GOLD_L + (255,)
         else: col = GREY + (170,)
@@ -313,7 +313,8 @@ def build():
     WHEELS = {c: make_wheel(c) for c in range(-1, N + 1)}
     HEADER = layer(lambda d: (
         draw_spaced(d, (540, 40), "NASAB AN-NABI", F(MONO, 44), WHITE, 14),
-        draw_spaced(d, (540, 92), "SILSILAH BAGINDA RASULULLAH HINGGA NABI ADAM ALAIHISSALAM", F(MONO, 18), GOLD, 3)), h=130)
+        draw_spaced(d, (540, 86), "SILSILAH BAGINDA RASULULLAH SHALALLAHU ALAIHI WASALLAM", F(MONO, 18), GOLD, 3),
+        draw_spaced(d, (540, 112), "HINGGA NABI ADAM ALAIHISSALAM", F(MONO, 18), GOLD, 3)), h=130)
     fname = F(LORA_B, 80); fepi = F(LORA_I, 46); ftask = F(LORA_R, 37); fmono = F(MONO, 27)
     flab = F(MONO, 20)
     dd = ImageDraw.Draw(Image.new("L", (1, 1)))
@@ -325,7 +326,7 @@ def build():
             l2 = gold_text_layer([arlines[1]], fit_arabic([arlines[1]], 290, 46))
             b1 = l1.getchannel("A").point(lambda v: 255 if v > 120 else 0).getbbox()
             b2 = l2.getchannel("A").point(lambda v: 255 if v > 120 else 0).getbbox()
-            gap = 10
+            gap = 4
             w_ = max(l1.width, l2.width)
             y2 = b1[3] + gap - b2[1]
             arl = Image.new("RGBA", (w_, y2 + l2.height), (0, 0, 0, 0))
@@ -346,16 +347,26 @@ def build():
             d.text((540, 55), lat, font=fname, fill=WHITE, anchor="mm"),
             prefix and d.text((540 - fname.getlength(lat) / 2 - 14, 62), prefix.strip(), font=F(LORA_I, 34), fill=(150, 146, 138), anchor="rm")), h=110)
         sub_ = "" if i == 0 else (sub or f"Leluhur ke-{i}")
-        ep = layer(lambda d, sub_=sub_: d.text((540, 35), sub_, font=fepi, fill=GOLD, anchor="mm"), h=75) if sub_ else None
+        fe = fepi
+        if sub_:
+            fsz = 46
+            while F(LORA_I, fsz).getlength(sub_) > 980: fsz -= 2
+            fe = F(LORA_I, fsz)
+        ep = layer(lambda d, sub_=sub_, fe=fe: d.text((540, 35), sub_, font=fe, fill=GOLD, anchor="mm"), h=75) if sub_ else None
         tl = wrap(note, ftask, 920, dd) if note else []
         tk = text_block(tl, ftask, (222, 219, 212), 52) if tl else Image.new("RGBA", (W, 4), (0, 0, 0, 0))
-        lb = layer(lambda d, sec=sec: draw_spaced(d, (540, 20), SECTION_LABEL[sec], flab, (125, 122, 116), 4), h=40)
+        lfs, ltr = 20, 4
+        while True:
+            fl_ = F(MONO, lfs)
+            if sum(dd.textlength(c, font=fl_) for c in SECTION_LABEL[sec]) + ltr * len(SECTION_LABEL[sec]) <= 1000 or lfs <= 14: break
+            lfs -= 1; ltr = 3 if lfs < 19 else ltr
+        lb = layer(lambda d, sec=sec, fl_=fl_, ltr=ltr: draw_spaced(d, (540, 20), SECTION_LABEL[sec], fl_, (125, 122, 116), ltr), h=40)
         ANG_L.append(dict(ar=arl, cnt=cnt, nm=nm, ep=ep, tk=tk, lb=lb))
     # pembuka
     fi = F(LORA_B, 50)
-    hq = wrap("\u201cSesungguhnya Allah memilih Kinanah dari keturunan Ismail, memilih Quraisy dari Kinanah, "
+    hq = wrap("\u201cSesungguhnya Allah memilih Kinanah dari keturunan Ismail alaihissalam, memilih Quraisy dari Kinanah, "
               "memilih Bani Hasyim dari Quraisy, dan memilihku dari Bani Hasyim.\u201d", F(LORA_I, 40), 900, dd)
-    fam_ar = ["مُحَمَّدُ بْنُ عَبْدِ اللهِ", "بْنِ عَبْدِ الْمُطَّلِبِ"]
+    fam_ar = ["مُحَمَّدُ بْنُ عَبْدِ اللهِ", "بْنِ عَبْدِ الْمُطَّلِبِ", "صَلَّى اللهُ عَلَيْهِ وَسَلَّمَ"]
     flv = F(LORA_R, 34)
     rows = []
     for lab_, val in FAMILY:
@@ -369,13 +380,13 @@ def build():
         q=text_block(hq, F(LORA_I, 40), GOLD, 54),
         s=layer(lambda d: draw_spaced(d, (540, 20), "HADIS RIWAYAT MUSLIM NOMOR 2276", flab, (140, 136, 128), 6), h=40),
         k=layer(lambda d: draw_spaced(d, (540, 20), "BAGIAN 1 · KELUARGA INTI", flab, (125, 122, 116), 5), h=40),
-        far=gold_text_layer(fam_ar, fit_arabic(fam_ar, 300, 60), line_gap=1.0),
+        far=gold_text_layer(fam_ar, fit_arabic(fam_ar, 300, 52), line_gap=0.95),
         ft=layer(lambda d: d.text((540, 45), "Keluarga Inti", font=F(LORA_B, 64), fill=WHITE, anchor="mm"), h=90),
         rows=rows,
         fn=text_block(wrap("Ayah wafat saat Baginda Rasulullah shalallahu alaihi wasallam masih dalam kandungan, ibu wafat saat beliau berusia 6 tahun.",
                            F(LORA_I, 30), 900, dd), F(LORA_I, 30), (200, 196, 186), 40),
     )
-    oq = wrap("\u201cSesungguhnya Allah dan para malaikat-Nya bershalawat untuk Nabi.\u201d", F(LORA_I, 44), 920, dd)
+    oq = wrap("\u201cSesungguhnya Allah dan para malaikat-Nya bershalawat untuk Nabi (Baginda Rasulullah shalallahu alaihi wasallam).\u201d", F(LORA_I, 44), 920, dd)
     oar = ["إِنَّ اللَّهَ وَمَلَائِكَتَهُ", "يُصَلُّونَ عَلَى النَّبِيِّ"]
     OUTRO_L = dict(
         ar=gold_text_layer(oar, fit_arabic(oar, 300, 58), line_gap=1.0),
@@ -479,7 +490,7 @@ def render(fi):
         L = ANG_L[st]; t0 = starts[st]; t1 = t0 + durs[st]
         out = 1 - fade(t, t1 - 0.25, 0.25)
         a1 = fade(t, t0 + 0.15, 0.35) * out
-        put_c(frame, L["ar"], CX, CY - (34 if st == 0 else 18), a1, 0.94 + 0.06 * fade(t, t0 + 0.15, 0.5))
+        put_c(frame, L["ar"], CX, CY - (46 if "\n" in ITEMS[st][1] else 18), a1, 0.94 + 0.06 * fade(t, t0 + 0.15, 0.5))
         put_c(frame, L["cnt"], CX, CY + 86, a1)
         a2 = fade(t, t0 + 0.25, 0.35) * out
         put(frame, L["nm"], CX, BOT, a2, dy=(1 - a2) * 16 if out > .99 else 0)
