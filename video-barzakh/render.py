@@ -116,6 +116,13 @@ def person(d, x, yf, h=120, phase=0.0, pose="stand", facing=-1, col=SIL):
             ex = x + facing * h * 0.12 + s * h * 0.04
             d.line((x + s * sx_ * 0.5, ys + 6, ex, ys + h * 0.12), fill=col, width=aw)
             d.line((ex, ys + h * 0.12, ex + facing * h * 0.05, ys - h * 0.02), fill=col, width=aw)
+    elif pose == "shovel":
+        sw_ = math.sin(phase) * 0.5
+        hx, hy_ = x + facing * h * 0.22, ys + h * 0.22 + sw_ * h * 0.08
+        d.line((x, ys + 4, hx, hy_), fill=col, width=aw)
+        tipx, tipy = hx + facing * h * 0.32, hy_ + h * (0.28 + 0.2 * sw_)
+        d.line((x - facing * h * 0.08, ys - h * 0.05, tipx, tipy), fill=col, width=max(2, aw - 1))
+        d.polygon([(tipx - 9, tipy - 4), (tipx + 9, tipy - 4), (tipx + facing * 4, tipy + 14)], fill=col)
     elif pose == "rope":
         d.line((x - facing * 2, ys + 4, x + facing * h * 0.2, ys + h * 0.2), fill=col, width=aw)
     else:
@@ -435,6 +442,7 @@ def build():
     wm = Image.new("RGBA", (W, 60), (0, 0, 0, 0))
     ImageDraw.Draw(wm).text((W / 2, 30), "@alurziyadahku", font=F(MONT, 24), fill=(235, 232, 225, 150), anchor="mm")
     G["wm"] = wm
+    build_extras()
 
 # ---------------- adegan ----------------
 def scene_cem(t, dawn):
@@ -448,6 +456,7 @@ def scene_cem(t, dawn):
         cw, ch = int(W / z), int(H / z)
         x0, y0 = (W - cw) // 2, int((H - ch) * 0.55)
         fr = fr.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.BILINEAR)
+    cem_extra(fr, t, dawn)
     return fr
 
 def scene_house(t):
@@ -456,6 +465,9 @@ def scene_house(t):
     y0 = int(lerp(H, 0, p))
     fr = img.crop((0, y0, W, y0 + H))
     lit = 1.0 - ease((t - 13.5) / 4.5) * 0.92   # cahaya jendela meredup
+    lit *= 1 + 0.12 * math.sin(t * 17) * math.sin(t * 5.3)
+    if 16.6 < t < 17.4: lit *= 0.3 + 0.7 * (int(t * 18) % 2)
+    lit = max(0.0, min(1.0, lit))
     wl = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(wl)
     wx0, wy0, wx1, wy1 = win; oy = -y0
     c = lerpc((40, 34, 30), (250, 196, 120), lit)
@@ -466,21 +478,27 @@ def scene_house(t):
     if lit > 0.05:
         g = radial(W, H, (wx0 + wx1) / 2, (wy0 + wy1) / 2 + oy, 320, 320, (255, 180, 100), 2.0, 0.45 * lit) if -400 < (wy0 + oy) < H + 400 else None
         if g is not None: fr.alpha_composite(g)
+    house_extra(fr, t)
     return fr
 
 def scene_dark(t):
     fr = G["dark"].copy()
     k = 1 - 0.5 * ease((t - 33) / 4)
     if k < 0.999: fr = Image.eval(fr.convert("RGB"), lambda v: int(v * k)).convert("RGBA")
+    ecg_overlay(fr, t)
     return fr
 
 def scene_wall(t):
     fr = G["wall"].copy()
     p = ease((t - 39) / 19)
-    m = light_patch(p).filter(ImageFilter.GaussianBlur(16))
+    m = light_patch(p)
+    sway = int(14 * math.sin(t * 0.9) + 6 * math.sin(t * 2.3))
+    m = ImageChops.subtract(m, G["branch"].crop((100 + sway, 0, 100 + sway + W, H)).point(lambda v: int(v * 0.8)))
+    m = m.filter(ImageFilter.GaussianBlur(10))
     a = 0.25 + 0.4 * ease((t - 40) / 8)
     lay = Image.new("RGBA", (W, H), (236, 200, 140, 0)); lay.putalpha(m.point(lambda v: int(v * a)))
     fr.alpha_composite(lay)
+    wall_extra(fr, t)
     return fr
 
 # ----- potongan melintang (58-155 detik) -----
@@ -520,7 +538,8 @@ def cs_people(d, t, oy):
             person(d, x, yf, 136, tl * 5.0, "walk", -1 if side == "L" else 1)
         else:
             pose = "rope" if (81 <= t <= 87.5 and k in (1, 2)) else "stand"
-            person(d, x, yf, 136, 0, pose, 1 if side == "L" else -1)
+            if 90.6 <= t <= 97.2 and k in (1, 2): pose = "shovel"
+            person(d, x, yf, 136, t * 4.2 + k, pose, 1 if side == "L" else -1)
 
 def cs_frame(t):
     cs = G["cs"]
@@ -592,6 +611,7 @@ def cs_frame(t):
         if lvl > 0.01:
             bl = G["blue"].copy(); bl.putalpha(bl.getchannel("A").point(lambda v: int(min(255, v * lvl))))
             fr.alpha_composite(bl)
+    fr = cs_extra(fr, t)
     # kamera
     z = 1.0
     if t > 111: z = lerp(1.0, 1.25, ease((t - 111) / 8))
@@ -653,9 +673,266 @@ def draw_text(fr, t):
                     if a <= 0.99: im2.putalpha(im.getchannel("A").point(lambda v: int(v * a)))
                     fr.alpha_composite(im2, (x, int(y + yy)))
 
+
+# ======================= EFEK TAMBAHAN (versi mencekam) =======================
+from PIL import ImageChops
+
+# detak jantung: melambat lalu berhenti (dipakai visual EKG + audio)
+def _heartbeats():
+    out = []; t = 12.9; iv = 0.85
+    while t < 34.2:
+        out.append(t); iv = min(2.6, iv * 1.075); t += iv
+    return out
+HEARTBEATS = _heartbeats()
+FLATLINE = HEARTBEATS[-1] + 1.0
+
+QUESTIONS = (125.5, 130.1, 134.7)
+SHAKES = [(121.2, 1.4, 16), (125.5, 0.9, 12), (130.1, 0.9, 12), (134.7, 1.1, 15), (90.8, 6.5, 2.5), (99.0, 1.6, 5), (112.0, 1.4, 4)]
+THUNDER = (76.0, 99.0, 112.0)
+STEP_RIPPLES = [97.6 + k * 0.42 for k in range(int((113 - 97.6) / 0.42))]
+
+def build_extras():
+    rng = np.random.default_rng(77)
+    # kabut bergerak
+    fog = Image.new("L", (2 * W, 700), 0); fd = ImageDraw.Draw(fog)
+    for _ in range(70):
+        x, y = rng.uniform(0, 2 * W), rng.uniform(120, 580)
+        rx, ry = rng.uniform(120, 320), rng.uniform(30, 70)
+        fd.ellipse((x - rx, y - ry, x + rx, y + ry), fill=int(rng.uniform(40, 110)))
+    fog = fog.filter(ImageFilter.GaussianBlur(40))
+    G["fog"] = fog
+    # bayangan ranting
+    br = Image.new("L", (W + 200, H), 0); bd = ImageDraw.Draw(br)
+    for k in range(7):
+        x, y = rng.uniform(300, W + 100), rng.uniform(500, 1100); pts = [(x, y)]
+        for j in range(9):
+            x -= rng.uniform(30, 70); y += rng.uniform(-30, 40); pts.append((x, y))
+            if rng.uniform() < 0.5:
+                bd.line((x, y, x - rng.uniform(20, 60), y - rng.uniform(20, 60)), fill=255, width=5)
+        bd.line(pts, fill=255, width=int(rng.uniform(7, 14)))
+    G["branch"] = br
+    # berkas cahaya (abstrak) untuk liang lahad
+    bh = CH_Y1 - SURF + 40; bw = 140
+    xs = np.linspace(-1, 1, bw)
+    prof = np.exp(-(xs / 0.32) ** 2) * 0.95 + np.exp(-(xs / 0.08) ** 2) * 0.6
+    a = np.repeat(prof[None, :], bh, 0) * np.linspace(0.55, 1.0, bh)[:, None]
+    arr = np.zeros((bh, bw, 4), np.float32); arr[..., 0] = 140; arr[..., 1] = 180; arr[..., 2] = 255
+    arr[..., 3] = np.clip(a, 0, 1) * 235
+    beam = Image.fromarray(arr.astype(np.uint8), "RGBA")
+    bdr = ImageDraw.Draw(beam)
+    for _ in range(140):
+        x, y = rng.normal(bw / 2, 12), rng.uniform(0, bh)
+        bdr.ellipse((x - 1.2, y - 1.2, x + 1.2, y + 1.2), fill=(230, 240, 255, 200))
+    G["beam"] = beam
+    # sinar matahari fajar
+    rays = Image.new("L", (W, H), 0); rd = ImageDraw.Draw(rays)
+    cx, cy = 540, int(H * 0.5)
+    for k in range(26):
+        a0 = math.radians(180 + k * 7 + rng.uniform(-2, 2)); a1 = a0 + math.radians(rng.uniform(1.5, 3.5))
+        rd.polygon([(cx, cy), (cx + 2000 * math.cos(a0), cy + 2000 * math.sin(a0)), (cx + 2000 * math.cos(a1), cy + 2000 * math.sin(a1))], fill=int(rng.uniform(60, 140)))
+    G["rays"] = rays.filter(ImageFilter.GaussianBlur(6))
+    # vignet + butiran film
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    dv = np.sqrt(((xx - W / 2) / (W * 0.62)) ** 2 + ((yy - H * 0.52) / (H * 0.6)) ** 2)
+    G["vig_a"] = Image.fromarray((np.clip((dv - 0.35) / 0.75, 0, 1) ** 1.6 * 255).astype(np.uint8), "L")
+    grains = []
+    for k in range(6):
+        n = rng.normal(0, 1, (H // 2, W // 2))
+        L = np.zeros((H // 2, W // 2, 4), np.uint8)
+        L[..., :3] = np.where(n[..., None] > 0, 255, 0)
+        L[..., 3] = np.clip(np.abs(n) * 9, 0, 22).astype(np.uint8)
+        grains.append(Image.fromarray(L, "RGBA").resize((W, H), Image.NEAREST))
+    G["grain"] = grains
+    # debu melayang
+    G["dust"] = [(rng.uniform(0, W), rng.uniform(0, H), rng.uniform(-6, 6), rng.uniform(-14, -3), rng.uniform(0.6, 2.0), rng.uniform(0, 6.28)) for _ in range(110)]
+    G["lantern"] = radial(260, 260, 130, 130, 130, 130, (255, 190, 110), 1.8, 0.7)
+    G["clods"] = [(90.7 + k * 0.22 + rng.uniform(0, 0.15), rng.uniform(SH_X0 + 20, SH_X1 - 20), rng.uniform(5, 11)) for k in range(30)]
+
+def draw_bat(d, x, y, s, flap):
+    w = s * (0.6 + 0.4 * abs(math.sin(flap)))
+    up = s * 0.5 * math.sin(flap)
+    d.polygon([(x - s, y - up), (x - s * 0.45, y + s * 0.15), (x, y - s * 0.1), (x + s * 0.45, y + s * 0.15), (x + s, y - up), (x + s * 0.3, y + s * 0.35), (x, y + s * 0.2), (x - s * 0.3, y + s * 0.35)], fill=(2, 2, 4, 255))
+
+def draw_bird(d, x, y, s, flap, col):
+    up = s * 0.45 * math.sin(flap)
+    d.line((x - s, y - up, x, y, x + s, y - up), fill=col, width=3)
+
+def overlay_dust(fr, t, col, amount, region=None):
+    if amount <= 0.01: return
+    L = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(L)
+    for (x0, y0, vx, vy, r, ph) in G["dust"]:
+        x = (x0 + vx * t + 14 * math.sin(t * 0.4 + ph)) % W
+        y = (y0 + vy * t) % H
+        if region and not (region[0] <= x <= region[2] and region[1] <= y <= region[3]): continue
+        a = int(amount * (110 + 80 * math.sin(t * 1.3 + ph)))
+        if a > 6: d.ellipse((x - r, y - r, x + r, y + r), fill=col + (a,))
+    fr.alpha_composite(L)
+
+def ecg_overlay(fr, t):
+    """Garis detak jantung yang melambat lalu datar."""
+    if t < 12.0 or t > 39.4: return
+    strip_h = 260; y0 = 1180
+    L = Image.new("RGBA", (W, strip_h), (0, 0, 0, 0)); d = ImageDraw.Draw(L)
+    speed = 260.0
+    pts = []
+    beats = [b for b in HEARTBEATS if b < t + 0.1]
+    for x in range(0, W + 1, 4):
+        tau = t - (W - x) / speed
+        v = 0.0
+        for b in beats[-6:]:
+            dt = tau - b
+            amp = 1.0 - 0.06 * HEARTBEATS.index(b)
+            v += amp * (-0.25 * math.exp(-((dt + 0.04) / 0.018) ** 2) + 1.0 * math.exp(-(dt / 0.02) ** 2) - 0.35 * math.exp(-((dt - 0.05) / 0.025) ** 2) + 0.18 * math.exp(-((dt - 0.26) / 0.06) ** 2))
+        pts.append((x, strip_h / 2 - v * 95))
+    a = fade(t, 12.6, 1.5) * (1 - fade(t, 38.0, 1.2))
+    col = (130, 235, 200)
+    d.line(pts, fill=col + (int(220 * a),), width=3)
+    glow = L.filter(ImageFilter.GaussianBlur(7))
+    fr.alpha_composite(glow, (0, y0)); fr.alpha_composite(L, (0, y0))
+    # titik kepala garis
+    hx, hy = pts[-1]
+    hd = ImageDraw.Draw(fr)
+    hd.ellipse((hx - 6, y0 + hy - 6, hx + 2, y0 + hy + 2), fill=(200, 255, 230, int(255 * a)))
+
+def cem_extra(fr, t, dawn):
+    # kabut bergerak
+    off = int((t * 22) % W)
+    fog = G["fog"].crop((off, 0, off + W, 700))
+    col = (130, 130, 150) if not dawn else (250, 220, 190)
+    fl = Image.new("RGBA", (W, 700), col + (0,)); fl.putalpha(fog.point(lambda v: int(v * 0.55)))
+    fr.alpha_composite(fl, (0, int(H * 0.5) - 200))
+    d = ImageDraw.Draw(fr)
+    if not dawn:  # kelelawar melintas bulan
+        for k, (s0, y, sp) in enumerate([(2.0, 520, 210), (3.1, 600, 260), (6.5, 470, 190)]):
+            x = 1150 - (t - s0) * sp
+            if -60 < x < 1150: draw_bat(d, x, y + 30 * math.sin(t * 2 + k), 22 - k * 3, t * 14 + k)
+    else:
+        rays = G["rays"].point(lambda v: int(v * 0.35 * fade(t, 156, 3)))
+        rl = Image.new("RGBA", (W, H), (255, 220, 170, 0)); rl.putalpha(rays)
+        fr.alpha_composite(rl)
+        for k, (s0, y) in enumerate([(157.0, 700), (157.4, 740), (157.8, 680), (160.5, 620), (160.8, 650)]):
+            x = -40 + (t - s0) * 150
+            if -40 < x < W + 40: draw_bird(d, x, y + 6 * math.sin(t * 3 + k), 12, t * 12 + k, (30, 26, 30))
+        overlay_dust(fr, t, (255, 230, 190), 0.6)
+
+def house_extra(fr, t):
+    overlay_dust(fr, t, (210, 210, 230), 0.25)
+    ecg_overlay(fr, t)
+
+def wall_extra(fr, t):
+    overlay_dust(fr, t, (255, 225, 170), 0.9, (150, 500, 1050, 1300))
+
+def cs_extra(fr, t):
+    d = ImageDraw.Draw(fr)
+    # hujan rintik (di atas tanah)
+    rain = 0.0
+    if 70 < t < 120: rain = fade(t, 70.5, 3) * (1 - fade(t, 116, 3))
+    if rain > 0.01:
+        L = Image.new("RGBA", (W, SURF), (0, 0, 0, 0)); rd = ImageDraw.Draw(L)
+        rng = np.random.default_rng(5)
+        xs = rng.uniform(0, W + 200, 260); ys = rng.uniform(0, SURF + 200, 260); sp = rng.uniform(1300, 1900, 260)
+        for x, y, s in zip(xs, ys, sp):
+            yy = (y + t * s) % (SURF + 200) - 100; xx = (x - t * s * 0.18) % (W + 200) - 100
+            rd.line((xx, yy, xx - 7, yy + 34), fill=(170, 180, 205, int(110 * rain)), width=2)
+        fr.alpha_composite(L, (0, 0))
+    # kilat jauh
+    for th in THUNDER:
+        if th <= t < th + 0.5:
+            k = (1 - (t - th) / 0.5) * (0.6 if int((t - th) * 20) % 3 else 1.0)
+            fl = Image.new("RGBA", (W, SURF), (200, 210, 240, int(70 * k)))
+            fr.alpha_composite(fl, (0, 0))
+    # lentera pengantar
+    if 72 <= t < 104:
+        if t < 79.2:
+            lx = keranda_x(t) + FOLLOWERS[0][0] + 60 - 22
+        else:
+            lx = lerp(keranda_x(79.2) + FOLLOWERS[0][0] + 38, FOLLOW_STAND[0] - 22, ease((t - 79.2) / 2.0))
+            if t > 98.6: lx += (t - 98.6) * 70
+        if lx < W + 60:
+            fr.alpha_composite(G["lantern"], (int(lx - 130), int(SURF - 70 - 130)))
+            d.rectangle((lx - 7, SURF - 82, lx + 7, SURF - 62), fill=(255, 214, 140, 255))
+    # gumpalan tanah jatuh
+    if 90.6 < t < 97.8:
+        ff = ease((t - 90.6) / 6.8); top = CH_Y0 - int((CH_Y0 - SURF) * ff)
+        for (s, x, r) in G["clods"]:
+            if t < s: continue
+            y = SURF + 0.5 * 2600 * (t - s) ** 2
+            if y < top - r:
+                d.ellipse((x - r, y - r * 0.8, x + r, y + r * 0.8), fill=(88, 68, 48, 255))
+            elif t - s < 0.9:
+                k = 1 - (t - s - math.sqrt(2 * max(1, top - SURF) / 2600)) / 0.4
+                if k > 0:
+                    pr = 14 + (1 - k) * 26
+                    d.ellipse((x - pr, top - pr * 0.4, x + pr, top + pr * 0.25), outline=(140, 116, 86, int(160 * k)), width=2)
+    # gelombang langkah sandal merambat ke dalam tanah
+    if 104 < t < 117:
+        L = Image.new("RGBA", (W, H), (0, 0, 0, 0)); ld = ImageDraw.Draw(L)
+        for k, ts in enumerate(STEP_RIPPLES):
+            dt = t - ts
+            if 0 < dt < 1.6 and ts > 103:
+                r = 40 + dt * 420; a = int(90 * (1 - dt / 1.6) * (1 - fade(ts, 108, 5)))
+                sx = 200 if k % 2 == 0 else 900
+                sx = sx - (ts - 97.4) * 70 if k % 2 == 0 else sx + (ts - 97.4) * 70 * 0.3
+                if a > 3: ld.arc((sx - r, SURF - r * 0.75, sx + r, SURF + r * 0.75), 10, 170, fill=(220, 205, 175, a), width=3)
+        fr.alpha_composite(L)
+    # berkas cahaya turun ke liang (abstrak, tanpa sosok)
+    if 120.9 < t < 140.5:
+        grow = ease((t - 120.9) / 1.1); a = 1 - fade(t, 139.0, 1.4)
+        fl_ = 0.85 + 0.15 * math.sin(t * 23) * math.sin(t * 7)
+        bh = int(G["beam"].height * grow)
+        if bh > 4:
+            bm = G["beam"].crop((0, G["beam"].height - bh, G["beam"].width, G["beam"].height))
+            bm.putalpha(bm.getchannel("A").point(lambda v: int(v * a * fl_)))
+            for bx in (CH_X0 + 26, CH_X1 - 26):
+                fr.alpha_composite(bm, (int(bx - bm.width / 2), CH_Y1 - bh))
+        # debu runtuh di dalam liang
+        rng = np.random.default_rng(9)
+        for k in range(40):
+            x = rng.uniform(CH_X0 + 10, CH_X1 - 10); s0 = rng.uniform(0, 4); sp = rng.uniform(60, 140)
+            y = CH_Y0 + ((t - 121 + s0) * sp) % (CH_Y1 - CH_Y0)
+            d.ellipse((x - 1.5, y - 1.5, x + 1.5, y + 1.5), fill=(170, 160, 150, int(150 * a)))
+    # burung fajar
+    if 145 < t < 156:
+        for k, (s0, y) in enumerate([(145.5, 260), (145.8, 300), (146.1, 240), (149.0, 330)]):
+            x = W + 40 - (t - s0) * 140
+            if -40 < x < W + 40: draw_bird(d, x, y + 5 * math.sin(t * 3 + k), 11, t * 12 + k, (30, 28, 34))
+    return fr
+
+def shake_offset(t):
+    dx = dy = 0.0
+    for (t0, dur, amp) in SHAKES:
+        if t0 <= t < t0 + dur:
+            k = amp * (1 - (t - t0) / dur) ** 1.5
+            dx += k * math.sin(t * 61.0 + t0); dy += k * math.cos(t * 47.0 + t0 * 2)
+    return int(dx), int(dy)
+
+def vignette_level(t):
+    v = 0.55
+    v += 0.25 * fade(t, 25, 2) * (1 - fade(t, 37, 2))
+    v += 0.3 * fade(t, 90.6, 7) * (1 - fade(t, 139, 2.5))
+    v += 0.15 * fade(t, 119, 2) * (1 - fade(t, 139, 2.5))
+    return min(1.0, v)
+
+def post_fx(fr, t):
+    fi = int(t * FPS)
+    # kilatan tiap pertanyaan
+    for q in QUESTIONS:
+        if q <= t < q + 0.45:
+            k = 1 - (t - q) / 0.45
+            fr.alpha_composite(Image.new("RGBA", (W, H), (190, 210, 255, int(55 * k))))
+    v = vignette_level(t)
+    vl = Image.new("RGBA", (W, H), (0, 0, 0, 0)); vl.putalpha(G["vig_a"].point(lambda a: int(a * v)))
+    fr.alpha_composite(vl)
+    fr.alpha_composite(G["grain"][fi % 6])
+    dx, dy = shake_offset(t)
+    if dx or dy:
+        sh = Image.new("RGBA", (W, H), (0, 0, 0, 255)); sh.paste(fr, (dx, dy)); fr = sh
+    return fr
+
 def render(fi):
     t = fi / FPS
     fr = compose(t)
+    fr = post_fx(fr, t)
     fr.alpha_composite(G["topshade"])
     draw_text(fr, t)
     fr.alpha_composite(G["wm"], (0, 1440))
@@ -673,91 +950,150 @@ def worker(args):
     for fi in range(a, b): p.stdin.write(render(fi).tobytes())
     p.stdin.close(); p.wait(); return out
 
-# ---------------- audio: suasana sunyi ----------------
+# ---------------- audio: desain suara mencekam ----------------
 def make_audio(path):
+    from numpy.fft import rfft, irfft
     sr = 44100; n = int(TOTAL * sr); tt = np.arange(n) / sr
     rng = np.random.default_rng(1)
-    out = np.zeros(n)
-    def env(points):
-        xs = [p[0] for p in points]; ys = [p[1] for p in points]
-        return np.interp(tt, xs, ys)
-    def lp(x, a):  # low-pass 1 kutub
-        y = np.empty_like(x); acc = 0.0
-        # vektorisasi lewat filter IIR sederhana menggunakan cumsum aproksimasi
-        from numpy.fft import rfft, irfft
-        X = rfft(x); f = np.fft.rfftfreq(len(x), 1 / sr)
-        X *= 1 / np.sqrt(1 + (f / a) ** 2)
-        return irfft(X, len(x))
-    def bp(x, lo, hi):
-        from numpy.fft import rfft, irfft
-        X = rfft(x); f = np.fft.rfftfreq(len(x), 1 / sr)
-        X *= ((f > lo) & (f < hi)).astype(float) * 1.0
-        return irfft(X, len(x))
-    # angin tipis
-    wind = lp(rng.standard_normal(n), 380) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.05 * tt + 1) * np.sin(2 * np.pi * 0.013 * tt))
-    wind /= np.abs(wind).max()
-    surface = env([(0, 0), (2, 1), (24, 1), (26, 0.15), (38, 0.1), (40, 0.25), (57, 0.25), (60, 0.5), (72, 0.9), (104, 0.9),
-                   (110, 0.25), (119, 0.1), (121, 0.0), (139, 0.0), (142, 0.5), (155, 0.8), (168, 0.6), (170, 0)])
-    out += 0.16 * wind * surface
-    # jangkrik di kejauhan
+    surf = np.zeros(n)   # bus permukaan (diredam saat kamera di dalam kubur)
+    mus = np.zeros(n)    # bus nada & efek
+    def env(points): return np.interp(tt, [p[0] for p in points], [p[1] for p in points])
+    def filt(x, lo=None, hi=None):
+        X = rfft(x); f = np.fft.rfftfreq(len(x), 1 / sr); g = np.ones_like(f)
+        if hi: g *= 1 / np.sqrt(1 + (f / hi) ** 4)
+        if lo: g *= 1 / np.sqrt(1 + (lo / np.maximum(f, 1e-3)) ** 4)
+        return irfft(X * g, len(x))
+    def add(bus, sig, t0, g=1.0):
+        i0 = int(t0 * sr)
+        if i0 >= n: return
+        e = min(n, i0 + len(sig)); bus[i0:e] += g * sig[:e - i0]
+    def norm(x): return x / (np.abs(x).max() + 1e-9)
+    def seg(d): return np.arange(int(d * sr)) / sr
+
+    # --- angin dengan hembusan ---
+    wind = norm(filt(rng.standard_normal(n), 60, 700))
+    gust = np.zeros(n)
+    for g0 in rng.uniform(0, TOTAL, 26):
+        gust += np.exp(-((tt - g0) / 1.8) ** 2)
+    whistle = norm(filt(rng.standard_normal(n), 900, 1400)) * gust * 0.25
+    wlev = env([(0, 0), (2, 0.8), (12, 1.0), (24, 0.9), (26, 0.3), (38, 0.2), (40, 0.3), (57, 0.3), (60, 0.6), (72, 0.9), (118, 0.9),
+                (121, 0.2), (139, 0.2), (142, 0.6), (155, 0.6), (168, 0.5), (170, 0)])
+    surf += 0.2 * (wind * (0.55 + 0.6 * gust) + whistle) * wlev
+    # --- jangkrik ---
     crk = np.zeros(n)
     for k in range(3):
-        f0 = 4300 + k * 260; rate = 2.6 + k * 0.7
-        gate = (np.sin(2 * np.pi * rate * tt + k) > 0.55).astype(float)
-        trill = 0.5 + 0.5 * np.sin(2 * np.pi * 48 * tt)
-        crk += np.sin(2 * np.pi * f0 * tt) * gate * trill * (0.6 + 0.4 * np.sin(2 * np.pi * 0.07 * tt + k * 2))
-    crk = lp(crk, 6000)
-    crick = env([(0, 0), (2, 1), (24, 1), (26, 0), (60, 0), (64, 0.5), (104, 0.6), (110, 0.2), (119, 0), (142, 0), (146, 0.35), (154, 0.2), (160, 0), (170, 0)])
-    out += 0.025 * crk * crick
-    # nada rendah lembut (drone)
-    drone = (np.sin(2 * np.pi * 55 * tt) + 0.5 * np.sin(2 * np.pi * 82.4 * tt + 1) + 0.25 * np.sin(2 * np.pi * 110 * tt + 2))
-    drone *= 1 + 0.15 * np.sin(2 * np.pi * 0.08 * tt)
-    dlev = env([(0, 0), (3, 0.5), (24, 0.5), (26, 0.7), (36, 0.7), (37.5, 0.0), (39.5, 0.0), (41, 0.4), (58, 0.5), (72, 0.4), (104, 0.45),
-                (110, 0.7), (121, 1.0), (139, 1.0), (141, 0.5), (155, 0.4), (166, 0.3), (170, 0)])
-    out += 0.09 * drone * dlev
-    # pad hangat (cahaya, kabar ampunan, fajar)
-    pad = sum(np.sin(2 * np.pi * f * tt + i) for i, f in enumerate([220.0, 277.2, 329.6, 440.0]))
-    pad = lp(pad, 900)
-    plev = env([(0, 0), (40, 0), (44, 0.6), (57, 0.7), (60, 0.5), (66, 0.3), (72, 0.0), (142, 0.0), (148, 0.5), (155, 0.7), (166, 0.6), (170, 0)])
-    out += 0.03 * pad * plev
-    # lonceng lembut (seperti referensi)
+        gate = (np.sin(2 * np.pi * (2.6 + k * 0.7) * tt + k) > 0.55).astype(float)
+        crk += np.sin(2 * np.pi * (4300 + k * 260) * tt) * gate * (0.5 + 0.5 * np.sin(2 * np.pi * 48 * tt))
+    surf += 0.02 * crk * env([(0, 0), (2, 1), (24, 0.8), (26, 0), (62, 0), (66, 0.4), (72, 0.2), (118, 0.2), (121, 0), (146, 0), (150, 0.3), (158, 0), (170, 0)])
+    # --- burung hantu ---
+    def owl(t0, g):
+        s = np.zeros(int(2.2 * sr)); lt = seg(2.2)
+        for o, d_ in ((0.0, 0.35), (0.55, 0.9)):
+            m = (lt >= o) & (lt < o + d_); x = lt[m] - o
+            f = 390 - 40 * x / d_ + 6 * np.sin(2 * np.pi * 7 * x)
+            s[m] += np.sin(2 * np.pi * np.cumsum(f) / sr) * np.sin(np.pi * x / d_) ** 1.5
+        add(surf, filt(s, 200, 1500), t0, g)
+    for t0 in (3.2, 9.0, 66.0, 109.5): owl(t0, 0.09)
+    # --- jam berdetak lalu berhenti (rumah) ---
+    for k in range(int((17.3 - 12.2) / 1.0) + 1):
+        c = rng.standard_normal(int(0.03 * sr)) * np.exp(-seg(0.03) / 0.004)
+        add(mus, filt(c, 2500, 7000), 12.2 + k * 1.0, 0.18)
+    # --- detak jantung melambat lalu berhenti ---
+    for k, b in enumerate(HEARTBEATS):
+        g = 0.55 * (1 - 0.035 * k)
+        for off, gg in ((0.0, 1.0), (0.26, 0.7)):
+            lt = seg(0.4)
+            add(mus, np.sin(2 * np.pi * (52 + 30 * np.exp(-lt / 0.03)) * lt) * np.exp(-lt / 0.09) * np.clip(lt / 0.004, 0, 1), b + off, g * gg)
+    # --- dengung mencekam (cluster sekon kecil) ---
+    dr = (np.sin(2 * np.pi * 55 * tt) + 0.8 * np.sin(2 * np.pi * 58.27 * tt + 1) + 0.5 * np.sin(2 * np.pi * 82.4 * tt + 2)
+          + 0.35 * np.sin(2 * np.pi * 110 * tt) + 0.25 * np.sin(2 * np.pi * 116.5 * tt + 3))
+    dr += 0.4 * filt(rng.standard_normal(n), 30, 160)
+    dr *= 1 + 0.25 * np.sin(2 * np.pi * 0.11 * tt)
+    dlev = env([(0, 0), (3, 0.35), (12, 0.4), (25, 0.6), (26, 0.9), (34.5, 1.0), (36.5, 0.0), (39.5, 0.0), (41, 0.3), (57, 0.35), (60, 0.3), (72, 0.45),
+                (90, 0.6), (104, 0.75), (112, 0.9), (120.5, 1.0), (121, 1.3), (139, 1.3), (141, 0.4), (155, 0.3), (166, 0.25), (170, 0)])
+    mus += 0.11 * dr * dlev
+    # --- nada tinggi bergetar (ketegangan) ---
+    tens = np.sin(2 * np.pi * 1760 * tt + 3 * np.sin(2 * np.pi * 5.5 * tt)) + 0.6 * np.sin(2 * np.pi * 1864.7 * tt)
+    mus += 0.006 * tens * env([(0, 0), (26, 0), (29, 1), (36, 1), (37, 0), (112, 0), (118, 0.7), (121, 1), (139, 1), (141, 0), (170, 0)])
+    # --- pad hangat (kabar ampunan, fajar) ---
+    pad = filt(sum(np.sin(2 * np.pi * f * tt + i) for i, f in enumerate([220.0, 277.2, 329.6, 440.0, 554.4])), None, 1000)
+    mus += 0.03 * pad * env([(0, 0), (40, 0), (45, 0.7), (57, 0.8), (60, 0.5), (68, 0.2), (72, 0), (142, 0), (148, 0.5), (156, 0.8), (167, 0.6), (170, 0)])
+    # --- lonceng lembut ---
     def bell(t0, f, g):
-        i0 = int(t0 * sr); L = int(3.5 * sr); lt = np.arange(L) / sr
-        s = (np.sin(2 * np.pi * f * lt) + 0.3 * np.sin(2 * np.pi * f * 2.01 * lt) + 0.12 * np.sin(2 * np.pi * f * 3.2 * lt)) * np.exp(-lt * 1.3)
-        s *= np.clip(lt / 0.01, 0, 1); e = min(n, i0 + L); out[i0:e] += g * s[:e - i0]
-    for t0, f in [(12.7, 523.3), (25.7, 440.0), (44.0, 659.3), (47.5, 587.3), (51.0, 784.0), (58.8, 523.3), (62.8, 659.3),
+        lt = seg(4.0)
+        s = (np.sin(2 * np.pi * f * lt) + 0.3 * np.sin(2 * np.pi * f * 2.01 * lt) + 0.15 * np.sin(2 * np.pi * f * 2.76 * lt)) * np.exp(-lt * 1.2)
+        add(mus, s * np.clip(lt / 0.008, 0, 1), t0, g)
+    for t0, f in [(0.9, 293.7), (12.7, 523.3), (44.0, 659.3), (47.5, 587.3), (51.0, 784.0), (58.8, 523.3), (62.8, 659.3),
                   (80.9, 440.0), (97.2, 392.0), (146.1, 523.3), (150.0, 659.3), (163.6, 587.3)]:
         bell(t0, f, 0.05)
-    # nada naik (transisi langit ke bumi)
-    gi0 = int(58.6 * sr); L = int(3.5 * sr); lt = np.arange(L) / sr
-    out[gi0:gi0 + L] += 0.05 * np.sin(2 * np.pi * (300 * lt + 120 * lt ** 2)) * np.sin(np.pi * lt / 3.5) ** 2
-    # langkah kaki
-    def step(t0, g, bright=1.0):
-        i0 = int(t0 * sr); L = int(0.16 * sr)
-        if i0 + L >= n: return
-        s = rng.standard_normal(L) * np.exp(-np.arange(L) / sr / 0.03)
-        s = bp(np.concatenate([s, np.zeros(1000)]), 120, 1800 * bright)[:L]
-        out[i0:i0 + L] += g * s / (np.abs(s).max() + 1e-9)
+    # --- riser (suara naik) & dentuman ---
+    def riser(t_end, d, g):
+        lt = seg(d); nz = filt(rng.standard_normal(len(lt)), 300, 6000)
+        s = nz * (lt / d) ** 3 + 0.6 * np.sin(2 * np.pi * (200 * lt + 300 * lt ** 2 / d)) * (lt / d) ** 2
+        add(mus, s / (np.abs(s).max() + 1e-9), t_end - d, g)
+    def boom(t0, g, f0=46):
+        lt = seg(4.0)
+        s = np.sin(2 * np.pi * (f0 * lt - 4 * lt ** 2)) * np.exp(-lt * 1.1) + 0.5 * filt(rng.standard_normal(len(lt)), 20, 120) * np.exp(-lt * 2.5)
+        add(mus, s * np.clip(lt / 0.006, 0, 1), t0, g)
+    for t_, d_, g_ in [(25.6, 3.0, 0.10), (58.6, 2.5, 0.07), (72.5, 2.0, 0.06), (90.6, 2.0, 0.07), (120.9, 5.0, 0.16),
+                       (125.5, 1.8, 0.10), (130.1, 1.8, 0.10), (134.7, 2.2, 0.12)]:
+        riser(t_, d_, g_)
+    for t_, g_ in [(25.6, 0.30), (39.6, 0.12), (58.6, 0.18), (72.5, 0.2), (90.6, 0.22), (120.9, 0.38), (121.4, 0.30),
+                   (125.5, 0.4), (130.1, 0.4), (134.7, 0.45), (139.8, 0.2), (168.2, 0.3)]:
+        boom(t_, g_)
+    # dengung telinga sesudah tiap pertanyaan
+    for q in (125.5, 130.1, 134.7):
+        lt = seg(3.0); add(mus, np.sin(2 * np.pi * 6200 * lt) * np.exp(-lt * 1.2) * np.clip(lt / 0.3, 0, 1), q + 0.2, 0.012)
+    # gesekan logam saat cahaya turun
+    lt = seg(2.6)
+    scr = np.sin(2 * np.pi * np.cumsum(900 + 500 * np.sin(2 * np.pi * 0.7 * lt) + 80 * rng.standard_normal(len(lt))) / sr)
+    add(mus, filt(scr * rng.uniform(0.6, 1, len(lt)), 500, 4000) * np.sin(np.pi * lt / 2.6) ** 2, 120.9, 0.05)
+    # --- hujan & guruh ---
+    rain = norm(filt(rng.standard_normal(n), 1200, 9000)) * (0.7 + 0.3 * filt(rng.standard_normal(n), None, 3))
+    drops = np.zeros(n)
+    for t0 in rng.uniform(70, 120, 700):
+        lt = seg(0.02); add(drops, rng.standard_normal(len(lt)) * np.exp(-lt / 0.003), t0, 0.5)
+    rlev = env([(0, 0), (70, 0), (74, 1), (115, 1), (119, 0), (170, 0)])
+    surf += (0.07 * rain + 0.05 * filt(drops, 1500, 8000)) * rlev
+    for th in THUNDER:
+        lt = seg(6.0); s = filt(rng.standard_normal(len(lt)), 20, 160) * (np.exp(-lt * 0.8) * (1 - np.exp(-lt * 6)))
+        s += 0.4 * filt(rng.standard_normal(len(lt)), 200, 2500) * np.exp(-lt * 6) * (lt < 0.5)
+        add(surf, norm(s), th + 0.6, 0.35)
+    # --- langkah kaki & sandal ---
+    def step(t0, g, sandal=False):
+        lt = seg(0.18)
+        s = filt(rng.standard_normal(len(lt)), 80, 900) * np.exp(-lt / 0.035)
+        if sandal: s += 0.8 * filt(rng.standard_normal(len(lt)), 1500, 5000) * np.exp(-lt / 0.012)
+        add(surf, norm(s), t0, g)
     for k in range(int((79.2 - 72.5) / 0.55)):
-        step(72.5 + k * 0.55, 0.05 * fade(72.5 + k * 0.55, 72.5, 2))
-    for k in range(int((112 - 97.6) / 0.42)):
-        tk = 97.6 + k * 0.42
-        step(tk, 0.07 * (1 - fade(tk, 104, 7)) + 0.004, 1.3)
-    # tanah ditimbun (lembut, bukan benturan)
-    for k in range(9):
-        t0 = 90.8 + k * 0.75
-        i0 = int(t0 * sr); L = int(0.6 * sr)
-        s = bp(rng.standard_normal(L + 1000), 200, 2500)[:L]
-        grain = (rng.uniform(0, 1, L) > 0.7) * 1.0
-        s *= np.exp(-np.arange(L) / sr / 0.18) * (0.5 + grain)
-        out[i0:i0 + L] += 0.06 * s / (np.abs(s).max() + 1e-9)
-    # dentum sangat lembut di tiap pertanyaan
-    for t0 in (125.5, 130.1, 134.7):
-        i0 = int(t0 * sr); L = int(2.5 * sr); lt = np.arange(L) / sr
-        out[i0:i0 + L] += 0.12 * np.sin(2 * np.pi * (48 - 6 * lt) * lt) * np.exp(-lt * 1.6) * np.clip(lt / 0.02, 0, 1)
-    out *= env([(0, 0), (1.5, 1), (168, 1), (170, 0)])
-    out = out / (np.abs(out).max() + 1e-9) * 0.85
-    st = np.stack([out, np.roll(out, 220)], 1)
+        step(72.5 + k * 0.55, 0.10 * fade(72.5 + k * 0.55, 72.5, 2))
+    for k, tk in enumerate(STEP_RIPPLES):
+        step(tk, 0.16 * (1 - fade(tk, 106, 7)) + 0.01, True)
+    # --- kayu: papan lahad ditutup ---
+    for t0 in (88.2, 88.8, 89.3):
+        lt = seg(0.5); s = (np.sin(2 * np.pi * 170 * lt) + 0.6 * np.sin(2 * np.pi * 410 * lt) + 0.3 * np.sin(2 * np.pi * 980 * lt)) * np.exp(-lt * 14)
+        add(surf, s, t0, 0.22)
+    # --- sekop & tanah ---
+    for k in range(10):
+        t0 = 90.8 + k * 0.7
+        lt = seg(0.3); sc = filt(rng.standard_normal(len(lt)), 1500, 5000) * np.sin(np.pi * lt / 0.3) ** 2
+        add(surf, norm(sc), t0 - 0.3, 0.06)
+        lt = seg(0.9); th_ = filt(rng.standard_normal(len(lt)), 40, 600) * np.exp(-lt / 0.15) * (1 + (rng.uniform(0, 1, len(lt)) > 0.8))
+        add(surf, norm(th_), t0, 0.22 * (1 - 0.06 * k))
+    # --- redam saat kamera di dalam kubur ---
+    mu = env([(0, 0), (103, 0), (108, 0.6), (113, 0.9), (121, 1.0), (139, 1.0), (141.5, 0), (170, 0)])
+    surf_m = filt(surf, None, 380) * 1.6
+    surf_mix = surf * (1 - mu) + surf_m * mu
+    # --- burung pagi ---
+    for t0 in rng.uniform(146, 167, 22):
+        lt = seg(0.18); f = 2600 + 1800 * np.sin(np.pi * lt / 0.18) + rng.uniform(-300, 300)
+        add(mus, np.sin(2 * np.pi * np.cumsum(f) / sr) * np.sin(np.pi * lt / 0.18), t0, 0.025)
+    out = surf_mix + mus
+    out *= env([(0, 0), (1.2, 1), (167.5, 1), (170, 0)])
+    # kompresi lembut
+    out = np.tanh(out / (np.abs(out).max() + 1e-9) * 1.6)
+    out = out / (np.abs(out).max() + 1e-9) * 0.9
+    st = np.stack([out, np.roll(out, 260)], 1)
     with wave.open(path, "wb") as w:
         w.setnchannels(2); w.setsampwidth(2); w.setframerate(sr)
         w.writeframes((st * 32767).astype(np.int16).tobytes())
