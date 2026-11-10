@@ -26,8 +26,8 @@ WHITE = (240, 238, 232)
 
 # (latin, arabic, subtitle, catatan, bagian)
 ITEMS = [
-    ("Muhammad SAW", "مُحَمَّدٌ ﷺ", "Rasulullah", "Nama lengkap: Muhammad bin Abdullah bin Abdul Mutthalib.", 2),
-    ("Abdullah", "عَبْدُ اللهِ", "Ayah Rasulullah", "Wafat saat Nabi SAW masih di dalam kandungan.", 2),
+    ("Baginda Rasulullah shalallahu alaihi wasallam (Muhammad)", "مُحَمَّدٌ ﷺ", "", "Nama lengkap: Muhammad bin Abdullah bin Abdul Mutthalib.", 2),
+    ("Abdullah", "عَبْدُ اللهِ", "Ayah Rasulullah", "Wafat saat Nabi shalallahu alaihi wasallam masih di dalam kandungan.", 2),
     ("Abdul Mutthalib", "عَبْدُ الْمُطَّلِبِ", "Kakek · nama asli Syaibah", "", 2),
     ("Hasyim", "هَاشِمٌ", "Nama asli Amr", "", 2),
     ("Abdu Manaf", "عَبْدُ مَنَافٍ", "Nama asli Al-Mughirah", "", 2),
@@ -55,32 +55,32 @@ ITEMS = [
     ("Ya'rub", "يَعْرُبُ", "", "", 3),
     ("Yasyjub", "يَشْجُبُ", "", "", 3),
     ("Nabit", "نَابِتٌ", "", "", 3),
-    ("Ismail AS", "إِسْمَاعِيلُ", "Nabi Ismail AS", "Nabi SAW adalah keturunan Ibrahim melalui Ismail.", 3),
-    ("Ibrahim AS", "إِبْرَاهِيمُ", "Nabi Ibrahim AS", "Khalilullah, kekasih Allah.", 3),
+    ("Ismail", "إِسْمَاعِيلُ", "Nabi Ismail alaihissalam", "Nabi shalallahu alaihi wasallam adalah keturunan Ibrahim melalui Ismail.", 3),
+    ("Ibrahim", "إِبْرَاهِيمُ", "Nabi Ibrahim alaihissalam", "Khalilullah, kekasih Allah.", 3),
     ("Tarah", "تَارَحُ", "Dikenal juga Azar", "", 4),
     ("Nahur", "نَاحُورُ", "", "", 4),
     ("Sarug", "سَارُوغُ", "", "", 4),
     ("Ra'u", "رَاعُو", "", "", 4),
     ("Falij", "فَالِغُ", "", "", 4),
-    ("Abir", "عَابِرُ", "Nabi Hud AS", "", 4),
+    ("Abir", "عَابِرُ", "Nabi Hud alaihissalam", "", 4),
     ("Syalih", "شَالِخُ", "", "", 4),
     ("Arfakhsyad", "أَرْفَخْشَذُ", "", "", 4),
     ("Sam", "سَامٌ", "", "", 4),
-    ("Nuh AS", "نُوحٌ", "Nabi Nuh AS", "", 4),
+    ("Nuh", "نُوحٌ", "Nabi Nuh alaihissalam", "", 4),
     ("Lamik", "لَامَكُ", "", "", 4),
     ("Matusyalakh", "مَتُوشَلَخُ", "", "", 4),
-    ("Idris AS", "إِدْرِيسُ", "Nabi Idris AS · Akhnukh", "", 4),
+    ("Idris", "إِدْرِيسُ", "Nabi Idris alaihissalam · Akhnukh", "", 4),
     ("Yarid", "يَرْدُ", "", "", 4),
     ("Mahlail", "مَهْلَائِيلُ", "", "", 4),
     ("Qainan", "قَيْنَانُ", "", "", 4),
     ("Anusy", "أَنُوشُ", "", "", 4),
-    ("Syits AS", "شِيثٌ", "Nabi Syits AS", "", 4),
-    ("Adam AS", "آدَمُ", "Nabi Adam AS", "Bapak seluruh umat manusia.", 4),
+    ("Syits", "شِيثٌ", "Nabi Syits alaihissalam", "", 4),
+    ("Adam", "آدَمُ", "Nabi Adam alaihissalam", "Bapak seluruh umat manusia.", 4),
 ]
 N = len(ITEMS)
 SECTION_LABEL = {2: "BAGIAN 2 · AYAH HINGGA ADNAN · DISEPAKATI ULAMA",
-                 3: "BAGIAN 3 · ADNAN HINGGA NABI IBRAHIM AS",
-                 4: "BAGIAN 4 · NABI IBRAHIM AS HINGGA NABI ADAM AS"}
+                 3: "BAGIAN 3 · ADNAN HINGGA NABI IBRAHIM ALAIHISSALAM",
+                 4: "BAGIAN 4 · NABI IBRAHIM HINGGA NABI ADAM ALAIHIMASSALAM"}
 SEC_COL = {2: TEAL, 3: (226, 200, 120), 4: (240, 226, 196)}
 
 FAMILY = [("AYAH", "Abdullah bin Abdul Mutthalib"), ("IBU", "Aminah binti Wahb"),
@@ -98,6 +98,7 @@ def _dur(it):
     if it[3]: d = max(d, 2.2 + len(it[3]) / 30.0)
     return d
 durs = [_dur(it) for it in ITEMS]
+durs[0] += 1.2
 starts = []
 t = INTRO
 for d in durs:
@@ -226,7 +227,7 @@ def make_wheel(cur):
     d.ellipse((WC - (R_OUT - 34), WC - (R_OUT - 34), WC + (R_OUT - 34), WC + (R_OUT - 34)), outline=(40, 40, 40, 255), width=1)
     d.ellipse((WC - R_RING_IN + 8, WC - R_RING_IN + 8, WC + R_RING_IN - 8, WC + R_RING_IN - 8), outline=(45, 44, 42, 255), width=1)
     for i, a_ in enumerate(ITEMS):
-        name = a_[0]
+        name = "Muhammad" if i == 0 else a_[0]
         if cur >= N or i < cur: col = GOLD + (235,)
         elif i == cur: col = GOLD_L + (255,)
         else: col = GREY + (170,)
@@ -312,7 +313,7 @@ def build():
     WHEELS = {c: make_wheel(c) for c in range(-1, N + 1)}
     HEADER = layer(lambda d: (
         draw_spaced(d, (540, 40), "NASAB AN-NABI", F(MONO, 44), WHITE, 14),
-        draw_spaced(d, (540, 92), "SILSILAH NABI MUHAMMAD SAW HINGGA NABI ADAM AS", F(MONO, 19), GOLD, 4)), h=130)
+        draw_spaced(d, (540, 92), "SILSILAH BAGINDA RASULULLAH HINGGA NABI ADAM ALAIHISSALAM", F(MONO, 18), GOLD, 3)), h=130)
     fname = F(LORA_B, 80); fepi = F(LORA_I, 46); ftask = F(LORA_R, 37); fmono = F(MONO, 27)
     flab = F(MONO, 20)
     dd = ImageDraw.Draw(Image.new("L", (1, 1)))
@@ -322,11 +323,17 @@ def build():
         arl = gold_text_layer([ar], arf)
         cnt = layer(lambda d, i=i: draw_spaced(d, (540, 30), f"{i+1:02d} / {N}", fmono, (190, 186, 178), 10), h=60)
         prefix = "" if i == 0 else "bin "
-        nm = layer(lambda d, lat=lat, prefix=prefix: (
+        if i == 0:
+            nm = layer(lambda d: (
+                d.text((540, 45), "Baginda Rasulullah", font=F(LORA_B, 70), fill=WHITE, anchor="mm"),
+                d.text((540, 112), "shalallahu alaihi wasallam", font=F(LORA_I, 44), fill=GOLD, anchor="mm"),
+                d.text((540, 172), "(Muhammad)", font=F(LORA_B, 50), fill=WHITE, anchor="mm")), h=210)
+        else:
+          nm = layer(lambda d, lat=lat, prefix=prefix: (
             d.text((540, 55), lat, font=fname, fill=WHITE, anchor="mm"),
             prefix and d.text((540 - fname.getlength(lat) / 2 - 14, 62), prefix.strip(), font=F(LORA_I, 34), fill=(150, 146, 138), anchor="rm")), h=110)
-        sub_ = sub or f"Leluhur ke-{i}"
-        ep = layer(lambda d, sub_=sub_: d.text((540, 35), sub_, font=fepi, fill=GOLD, anchor="mm"), h=75)
+        sub_ = "" if i == 0 else (sub or f"Leluhur ke-{i}")
+        ep = layer(lambda d, sub_=sub_: d.text((540, 35), sub_, font=fepi, fill=GOLD, anchor="mm"), h=75) if sub_ else None
         tl = wrap(note, ftask, 920, dd) if note else []
         tk = text_block(tl, ftask, (222, 219, 212), 52) if tl else Image.new("RGBA", (W, 4), (0, 0, 0, 0))
         lb = layer(lambda d, sec=sec: draw_spaced(d, (540, 20), SECTION_LABEL[sec], flab, (125, 122, 116), 4), h=40)
@@ -343,10 +350,11 @@ def build():
             draw_spaced(d, (408, 26), lab_, F(MONO, 19), GOLD, 3, anchor="r"),
             d.text((436, 26), val, font=flv, fill=WHITE, anchor="lm")), h=52))
     INTRO_L = dict(
-        c=layer(lambda d: (d.text((540, 70), "Silsilah mulia", font=fi, fill=WHITE, anchor="mm"),
-                           d.text((540, 132), "Nabi Muhammad SAW", font=fi, fill=WHITE, anchor="mm")), h=200),
+        c=layer(lambda d: (d.text((540, 50), "Silsilah mulia", font=F(LORA_B, 42), fill=WHITE, anchor="mm"),
+                           d.text((540, 104), "Baginda Rasulullah", font=F(LORA_B, 42), fill=WHITE, anchor="mm"),
+                           d.text((540, 152), "shalallahu alaihi wasallam", font=F(LORA_I, 27), fill=GOLD, anchor="mm")), h=200),
         q=text_block(hq, F(LORA_I, 40), GOLD, 54),
-        s=layer(lambda d: draw_spaced(d, (540, 20), "HR. MUSLIM 2276", flab, (140, 136, 128), 6), h=40),
+        s=layer(lambda d: draw_spaced(d, (540, 20), "HADIS RIWAYAT MUSLIM NOMOR 2276", flab, (140, 136, 128), 6), h=40),
         k=layer(lambda d: draw_spaced(d, (540, 20), "BAGIAN 1 · KELUARGA INTI", flab, (125, 122, 116), 5), h=40),
         far=gold_text_layer(fam_ar, fit_arabic(fam_ar, 300, 60), line_gap=1.0),
         ft=layer(lambda d: d.text((540, 45), "Keluarga Inti", font=F(LORA_B, 64), fill=WHITE, anchor="mm"), h=90),
@@ -359,8 +367,8 @@ def build():
     OUTRO_L = dict(
         ar=gold_text_layer(oar, fit_arabic(oar, 300, 58), line_gap=1.0),
         q=text_block(oq, F(LORA_I, 44), WHITE, 58),
-        s=layer(lambda d: draw_spaced(d, (540, 20), "QS. AL-AHZAB 33:56", flab, GOLD, 6), h=40),
-        c=layer(lambda d: draw_spaced(d, (540, 20), "PERBANYAK SHALAWAT · SIMPAN & BAGIKAN", flab, TEAL, 4), h=40),
+        s=layer(lambda d: draw_spaced(d, (540, 20), "SURAH AL-AHZAB AYAT 56", flab, GOLD, 6), h=40),
+        c=layer(lambda d: draw_spaced(d, (540, 20), "PERBANYAK SHALAWAT · SIMPAN DAN BAGIKAN", flab, TEAL, 4), h=40),
     )
 
 def put(frame, im, cx, top, alpha=1.0, dy=0.0):
@@ -463,10 +471,13 @@ def render(fi):
         a2 = fade(t, t0 + 0.25, 0.35) * out
         put(frame, L["nm"], CX, BOT, a2, dy=(1 - a2) * 16 if out > .99 else 0)
         a3 = fade(t, t0 + 0.4, 0.35) * out
-        put(frame, L["ep"], CX, BOT + 92, a3)
+        nh = L["nm"].height
+        if L["ep"] is not None:
+            put(frame, L["ep"], CX, BOT + nh - 18, a3)
+        tky = BOT + nh + (58 if L["ep"] is not None else 0)
         a4 = fade(t, t0 + 0.6, 0.5) * out
-        put(frame, L["tk"], CX, BOT + 168, a4, dy=(1 - fade(t, t0 + 0.6, 0.5)) * 14)
-        put(frame, L["lb"], CX, BOT + 178 + L["tk"].height, a2)
+        put(frame, L["tk"], CX, tky, a4, dy=(1 - fade(t, t0 + 0.6, 0.5)) * 14)
+        put(frame, L["lb"], CX, tky + 10 + L["tk"].height, a2)
     else:
         t0 = OUTRO_START
         a = fade(t, t0 + 0.3, 0.9)
