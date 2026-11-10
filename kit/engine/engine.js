@@ -1,7 +1,7 @@
 // Mesin video dokumen investigasi (bangun ulang Ep2) — setTime(t) menggambar frame pada detik t.
 const S = document.getElementById('stage'), CAMEL = document.getElementById('cam');
 const ITEMS = [], SFX = [], CUTS = [], PUNCH = [], LIGHT = [], CAMS = [];
-const TOTAL = 591.1;
+const TOTAL = 597.2;
 let SC = null;
 const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 const eo = x => 1 - Math.pow(1 - clamp(x), 3);
@@ -174,7 +174,7 @@ function searchFind(t0, t1, o) {
   const res = o.results;
   const n = node(`<div style="width:1500px;height:860px;background:${IVORY};border-radius:14px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.7);color:${ESP};font-family:Inter">
    <div style="height:58px;background:#e8dfcc;display:flex;align-items:flex-end;padding:0 18px;gap:8px">
-     <div style="background:#efe7d6;padding:10px 22px;border-radius:10px 10px 0 0;font:600 18px Inter;color:#8a7a60">Kajian · Minta Pertolongan Allah</div>
+     <div style="background:#efe7d6;padding:10px 22px;border-radius:10px 10px 0 0;font:600 18px Inter;color:#8a7a60">Kajian · Musuh di Dalam Diri</div>
      <div class="tab2" style="background:${IVORY};padding:10px 22px;border-radius:10px 10px 0 0;font:600 18px Inter">Pencarian kitab</div>
      <div class="plus" style="font:700 30px Inter;color:#8a7a60;padding:0 10px 8px">+</div></div>
    <div style="height:70px;display:flex;align-items:center;padding:0 24px;gap:16px;border-bottom:1px solid #e3d8c2">

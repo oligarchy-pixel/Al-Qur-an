@@ -77,3 +77,8 @@ Repo `oligarchy-pixel/Al-Qur-an` (branch `claude/greeting-c94nj2`, nanti main): 
 - HUD pojok memudar otomatis saat camTour zoom (`HUDK` di engine.js) → tab pencarian tidak tertimpa tulisan pojok.
 - Jangan biarkan layar kosong > 2 dtk (mis. saat lafaz kurang terdengar): perpanjang teks sebelumnya atau tambah kartu pendukung.
 - Perbaikan kecil setelah render: render ulang potongan 30 dtk yang terkena saja (`node render.js vid A B out/full/cNN.mp4`), lalu ulang sfx/bed + concat + mux.
+
+## Catatan Ep11 (keputusan pengguna)
+- **3D Three.js DITOLAK** ("terlalu terang, sakit mata"). Jangan pakai bloom/3D. Tetap gaya Ep10 2D, tambah visual baru di setiap kalimat (elemen muncul tiap 2–4 dtk).
+- **Sentuhan video referensi (The Night Journey) yang DITERIMA**, file `ref.js` di proj11 / repo `episode/ep11`: bar bab di atas tengah (judul episode + segmen bab yang terisi kuning), latar astrolab garis tipis kuning sangat samar berputar pelan + bintang berkedip, dan efek garis bercahaya (drop-shadow kuning) hanya pada ilustrasi garis (tulang rusuk, segi lima, root-cause, timeline).
+- ID gradien SVG harus unik per pemanggilan (mis. `emb${t0}`), kalau tidak gradien kedua tidak tampil.
