@@ -26,7 +26,7 @@ WHITE = (240, 238, 232)
 
 # (latin, arabic, subtitle, catatan, bagian)
 ITEMS = [
-    ("Baginda Rasulullah shalallahu alaihi wasallam (Muhammad)", "مُحَمَّدٌ ﷺ", "", "Nama lengkap: Muhammad bin Abdullah bin Abdul Mutthalib.", 2),
+    ("Baginda Rasulullah shalallahu alaihi wasallam (Muhammad)", "مُحَمَّدٌ\nصَلَّى اللهُ عَلَيْهِ وَسَلَّمَ", "", "Nama lengkap: Muhammad bin Abdullah bin Abdul Mutthalib.", 2),
     ("Abdullah", "عَبْدُ اللهِ", "Ayah Rasulullah", "Wafat saat Nabi shalallahu alaihi wasallam masih di dalam kandungan.", 2),
     ("Abdul Mutthalib", "عَبْدُ الْمُطَّلِبِ", "Kakek · nama asli Syaibah", "", 2),
     ("Hasyim", "هَاشِمٌ", "Nama asli Amr", "", 2),
@@ -319,8 +319,21 @@ def build():
     dd = ImageDraw.Draw(Image.new("L", (1, 1)))
     ANG_L = []
     for i, (lat, ar, sub, note, sec) in enumerate(ITEMS):
-        arf = fit_arabic([ar], 290, 104)
-        arl = gold_text_layer([ar], arf)
+        arlines = ar.split("\n")
+        if len(arlines) > 1:
+            l1 = gold_text_layer([arlines[0]], fit_arabic([arlines[0]], 260, 80))
+            l2 = gold_text_layer([arlines[1]], fit_arabic([arlines[1]], 290, 46))
+            b1 = l1.getchannel("A").point(lambda v: 255 if v > 120 else 0).getbbox()
+            b2 = l2.getchannel("A").point(lambda v: 255 if v > 120 else 0).getbbox()
+            gap = 10
+            w_ = max(l1.width, l2.width)
+            y2 = b1[3] + gap - b2[1]
+            arl = Image.new("RGBA", (w_, y2 + l2.height), (0, 0, 0, 0))
+            arl.alpha_composite(l1, ((w_ - l1.width) // 2, 0))
+            arl.alpha_composite(l2, ((w_ - l2.width) // 2, y2))
+            arl = arl.crop((0, max(0, b1[1] - 40), w_, y2 + b2[3] + 40))
+        else:
+            arl = gold_text_layer(arlines, fit_arabic(arlines, 290, 104))
         cnt = layer(lambda d, i=i: draw_spaced(d, (540, 30), f"{i+1:02d} / {N}", fmono, (190, 186, 178), 10), h=60)
         prefix = "" if i == 0 else "bin "
         if i == 0:
@@ -350,16 +363,16 @@ def build():
             draw_spaced(d, (408, 26), lab_, F(MONO, 19), GOLD, 3, anchor="r"),
             d.text((436, 26), val, font=flv, fill=WHITE, anchor="lm")), h=52))
     INTRO_L = dict(
-        c=layer(lambda d: (d.text((540, 50), "Silsilah mulia", font=F(LORA_B, 42), fill=WHITE, anchor="mm"),
-                           d.text((540, 104), "Baginda Rasulullah", font=F(LORA_B, 42), fill=WHITE, anchor="mm"),
-                           d.text((540, 152), "shalallahu alaihi wasallam", font=F(LORA_I, 27), fill=GOLD, anchor="mm")), h=200),
+        c=layer(lambda d: (d.text((540, 42), "Silsilah mulia", font=F(LORA_B, 40), fill=WHITE, anchor="mm"),
+                           d.text((540, 94), "Baginda Rasulullah", font=F(LORA_B, 42), fill=WHITE, anchor="mm"),
+                           d.text((540, 148), "shalallahu alaihi wasallam", font=F(LORA_B, 31), fill=GOLD_L, anchor="mm")), h=200),
         q=text_block(hq, F(LORA_I, 40), GOLD, 54),
         s=layer(lambda d: draw_spaced(d, (540, 20), "HADIS RIWAYAT MUSLIM NOMOR 2276", flab, (140, 136, 128), 6), h=40),
         k=layer(lambda d: draw_spaced(d, (540, 20), "BAGIAN 1 · KELUARGA INTI", flab, (125, 122, 116), 5), h=40),
         far=gold_text_layer(fam_ar, fit_arabic(fam_ar, 300, 60), line_gap=1.0),
         ft=layer(lambda d: d.text((540, 45), "Keluarga Inti", font=F(LORA_B, 64), fill=WHITE, anchor="mm"), h=90),
         rows=rows,
-        fn=text_block(wrap("Ayah wafat saat Nabi masih dalam kandungan, ibu wafat saat Nabi berusia 6 tahun.",
+        fn=text_block(wrap("Ayah wafat saat Baginda Rasulullah shalallahu alaihi wasallam masih dalam kandungan, ibu wafat saat beliau berusia 6 tahun.",
                            F(LORA_I, 30), 900, dd), F(LORA_I, 30), (200, 196, 186), 40),
     )
     oq = wrap("\u201cSesungguhnya Allah dan para malaikat-Nya bershalawat untuk Nabi.\u201d", F(LORA_I, 44), 920, dd)
@@ -466,7 +479,7 @@ def render(fi):
         L = ANG_L[st]; t0 = starts[st]; t1 = t0 + durs[st]
         out = 1 - fade(t, t1 - 0.25, 0.25)
         a1 = fade(t, t0 + 0.15, 0.35) * out
-        put_c(frame, L["ar"], CX, CY - 18, a1, 0.94 + 0.06 * fade(t, t0 + 0.15, 0.5))
+        put_c(frame, L["ar"], CX, CY - (34 if st == 0 else 18), a1, 0.94 + 0.06 * fade(t, t0 + 0.15, 0.5))
         put_c(frame, L["cnt"], CX, CY + 86, a1)
         a2 = fade(t, t0 + 0.25, 0.35) * out
         put(frame, L["nm"], CX, BOT, a2, dy=(1 - a2) * 16 if out > .99 else 0)
