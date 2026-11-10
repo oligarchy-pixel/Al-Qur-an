@@ -1,7 +1,7 @@
 # Mengenal Al-Qur'an · @alurziyadahku — Arsip Produksi
 
-Semua skill, aturan, prompt, kode, dan aset untuk membuat video kajian seri **Mengenal Al-Qur'an** (Ep1–Ep10 dan seterusnya).
-Untuk episode baru: kirim **MP3 + transkrip bertimestamp**, lalu minta "lanjut ep10 sampai final". Claude membaca folder ini dan `PROMPT_DAN_ATURAN.md`.
+Semua skill, aturan, prompt, kode, dan aset untuk membuat video kajian seri **Mengenal Al-Qur'an** (Ep1–Ep11 dan seterusnya).
+Untuk episode baru: kirim **MP3 + transkrip bertimestamp**, lalu minta "lanjut ep12 sampai final". Claude membaca folder ini dan `PROMPT_DAN_ATURAN.md`.
 
 ## Isi folder
 
@@ -9,12 +9,12 @@ Untuk episode baru: kirim **MP3 + transkrip bertimestamp**, lalu minta "lanjut e
 |---|---|
 | `PROMPT_DAN_ATURAN.md` | **Semua aturan tetap + riwayat permintaan pengguna.** Baca ini dulu. |
 | `skills/` | 5 skill: `video-kajian-dokumen-investigasi` (gaya utama Ep2–Ep9), `video-sinematik-quran`, `video-tulis-tangan-quran`, `video-youtube-kinetik-ui`, `rekaman-suara-kajian`. |
-| `kit/engine/` | Mesin video terbaru (versi Ep10): `index.html`, `engine.js`, `codes.js`, `helpers.js`, `render.js`, `sfx.py`, `full.sh`, `overlap.js`, `user_photo.jpg`. |
+| `kit/engine/` | Mesin video terbaru (versi Ep11, termasuk `ref.js`): `index.html`, `engine.js`, `codes.js`, `helpers.js`, `render.js`, `sfx.py`, `full.sh`, `overlap.js`, `user_photo.jpg`. |
 | `kit/shared/` | `overlap.js` (cek tabrakan teks), `cap_shamela.js` / `shamela.js` (verifikasi sumber, belakang layar saja). |
 | `kit/covers/` | Template cover: `cover_ep.html` (dosier lama, config per episode), `seri_latin_peny.html` (post seri IG PENYAMPAI), `cover_new.html`, `islamic.html`, `vlog*.html`, `air.html`, `kucing.html`, `hitam_ar.html`, `seri_*.html` + skrip `shot*.js` + `bg/`. |
 | `kit/fonts/` | Amiri, Kalam, Bebas Neue. |
 | `kit/toolkit_tulis_tangan/`, `kit/toolkit_sinematik/` | Kit skill gaya lain (tulisan tangan, sinematik). |
-| `episode/ep2` … `episode/ep9` | Naskah adegan tiap episode (`epN.js`) + konfigurasi render — contoh untuk episode berikutnya. |
+| `episode/ep2` … `episode/ep11` | Naskah adegan tiap episode (`epN.js`) + konfigurasi render — contoh untuk episode berikutnya. |
 | `transkrip/` | Semua transkrip yang pernah dikirim. |
 | `hasil/` | Semua cover, thumbnail, post IG, caption yang sudah jadi (tanpa video/MP3 karena ukurannya besar). |
 

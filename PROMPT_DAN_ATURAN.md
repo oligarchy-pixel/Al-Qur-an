@@ -49,6 +49,39 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 - Kirim: video final, cover YouTube, cover Reel, post seri IG, laporan cek sumber, lalu tawarkan caption.
 - Caption: judul YouTube, caption pembuka yang memancing (hook), poin isi dengan emoji, ajakan komentar/bagikan/subscribe, **5 hashtag** paling berpengaruh (mis. `#taubat #istighfar #tahajjud #kajianislam #mengenalalquran`).
 
+## 10. Gaya standar terbaru (dipakai mulai Ep12 — hasil Ep11 yang disetujui "Bagus")
+**Dasar = gaya Ep10 (2D hitam + kuning) + lapisan referensi `ref.js` (dari video referensi "The Night Journey").** Salin `episode/ep11/` (ep11.js + ref.js + index.html + engine.js + full.sh) sebagai titik awal.
+1. **Bar bab di atas tengah** (`ref.js`): judul episode huruf kapital kecil + 6–8 segmen bab (mis. PEMBUKA · NAFSU · NIKMAT · PERANG · 5 KESULITAN · CINTA · TAUBAT · PENUTUP) yang terisi kuning sesuai bagian yang sedang dibahas. Tentukan bab dari alur transkrip.
+2. **Latar astrolab samar**: lingkaran garis tipis kuning (opasitas 0.05–0.12) berputar pelan + ±70 bintang berkedip. Tidak boleh mengganggu keterbacaan.
+3. **Garis bercahaya lembut** (drop-shadow kuning) HANYA pada ilustrasi garis (diagram, rangka, timeline, root-cause, segi lima) — bukan pada teks.
+4. **Visual per kalimat**: setiap 2–4 detik ada elemen baru yang muncul tepat saat katanya diucapkan (kartu, panah, stabilo, ikon, poin). Daftar/enumerasi dari penyampai = kartu bernomor kiri → kanan yang muncul satu per satu (contoh Ep11: 14 kotak nikmat muncul tiap "Allah ﷻ…").
+5. **Ilustrasi garis 2D sebagai pengganti 3D**: rangka tulang rusuk dengan bara merah berdenyut (nafsu), diagram segi lima dengan sosok di tengah (lima perkara), garis waktu "awal penciptaan → kiamat", cermin, lensa mata cinta/benci, kerumunan titik, ruang terkunci dengan sorot cahaya.
+6. **⛔ 3D (Three.js / bloom) DITOLAK** — "terlalu terang, sakit mata". Jangan dipakai lagi kecuali pengguna memintanya.
+7. ID gradien/elemen SVG harus unik per pemanggilan (mis. `emb${t0}`), kalau tidak efek kedua tidak tampil.
+
+## 11. Alur kerja per episode (urutan yang disukai pengguna)
+1. Terima MP3 + transkrip bertimestamp (boleh per detik). Cek durasi MP3.
+2. **Cek sumber** semua hadis/atsar/syair di Maktabah Syamilah (belakang layar): kitab, jilid, halaman, derajat. Lafaz yang "kurang terdengar" → jangan ditebak; tampilkan terjemahan saja, atau usulkan syair masyhur yang cocok dan minta konfirmasi.
+3. Bila pengguna minta **"sheet by sheet dulu, jangan render"**: kirim dokumen sheet-by-sheet (waktu · kode · ucapan · visual · catatan sumber) **+ foto storyboard per sheet** (`node render.js preview …` lalu dijadikan lembar 3×4 bernomor). Pengguna biasanya ingin MELIHAT FOTO, bukan hanya teks.
+4. Bangun adegan → cek sintaks → `overlap.js` seluruh durasi (0 baris) → cek foto preview (tidak ada layar kosong > 2 dtk, tidak ada bug gradien).
+5. Render final (`full.sh`), cek durasi/volume/foto, kirim: video + cover dosier YT & Reel + post seri IG + caption.
+6. Laporkan hasil cek sumber di chat (derajat lemah/palsu disebut di chat & tab pencarian, bukan dikoreksi di layar).
+7. Simpan semuanya ke repo (episode/epN, hasil/EpN_Dokumen, transkrip, skill).
+
+## 12. Rumus caption yang dipakai (Ep10–Ep11)
+- **Judul YouTube**: kalimat menohok + `|` + topik + `— Mengenal Al-Qur'an Ep.N` (contoh: "Musuh Paling Berbahaya Bukan di Luar, Tapi di Dalam Dirimu | Mengenal Al-Qur'an Ep.11").
+- **Pembuka 2 baris** yang menyentuh pengalaman umum penonton + emoji 😔.
+- Ayat/hadis kunci dalam aksara Arab + terjemahan singkat.
+- "Di episode N ini kita bedah:" + 5–7 poin ber-emoji (dengan sumber shahih bila ada, mis. Bukhari/Muslim).
+- Kalimat penutup yang kuat (mis. "Pilih yang abadi. Tinggalkan yang fana.").
+- 3 ajakan: 👇 pertanyaan jujur di komentar (memancing jawaban pribadi) · 🔁 "kirim ke 1 sahabat yang…" · 🔔 follow @alurziyadahku.
+- **5 hashtag**: 3 topik spesifik + `#kajianislam` / `#nasihatislami` + `#mengenalalquran`.
+- Tips unggah: balas 10–20 komentar pertama dalam 1 jam; unggah sesudah Isya / menjelang Subuh; potong 1 momen kuat jadi Reels terpisah.
+
+## 13. Short vertikal (Reels/TikTok/Shorts)
+- Template `kit/short_vertikal/` (1080×1920, ±100 dtk, < 3 menit): hook 0–4 dtk ("sudah sering…? tapi sudah tahu N … ini?"), poin bernomor dengan header "ADAB KE-n", ayat di kertas krem, alur 3 langkah ikon, penutup ringkasan + simpan/bagikan + SUBSCRIBE. Konten penting di area y 250–1500 (aman dari UI aplikasi).
+- Bila tersedia rekaman suara: pakai suara asli & sinkron kata per kata.
+
 ---
 
 ## Riwayat permintaan pengguna (urut)
@@ -73,3 +106,9 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 - Ep9: perbaiki teks yang tertimpa di bar-chart — **peringatan terakhir, jangan terulang**; perbaiki bagian yang dikirim gambar saja.
 - Simpan semua skill, perintah, prompt, aset untuk video selanjutnya (arsip ini).
 - Ep10: lanjut sampai final, tambahkan apa yang patut, buat terlihat seperti editor profesional.
+- Ep10: caption yang bisa menambah like & view (rumus di bagian 12).
+- Ep1: buat short video < 3 menit dari Ep1 (dibuat dari catatan sheet Ep1 karena rekaman tidak ada).
+- Contoh 3D (CSS) → "tidak cocok"; contoh 3D Three.js meja investigasi → lalu Ep11 dengan 3D → **dibatalkan: terlalu terang, sakit mata**.
+- Ep11: lanjut dengan gaya Ep10 + 3D paling bagus → minta **sheet by sheet dulu, jangan render** → "mana photonya, saya mau lihat" (kirim foto storyboard per sheet).
+- Ep11: "buat saja seperti Ep10 lengkap, tambahkan visual yang paling bagus setiap detik per detik kalimatnya".
+- Ep11: tambahkan sedikit dari video referensi (The Night Journey) agar video lebih baik → bar bab, latar astrolab, garis bercahaya. Hasil: **"Bagus"** → jadikan standar episode selanjutnya.

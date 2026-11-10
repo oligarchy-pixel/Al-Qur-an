@@ -82,3 +82,6 @@ Repo `oligarchy-pixel/Al-Qur-an` (branch `claude/greeting-c94nj2`, nanti main): 
 - **3D Three.js DITOLAK** ("terlalu terang, sakit mata"). Jangan pakai bloom/3D. Tetap gaya Ep10 2D, tambah visual baru di setiap kalimat (elemen muncul tiap 2–4 dtk).
 - **Sentuhan video referensi (The Night Journey) yang DITERIMA**, file `ref.js` di proj11 / repo `episode/ep11`: bar bab di atas tengah (judul episode + segmen bab yang terisi kuning), latar astrolab garis tipis kuning sangat samar berputar pelan + bintang berkedip, dan efek garis bercahaya (drop-shadow kuning) hanya pada ilustrasi garis (tulang rusuk, segi lima, root-cause, timeline).
 - ID gradien SVG harus unik per pemanggilan (mis. `emb${t0}`), kalau tidak gradien kedua tidak tampil.
+
+## ✅ STANDAR MULAI EP12 (disetujui pengguna: "Bagus")
+Mulai dari `episode/ep11/` di repo (ep11.js + ref.js). Wajib: gaya Ep10 2D + `ref.js` (bar bab, latar astrolab samar, garis bercahaya pada ilustrasi garis) + visual baru per kalimat tiap 2–4 dtk. Tanpa 3D/bloom. Alur kerja, rumus caption, dan riwayat prompt lengkap ada di `PROMPT_DAN_ATURAN.md` bagian 10–13 di repo.
