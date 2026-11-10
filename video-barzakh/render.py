@@ -9,7 +9,8 @@ S = os.path.dirname(os.path.abspath(__file__))
 FD = os.path.join(os.path.dirname(S), "fonts")
 W, H, FPS = 1080, 1920, 30
 TOTAL = 170.0
-NFRAMES = int(TOTAL * FPS)
+SPEED = 1.3
+NFRAMES = int(TOTAL / SPEED * FPS)
 
 def F(p, s): return ImageFont.truetype(os.path.join(FD, p), s)
 AR = "fontsource-amiri-5.3.0/package/files/amiri-arabic-700-normal.woff"
@@ -930,7 +931,7 @@ def post_fx(fr, t):
     return fr
 
 def render(fi):
-    t = fi / FPS
+    t = fi / FPS * SPEED
     fr = compose(t)
     fr = post_fx(fr, t)
     fr.alpha_composite(G["topshade"])
@@ -945,7 +946,7 @@ def worker(args):
     a, b, out = args
     build()
     p = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
-                          "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+                          "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "23", "-maxrate", "4500k", "-bufsize", "9000k",
                           "-pix_fmt", "yuv420p", out], stdin=subprocess.PIPE)
     for fi in range(a, b): p.stdin.write(render(fi).tobytes())
     p.stdin.close(); p.wait(); return out
@@ -1114,5 +1115,6 @@ if __name__ == "__main__":
         with Pool(P) as pool: parts = pool.map(worker, jobs)
         with open(os.path.join(outdir, "list.txt"), "w") as f:
             for p in parts: f.write(f"file '{p}'\n")
-        os.system(f"ffmpeg -v error -y -f concat -safe 0 -i {outdir}/list.txt -i {outdir}/audio.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart {outdir}/barzakh.mp4")
+        os.system(f"ffmpeg -v error -y -i {outdir}/audio.wav -af atempo={SPEED} {outdir}/audio_fast.wav")
+        os.system(f"ffmpeg -v error -y -f concat -safe 0 -i {outdir}/list.txt -i {outdir}/audio_fast.wav -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart {outdir}/barzakh.mp4")
         print("done")
