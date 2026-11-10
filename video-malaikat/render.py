@@ -275,12 +275,11 @@ def layer(fn, w=W, h=200):
 # ---------------- precompute ----------------
 def build():
     global BG, DECO, PTR, WHEELS, ANG_L, INTRO_L, OUTRO_L, HEADER, WM
-    # watermark @alurziyadahku di tengah layar (semi-transparan, dengan bayangan tipis)
-    wf = F(MONT, 50)
-    WM = Image.new("RGBA", (W, 120), (0, 0, 0, 0))
+    # watermark @alurziyadahku: tanda tangan kecil di dalam lingkaran tengah roda
+    WM = Image.new("RGBA", (W, 60), (0, 0, 0, 0))
     wd = ImageDraw.Draw(WM)
-    wd.text((W / 2 + 2, 62), "@alurziyadahku", font=wf, fill=(0, 0, 0, 110), anchor="mm")
-    wd.text((W / 2, 60), "@alurziyadahku", font=wf, fill=(255, 255, 255, 105), anchor="mm")
+    wf = F(MONO, 21)
+    tw = draw_spaced(wd, (W / 2, 30), "@alurziyadahku", wf, GOLD + (200,), 3)
     BG = make_bg().convert("RGBA")
     DECO = make_static_wheel_deco()
     PTR = make_pointer()
@@ -423,7 +422,7 @@ def render(fi):
         put(frame, OUTRO_L["q"], CX, BOT + 20, fade(t, t0 + 1.4, 0.9), dy=(1 - fade(t, t0 + 1.4, 0.9)) * 18)
         put(frame, OUTRO_L["s"], CX, BOT + 30 + OUTRO_L["q"].height, fade(t, t0 + 2.2, 0.8))
         put(frame, OUTRO_L["c"], CX, 1660, fade(t, t0 + 3.2, 0.8))
-    frame.alpha_composite(WM, (0, H // 2 - 60))
+    frame.alpha_composite(WM, (0, CY + 126 - 30))
     # global fade in/out
     g = min(fade(t, 0, 0.6), 1 - fade(t, TOTAL - 0.8, 0.8))
     rgb = frame.convert("RGB")
