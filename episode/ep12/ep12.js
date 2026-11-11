@@ -22,7 +22,7 @@ const box = (w, col, inner, extra = '') => `<div style="width:${w}px;border:4px 
 const IKH = 'إِنْ كَانَ خَيْرًا لِي';
 // kartu doa bersyarat (dipakai berulang)
 function condDoa(t0, t1, doaTxt, tIkh, tYes, tNo, top = 560) {
-  crd(`<div style="width:1500px;border:4px solid ${CG};border-radius:20px;padding:24px 34px;background:rgba(127,224,160,.06)"><div class="mono" style="font-size:22px;color:${CG}">🤲 DOA YANG BERSYARAT</div><div style="font:italic 800 40px Inter;margin-top:10px;line-height:1.3">"${doaTxt}"</div></div>`, `left:210px;top:${top}px`, t0, t1, 'up', 'paper');
+  crd(`<div style="width:1500px;border:4px solid ${CG};border-radius:20px;padding:24px 34px;background:rgba(127,224,160,.06)"><div class="mono" style="font-size:22px;color:${CG}">🤲 DOA YANG BERSYARAT</div><div style="font:700 46px Kalam;margin-top:6px;line-height:1.25;color:#fff8d0">"${doaTxt}"</div></div>`, `left:210px;top:${top}px`, t0, t1, 'up', 'paper');
   crd(`<div class="ar" style="font-size:66px;color:#111;background:${Y};border-radius:12px;padding:0 26px">${IKH}</div>`, `left:210px;top:${top + 230}px`, tIkh, t1, 'scale', 'impact');
   crd(`<div style="font:900 38px Inter;color:${CG}">✓ maka kabulkan, ya Allah</div>`, `left:820px;top:${top + 245}px`, tYes, t1, 'left', 'beep');
   crd(`<div style="font:900 38px Inter;color:${CR}">✕ kalau tidak, jangan</div>`, `left:1360px;top:${top + 245}px`, tNo, t1, 'left', 'beep'); }
@@ -49,6 +49,7 @@ sv(15.8, 24.34, DEFS + `<path d="M760 1040 L940 380 L980 380 L1160 1040 Z" fill=
 scene(24.34, 43.88, { cut: 'glitch' });
 line(24.4, 43.88, 'left:140px;top:130px;width:1640px', 'pada ayat ini Allah [mengajarkan kita berdoa]', { fs: 46, m: [30.0] });
 crd('<div style="font-size:150px">🤲</div>', 'left:200px;top:330px', 29.2, 43.88, 'scale', 'beep');
+crd(`<div style="width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6b0,${Y} 55%,#9a8a10);display:flex;align-items:center;justify-content:center;font:900 64px Inter;color:#111;box-shadow:0 0 30px rgba(233,242,58,.5)">#1</div>`, 'left:1660px;top:300px', 34.8, 43.88, 'scale', 'stamp');
 crd(`<div style="width:1080px;border:6px solid ${Y};border-radius:22px;padding:26px 34px;background:rgba(233,242,58,.10)"><div class="mono" style="font-size:26px;color:${Y}">👑 #1 · YANG PALING UTAMA DIMINTA</div><div style="font:900 60px Inter;margin-top:10px">petunjuk ke <span class="mk">jalan yang lurus</span></div></div>`, 'left:560px;top:320px', 34.4, 43.88, 'up', 'impact');
 [['#2', 'harta?'], ['#3', 'jabatan?'], ['#4', 'jodoh?']].forEach(([n, s], i) => crd(`<div style="width:320px;border:3px dashed ${CR};border-radius:14px;padding:12px 18px;font:900 34px Inter;color:${CR}">${n} ${s}</div>`, `left:${560 + i * 360}px;top:610px`, 36.8 + i * .5, 43.88, 'up', 'tick'));
 line(39.4, 43.88, 'left:560px;top:760px;width:1100px', 'itulah [pelajaran] yang Allah berikan pada ayat ini', { fs: 38, m: [41.0] });
@@ -56,6 +57,7 @@ line(39.4, 43.88, 'left:560px;top:760px;width:1100px', 'itulah [pelajaran] yang 
 // --- 04 /path-goal : jalan lurus menuju ridha Allah
 scene(43.88, 68.24, { cut: 'glitch' });
 line(43.9, 49.0, 'left:140px;top:130px;width:1640px', 'kenapa Allah menyuruh kita [memohon jalan yang lurus]?', { fs: 46, m: [46.4] });
+show(node('', 'left:120px;top:600px;width:1680px;height:330px;border:3px solid #7fa0ff;border-radius:12px', 'bp'), 49.0, 'fade', 68.24);
 sv(49.0, 68.24, DEFS + `<path d="M200 760 H1500" stroke="${Y}" stroke-width="8" stroke-linecap="round" data-d="1300" data-dur="2.4"/>` + `<circle cx="200" cy="760" r="22" fill="#fff"/>` + T(200, 830, 'kita', { fs: 34, fw: 900 }) +
   `<g data-f="2.4"><circle cx="1600" cy="760" r="90" fill="rgba(233,242,58,.15)" stroke="${Y}" stroke-width="6"/>` + T(1600, 750, 'RIDHA', { fs: 40, fw: 900, c: Y }) + T(1600, 795, 'ALLAH', { fs: 40, fw: 900, c: Y }) + '</g>', 'left:0;top:0', 1920, 1080, 1.0);
 line(49.1, 56.0, 'left:140px;top:200px;width:1640px', 'jalan yang lurus itulah yang [menyampaikan kita kepada ridha Allah]', { fs: 42, m: [52.4] });
@@ -66,13 +68,16 @@ crd(box(1300, Y, `<div style="font:900 46px Inter">kalau meminta kepada Allah �
 scene(68.24, 91.86, { cut: 'glitch' });
 label('CONTOH DOA YANG PASTI BAIK', 68.3, 'left:160px;top:130px', 91.86);
 [['🧭', 'petunjuk & hidayah ke jalan lurus', 68.6], ['💪', 'kekuatan iman', 74.2], ['💎', 'keyakinan yang benar-benar meyakinkan hati', 76.6], ['🌅', 'husnul khatimah', 81.2], ['🕊️', 'wafat dalam keadaan beriman', 83.7], ['🌿', 'ridha-Mu · selamat dunia & akhirat', 87.0]].forEach(([e, s, t], i) =>
-  crd(`<div style="width:780px;height:150px;display:flex;align-items:center;gap:20px;border:3px solid ${Y};border-radius:16px;padding:0 24px;background:rgba(233,242,58,.05)"><div class="mono" style="font-size:28px;color:${Y}">0${i + 1}</div><div style="font-size:56px">${e}</div><div style="font:900 32px Inter;line-height:1.2">"ya Allah… ${s}"</div><div style="margin-left:auto;font:900 44px Inter;color:${CG}">✓</div></div>`, `left:${160 + (i % 2) * 830}px;top:${200 + Math.floor(i / 2) * 175}px`, t, 91.86, 'up', 'tick'));
+  crd(`<div style="width:780px;height:150px;display:flex;align-items:center;gap:20px;border:3px solid ${Y};border-radius:16px;padding:0 24px;background:rgba(233,242,58,.05)"><div class="mono" style="font-size:28px;color:${Y}">0${i + 1}</div><div style="font-size:56px">${e}</div><div style="font:700 36px Kalam;line-height:1.15;color:#fff8d0">"ya Allah… ${s}"</div><div style="margin-left:auto;font:900 44px Inter;color:${CG}">✓</div></div>`, `left:${160 + (i % 2) * 830}px;top:${200 + Math.floor(i / 2) * 175}px;transform:rotate(${i % 2 ? .8 : -.8}deg)`, t, 91.86, 'drop', 'tick'));
 
-// --- 06 /versus : pasti baik vs belum pasti baik
+// --- 06 /spectrum : pasti baik ←→ belum pasti baik
 scene(91.86, 106.96, { cut: 'glitch' });
-[['✓', 'PASTI BAIK', 'mintalah kepada Allah', CG, 92.0], ['⚠', 'BELUM PASTI BAIK', 'jangan diminta · dikhawatirkan mendatangkan MUDARAT', CR, 100.0]].forEach(([e, s, d, c, t], i) =>
-  crd(`<div style="width:760px;height:520px;border:5px solid ${c};border-radius:20px;text-align:center;padding:40px 30px"><div style="font:900 130px Inter;color:${c}">${e}</div><div style="font:900 60px Inter;color:${c};margin-top:10px">${s}</div><div style="font:800 36px Inter;margin-top:16px;line-height:1.35">${d}</div></div>`, `left:${140 + i * 880}px;top:200px`, t, 106.96, 'up', 'stamp'));
-crd('<div style="font:900 70px Inter">VS</div>', 'left:910px;top:410px', 99.6, 106.96, 'scale');
+line(92.0, 106.96, 'left:140px;top:130px;width:1640px', 'mintalah yang [pasti baik] · jangan yang belum pasti baik', { fs: 44, m: [94.0] });
+(() => { let g = `<defs><linearGradient id="spc" x1="0" x2="1"><stop offset="0" stop-color="${CG}"/><stop offset=".5" stop-color="${Y}"/><stop offset="1" stop-color="${CR}"/></linearGradient></defs><rect x="160" y="520" width="1600" height="26" rx="13" fill="url(#spc)" data-f=".2"/>` + T(160, 330, 'PASTI BAIK ✓', { f: .4, fs: 40, fw: 900, c: CG, a: 'start' }) + T(1760, 330, 'BELUM PASTI BAIK ⚠', { f: .6, fs: 40, fw: 900, c: CR, a: 'end' });
+  [['hidayah', 220, 1.0], ['iman', 380, 1.6], ['husnul khatimah', 560, 2.2], ['rezeki luas', 1040, 8.4], ['jabatan', 1220, 9.0], ['sehat', 1380, 9.6], ['jodoh', 1530, 10.2], ['anak', 1680, 10.8]].forEach(([w, x, d], i) => { const up = i % 2 === 0, c = x < 900 ? CG : CR;
+    g += `<path d="M${x} ${up ? 512 : 554} V${up ? 430 : 650}" stroke="${c}" stroke-width="3" data-f="${d}"/><circle cx="${x}" cy="533" r="12" fill="#000" stroke="${c}" stroke-width="4" data-f="${d}"/>` + T(x, up ? 415 : 690, w, { f: d, fs: 32, fw: 900, c }); });
+  sv(92.4, 106.96, g, 'left:0;top:0', 1920, 1080, .8); })();
+crd(box(1100, CR, `<div style="font:900 40px Inter">yang belum pasti baik → dikhawatirkan <span style="color:${CR}">mendatangkan MUDARAT</span></div>`), 'left:410px;top:780px', 103.0, 106.96, 'up', 'impact');
 
 // --- 07 /rise-fall : rezeki luas belum tentu baik
 scene(106.96, 130.66, { cut: 'glitch' });
@@ -106,10 +111,11 @@ condDoa(174.6, 187.9, 'ya Allah, jadikanlah hamba menang dalam pemilihan di kamp
 scene(187.9, 215.4, { cut: 'glitch' });
 jangan('cepat-cepat minta sehat', 187.9, 215.4);
 line(192.0, 196.1, 'left:160px;top:260px;width:1600px', 'karena sehat [belum tentu] mendatangkan kebaikan', { fs: 42, m: [193.6] });
-(() => { const n = node(`<svg width="1600" height="220" viewBox="0 0 1600 220"><path class="ecg" d="" fill="none" stroke="${CG}" stroke-width="5" stroke-linejoin="round"/></svg>`, 'left:160px;top:360px', 'dimmable');
-  item(196.1, 215.4, n, (lt, t, it) => { n.style.opacity = clamp(lt / .3) * clamp((it.t1 - t) / .3); let d = 'M0 110'; for (let x = 0; x <= 1600; x += 8) { const ph = ((x / 1600) * 6 - lt * 1.4) % 1, ph2 = ph < 0 ? ph + 1 : ph; const y = ph2 > .45 && ph2 < .5 ? 110 - 90 * Math.sin((ph2 - .45) / .05 * Math.PI) : ph2 > .5 && ph2 < .54 ? 110 + 40 * Math.sin((ph2 - .5) / .04 * Math.PI) : 110; d += ` L${x} ${y.toFixed(1)}`; } n.querySelector('.ecg').setAttribute('d', d); }); sfx(196.2, 'beep', .6); })();
-[['🤒 sakit', 196.2, '#fff'], ['→ ingat Allah', 198.0, CG], ['📿 berzikir', 200.0, CG], ['🤲 banyak berdoa', 201.6, CG], ['"sedikit-sedikit berdoa · sedikit-sedikit berzikir"', 202.8, Y]].forEach(([s, t, c], i) => crd(`<div style="font:900 ${i === 4 ? 34 : 40}px Inter;color:${c}">${s}</div>`, `left:${i === 4 ? 160 : 160 + i * 380}px;top:${i === 4 ? 720 : 620}px`, t, 215.4, 'up', 'tick'));
-crd(box(1400, Y, `<div style="font:900 40px Inter">sakit yang membuat ingat Allah → <span class="mk">jangan cepat-cepat minta sehat</span></div>`, 'background:rgba(233,242,58,.07)'), 'left:160px;top:820px', 206.8, 215.4, 'up', 'impact');
+(() => { const C = [['🤒', 'sakit', 196.2, '#fff'], ['💭', 'ingat Allah', 198.0, CG], ['📿', 'berzikir', 200.0, CG], ['🤲', 'banyak berdoa', 201.6, CG]]; let g = `<circle cx="960" cy="560" r="200" fill="none" stroke="${Y}" stroke-width="4" stroke-dasharray="14 12" data-d="1260" data-dur="2"/>`;
+  C.forEach(([e, s, t, c], i) => { const a = -Math.PI / 2 + i * Math.PI / 2, x = 960 + Math.cos(a) * 200, y = 560 + Math.sin(a) * 200, d = (t - 196.1).toFixed(2); g += `<circle cx="${x}" cy="${y}" r="62" fill="#000" stroke="${c}" stroke-width="5" data-f="${d}"/>` + T(x, y + 16, e, { f: d, fs: 50 }) + T(x + (Math.cos(a) > .5 ? 90 : Math.cos(a) < -.5 ? -90 : 0), y + (Math.sin(a) > .5 ? 110 : Math.sin(a) < -.5 ? -85 : 12), s, { f: d, fs: 34, fw: 900, c, a: Math.cos(a) > .5 ? 'start' : Math.cos(a) < -.5 ? 'end' : 'middle' }); });
+  g += T(960, 575, 'SIKLUS', { f: 6.4, fs: 30, fw: 900, c: Y }); sv(196.1, 215.4, g, 'left:0;top:0', 1920, 1080, 1.2); })();
+crd(`<div style="font:700 40px Kalam;color:${Y};width:420px">"sedikit-sedikit berdoa · sedikit-sedikit berzikir"</div>`, 'left:150px;top:680px', 202.8, 215.4, 'left', 'tick');
+crd(box(1400, Y, `<div style="font:900 40px Inter">sakit yang membuat ingat Allah → <span class="mk">jangan cepat-cepat minta sehat</span></div>`, 'background:rgba(233,242,58,.07)'), 'left:260px;top:880px', 206.8, 215.4, 'up', 'impact');
 
 // --- 12 /formula : doa sehat bersyarat
 scene(215.4, 234.18, { cut: 'glitch' });
@@ -129,17 +135,19 @@ line(247.9, 252.5, 'left:160px;top:800px;width:1600px', 'permintaan [seperti apa
 // --- 14 /ocean : ilmu kita setetes
 scene(252.5, 266.68, { cut: 'glitch' });
 line(252.6, 266.68, 'left:140px;top:130px;width:1640px', 'jaga kehati-hatian · mintalah [sesuatu yang membawa kebaikan]', { fs: 42, m: [258.0] });
-sv(260.3, 266.68, `<circle cx="1180" cy="620" r="320" fill="rgba(127,214,255,.10)" stroke="${CB}" stroke-width="5" data-d="2010"/>` + T(1180, 610, 'ILMU ALLAH', { f: .6, fs: 54, fw: 900, c: CB }) + T(1180, 670, 'tak terbatas', { f: .8, fs: 34, fw: 800 }) +
-  `<path d="M440 600 C 470 640 480 660 480 680 A40 40 0 0 1 400 680 C 400 660 410 640 440 600Z" fill="${Y}" data-f="2.4"/>` + T(440, 780, 'ilmu kita', { f: 2.6, fs: 36, fw: 900, c: Y }) + T(440, 825, 'sangat sedikit', { f: 2.8, fs: 30, fw: 800 }), 'left:0;top:0', 1920, 1080, 1.4);
+sv(260.3, 266.68, `<circle cx="960" cy="640" r="330" fill="rgba(127,214,255,.10)" stroke="${CB}" stroke-width="5" data-d="2075"/>` + T(960, 420, 'ILMU ALLAH', { f: .6, fs: 54, fw: 900, c: CB }) + T(960, 465, 'meliputi segala sesuatu', { f: .8, fs: 30, fw: 800 }) +
+  `<circle cx="960" cy="700" r="34" fill="rgba(233,242,58,.35)" stroke="${Y}" stroke-width="4" data-f="2.2"/>` + T(960, 790, 'ilmu kita', { f: 2.4, fs: 34, fw: 900, c: Y }) + T(960, 830, 'sangat sedikit', { f: 2.6, fs: 28, fw: 800 }), 'left:0;top:0', 1920, 1080, 1.4);
 
 // --- 15 /compass : jodoh bersyarat
 scene(266.68, 302.1, { cut: 'glitch' });
 jangan('cepat-cepat minta jodoh', 266.7, 302.1);
 crd('<div style="font-size:120px">💍</div>', 'left:1560px;top:120px', 268.8, 302.1, 'drop', 'tick');
 line(268.8, 279.8, 'left:160px;top:270px;width:1300px', 'laki-laki maupun perempuan yang [merasa lambat dapat jodoh] · kecuali permohonannya bersyarat', { fs: 38, m: [272.0] });
-crd(`<div style="width:1500px;border:4px solid ${CG};border-radius:20px;padding:22px 32px;background:rgba(127,224,160,.06)"><div style="font:italic 800 38px Inter">"ya Allah, permudahkan hamba mendapatkan pasangan, kalau itu mendatangkan kebaikan…"</div></div>`, 'left:210px;top:270px', 279.8, 302.1, 'up', 'paper');
-crd(`<div class="ar" style="font-size:60px;color:#111;background:${Y};border-radius:12px;padding:0 24px">${IKH}</div>`, 'left:210px;top:420px', 286.1, 302.1, 'scale', 'impact');
-[['✓ membuat hamba lebih taat', 290.6, CG, 'left:210px;top:580px'], ['✓ lebih rajin beribadah', 293.4, CG, 'left:210px;top:660px'], ['✕ jangan membuat hamba lupa', 297.2, CR, 'left:1000px;top:580px'], ['✕ jangan membuat hamba lalai', 299.0, CR, 'left:1000px;top:660px']].forEach(([s, t, c, css]) => crd(`<div style="font:900 40px Inter;color:${c}">${s}</div>`, css, t, 302.1, 'left', 'tick'));
+crd(`<div style="width:1500px;border:4px solid ${CG};border-radius:20px;padding:22px 32px;background:rgba(127,224,160,.06)"><div style="font:700 44px Kalam;color:#fff8d0">"ya Allah, permudahkan hamba mendapatkan pasangan, kalau itu mendatangkan kebaikan…"</div></div>`, 'left:210px;top:270px', 279.8, 302.1, 'up', 'paper');
+crd(`<div class="ar" style="font-size:60px;color:#111;background:${Y};border-radius:12px;padding:0 24px">${IKH}</div>`, 'left:210px;top:460px', 286.1, 302.1, 'scale', 'impact');
+crd(`<div class="mono" style="font-size:24px;color:${CG}">KABULKAN BILA…</div>`, 'left:210px;top:580px', 290.4, 302.1, 'fade');
+crd(`<div class="mono" style="font-size:24px;color:${CR}">JANGAN BILA…</div>`, 'left:1000px;top:580px', 297.0, 302.1, 'fade');
+[['✓ membuat hamba lebih taat', 290.6, CG, 'left:210px;top:620px'], ['✓ lebih rajin beribadah', 293.4, CG, 'left:210px;top:700px'], ['✕ jangan membuat hamba lupa', 297.2, CR, 'left:1000px;top:620px'], ['✕ jangan membuat hamba lalai', 299.0, CR, 'left:1000px;top:700px']].forEach(([s, t, c, css]) => crd(`<div style="font:900 40px Inter;color:${c}">${s}</div>`, css, t, 302.1, 'left', 'tick'));
 
 // --- 16 /gate : anak belum tentu membawa kebaikan
 scene(302.1, 341.58, { cut: 'glitch' });
@@ -160,9 +168,11 @@ line(361.0, 365.9, 'left:160px;top:720px;width:1600px', 'minta yang [pasti menda
 
 // --- 18 /callout : yang paling penting
 scene(365.9, 388.7, { cut: 'glitch' });
-crd(`<div style="width:1500px;border:5px solid ${Y};border-radius:20px;padding:30px 40px;background:rgba(233,242,58,.08)"><div class="mono" style="font-size:24px;color:${Y}">💡 YANG PALING PENTING</div><div style="font:900 62px Inter;margin-top:14px">mintalah <span class="mk">jalan yang lurus</span></div></div>`, 'left:210px;top:200px', 376.4, 388.7, 'scale', 'beep');
+crd(`<div style="width:1500px;border:5px solid ${Y};border-radius:20px;padding:30px 40px;background:rgba(233,242,58,.08)"><div class="mono" style="font-size:24px;color:${Y}">💡 YANG PALING PENTING</div><div style="font:900 62px Inter;margin-top:14px">mintalah <span class="mk">jalan yang lurus</span></div></div>`, 'left:210px;top:200px', 376.4, 382.9, 'scale', 'beep');
 line(366.0, 376.0, 'left:210px;top:220px;width:1500px', 'ayat ini mengajarkan: mintalah sesuatu yang [pasti mendatangkan kebaikan]', { fs: 44, m: [372.0] });
-seg('jalan yang lurus itu sangat luas maknanya →<br>termasuk [agama Islam]', 382.9, 'left:210px;top:540px;width:1500px', { size: 54, iv: .025, marks: [386.6] });
+sv(382.9, 388.7, DEFS + `<rect x="760" y="560" width="400" height="100" rx="16" fill="rgba(233,242,58,.15)" stroke="${Y}" stroke-width="5" data-d="1000"/>` + T(960, 625, 'JALAN LURUS', { f: .2, fs: 40, fw: 900, c: Y }) +
+  [['agama Islam', 300, 520, 2.4], ['ilmu yang lurus', 300, 720, 3.6], ['ibadah yang lurus', 1620, 520, 4.2], ['usaha yang lurus', 1620, 720, 4.8]].map(([w, x, y, d]) => LN([[x < 960 ? 760 : 1160, 610], [x + (x < 960 ? 180 : -180), y]], { s: Y, sw: 3, del: d - .3 }) + BOX(x - 180, y - 40, 360, 80, { s: '#fff', del: d - .2 }) + T(x, y + 12, w, { f: d, fs: 32, fw: 900 })).join(''), 'left:0;top:0', 1920, 1080, .5);
+line(382.9, 388.7, 'left:210px;top:420px;width:1500px', 'jalan yang lurus itu [sangat luas maknanya]', { fs: 42, m: [384.4] });
 
 // --- 19 /dot-grid : 73 golongan
 scene(388.7, 400.2, { cut: 'glitch' });
@@ -206,11 +216,12 @@ searchFind(473.2, 488.6, {
 });
 camTour(473.2, 488.6, { type: .4, scan: 1.8, res: 2.6, click: 3.6, det: 4.0 });
 
-// --- 24 /heart-check : mulut berdoa, hati lalai
+// --- 24 /iceberg : di permukaan berdoa, di dalam hati lalai
 scene(488.6, 502.9, { cut: 'glitch' });
-[['👄', 'MULUT berdoa', '✓', CG, 489.0], ['🫀', 'HATI lalai · tidak hadir', '✕', CR, 491.0]].forEach(([e, s, m, c, t], i) => crd(`<div style="width:500px;height:400px;border:5px solid ${c};border-radius:20px;text-align:center;padding-top:40px"><div style="font-size:120px">${e}</div><div style="font:900 40px Inter;color:${c};margin-top:14px">${s}</div><div style="font:900 60px Inter;color:${c}">${m}</div></div>`, `left:${160 + i * 580}px;top:200px`, t, 502.9, 'up', 'stamp'));
-crd(`<div style="width:520px;height:400px;border:6px solid ${CR};border-radius:20px;background:rgba(255,138,92,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center"><div style="font:900 56px Inter;color:${CR}">= TIDAK DIKABULKAN</div></div>`, 'left:1240px;top:200px', 497.0, 502.9, 'scale', 'impact');
-line(493.0, 502.9, 'left:160px;top:700px;width:1600px', 'hati tidak ikut [hadir] saat berdoa bersama Allah → Allah tidak mengabulkan doa kita', { fs: 40, m: [494.6] });
+sv(488.7, 502.9, `<path d="M120 470 H1800" stroke="${CB}" stroke-width="4" data-d="1680"/><path d="M780 470 L860 330 L960 380 L1060 320 L1140 470Z" fill="rgba(127,224,160,.15)" stroke="${CG}" stroke-width="4" data-d="700" data-del=".3"/>` + T(960, 290, '👄 MULUT BERDOA ✓', { f: .5, fs: 40, fw: 900, c: CG }) +
+  `<path d="M780 470 L560 690 L740 900 L1180 920 L1380 690 L1140 470" fill="rgba(255,138,92,.12)" stroke="${CR}" stroke-width="4" data-d="1500" data-del="2.2"/>` + T(960, 650, '🫀 HATI LALAI', { f: 2.6, fs: 60, fw: 900, c: CR }) + T(960, 720, 'tidak ikut hadir bersama Allah', { f: 4.4, fs: 34, fw: 800 }), 'left:0;top:0', 1920, 1080, .9);
+crd(`<div style="font:900 48px Inter;color:#111;background:${CR};border-radius:12px;padding:10px 26px">= TIDAK DIKABULKAN</div>`, 'left:1320px;top:820px', 497.0, 502.9, 'scale', 'impact');
+line(493.0, 502.9, 'left:140px;top:130px;width:1640px', 'berdoa di mulut, tapi [hati lalai] → Allah tidak mengabulkan doa kita', { fs: 40, m: [494.6] });
 
 // --- 25 /scripture : An-Naml 62 + hanya Allah
 scene(502.9, 520.2, { cut: 'glitch' });
@@ -248,8 +259,8 @@ sub2('left:760px;top:620px', 578.0, TOTAL);
 line(590.4, TOTAL, 'left:760px;top:860px;width:1000px', '…dan Engkau [kabulkan hajatku]', { fs: 46, c: Y, m: [591.4] });
 
 // ================================================================== JADWAL KODE VISUAL
-[[0, 6.98, '/kinetic-type'], [6.98, 24.34, '/road'], [24.34, 43.88, '/ranking'], [43.88, 68.24, '/path-goal'], [68.24, 91.86, '/checklist'], [91.86, 106.96, '/versus'], [106.96, 130.66, '/rise-fall'], [130.66, 147.52, '/formula'],
- [147.52, 168.88, '/chain'], [168.88, 187.9, '/formula'], [187.9, 215.4, '/ecg'], [215.4, 234.18, '/formula'], [234.18, 252.5, '/scripture'], [252.5, 266.68, '/scale-compare'], [266.68, 302.1, '/condition'], [302.1, 341.58, '/gate'],
- [341.58, 365.9, '/mosaic'], [365.9, 388.7, '/callout'], [388.7, 400.2, '/dot-grid'], [400.2, 430.8, '/layers'], [430.8, 455.0, '/split-screen'], [455.0, 473.2, '/sequence'], [473.2, 488.6, '/search'], [488.6, 502.9, '/heart-check'],
- [502.9, 520.2, '/scripture'], [520.2, 535.7, '/process'], [535.7, 561.3, '/scripture'], [561.3, TOTAL, '/teaser']]
+[[0, 6.98, '/kinetic-type'], [6.98, 24.34, '/roadmap'], [24.34, 43.88, '/badge'], [43.88, 68.24, '/blueprint'], [68.24, 91.86, '/sketchnotes'], [91.86, 106.96, '/spectrum'], [106.96, 130.66, '/timeline'], [130.66, 147.52, '/handwritten'],
+ [147.52, 168.88, '/flowchart'], [168.88, 187.9, '/handwritten'], [187.9, 215.4, '/cycle'], [215.4, 234.18, '/handwritten'], [234.18, 252.5, '/citation'], [252.5, 266.68, '/venn'], [266.68, 302.1, '/decision-matrix'], [302.1, 341.58, '/diagram'],
+ [341.58, 365.9, '/checklist'], [365.9, 382.9, '/callout'], [382.9, 388.7, '/mindmap'], [388.7, 400.2, '/infographic'], [400.2, 430.8, '/layers'], [430.8, 455.0, '/split-screen'], [455.0, 473.2, '/exploded-view'], [473.2, 488.6, '/search'], [488.6, 502.9, '/iceberg'],
+ [502.9, 520.2, '/citation'], [520.2, 535.7, '/flowchart'], [535.7, 561.3, '/citation'], [561.3, TOTAL, '/teaser']]
  .reduce((acc, [a, b, c]) => { if (!acc.m[c]) acc.m[c] = String(++acc.n).padStart(2, '0'); codeTag(a, b, acc.m[c], c); return acc; }, { n: 0, m: {} });

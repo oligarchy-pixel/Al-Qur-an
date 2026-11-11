@@ -10,5 +10,5 @@ ls out/full/c*.mp4 | sort | sed 's#out/full/#file #' > out/full/list.txt
 cd out/full && ffmpeg -v error -y -f concat -i list.txt -c copy v.mp4
 ffmpeg -v error -y -i ../../ep12.mp3 -i ../bed_full.wav -filter_complex "[0:a]loudnorm=I=-16:TP=-1.5:LRA=11,aresample=44100,aformat=channel_layouts=stereo[v];[1:a]volume=0.4[b];[v][b]amix=inputs=2:duration=first:normalize=0,afade=t=out:st=591.9:d=1.4[a]" -map "[a]" -c:a aac -b:a 192k a.m4a
 O=/tmp/claude-0/-home-user-Al-Qur-an/04f46f5c-82fc-5981-8a9a-e782a75b2548/scratchpad/Ep12_Dokumen; mkdir -p $O
-ffmpeg -v error -y -i v.mp4 -i a.m4a -map 0:v -map 1:a -c:v libx264 -preset medium -crf 27 -tune grain -pix_fmt yuv420p -c:a copy -shortest -movflags +faststart $O/FINAL_Ep12_Minta_yang_Pasti_Baik_FULL_HD.mp4
+ffmpeg -v error -y -i v.mp4 -i a.m4a -map 0:v -map 1:a -c:v libx264 -preset medium -crf 27 -tune grain -pix_fmt yuv420p -c:a copy -shortest -movflags +faststart $O/FINAL_Ep12_v2_Kode_Style_FULL_HD.mp4
 echo SELESAI
