@@ -112,3 +112,4 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 - Ep11: lanjut dengan gaya Ep10 + 3D paling bagus → minta **sheet by sheet dulu, jangan render** → "mana photonya, saya mau lihat" (kirim foto storyboard per sheet).
 - Ep11: "buat saja seperti Ep10 lengkap, tambahkan visual yang paling bagus setiap detik per detik kalimatnya".
 - Ep11: tambahkan sedikit dari video referensi (The Night Journey) agar video lebih baik → bar bab, latar astrolab, garis bercahaya. Hasil: **"Bagus"** → jadikan standar episode selanjutnya.
+- Ep12: lanjut sampai final, buat lebih bagus lagi sebagai pro editor dengan berbagai macam visual (dipakai: jalan lurus bercabang, grafik naik-turun, kartu doa bersyarat إِنْ كَانَ خَيْرًا لِي, EKG, tetes vs lautan ilmu, gerbang surga, 73 titik, lapisan ilmu, dll).
