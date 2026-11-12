@@ -1,40 +1,25 @@
-# Koleksi Video @alurziyadahku
+# Daftar Video @alurziyadahku
 
-![Daftar Seri](DAFTAR_SERI.png)
+![Daftar Video](DAFTAR_VIDEO.png)
 
-Kode episode: **S** = seri, **E** = episode. Contoh: `S1E03` = Seri 1, Episode 3.
-
----
-
-## SERI 1 — Perjalanan Akhirat
-Urutan mengikuti perjalanan setelah kematian: kubur → kebangkitan → catatan amal → timbangan.
-
-| Kode | Judul | Durasi | Narasi | Cover | Caption | Hook + end card |
+| No. | Judul | Durasi | Narasi | Cover | Caption | Hook + end card |
 |---|---|---|---|---|---|---|
-| **S1E01** | Malam Pertama di Alam Barzakh | 2:11 | teks layar | ✅ EN | ✅ EN | — |
-| **S1E02** | Saat Sangkakala Ditiup | 1:51 | voice-over EN | — | — | — |
-| **S1E03** | Catatan Amal | 0:56 | voice-over EN | — | — | ✅ |
-| **S1E04** | Mizan: Hari Perhitungan | 1:43 | voice-over EN | — | — | ✅ |
+| **01** | Malam Pertama di Alam Barzakh | 2:11 | teks layar | ✅ EN | ✅ EN | — |
+| **02** | Saat Sangkakala Ditiup | 1:51 | voice-over EN | — | — | — |
+| **03** | Catatan Amal | 0:56 | voice-over EN | — | — | ✅ |
+| **04** | Mizan: Hari Perhitungan | 1:43 | voice-over EN | — | — | ✅ |
+| **05** | Nama-Nama Malaikat dan Tugasnya | 2:20 | ✅ EN + ID | ✅ EN + ID | — |
+| **06** | Silsilah Nabi Muhammad shalallahu alaihi wasallam | 2:47 | ✅ EN | ✅ EN | — |
 
-## SERI 2 — Mengenal Iman
-Pengetahuan dasar tentang hal-hal yang wajib diimani dan dikenal.
+Nomor 01–04 berurutan sebagai satu cerita: kubur → kebangkitan → catatan amal → timbangan.
 
-| Kode | Judul | Durasi | Cover | Caption | Hook + end card |
-|---|---|---|---|---|---|
-| **S2E01** | Nama-Nama Malaikat dan Tugasnya | 2:20 | ✅ EN + ID | ✅ EN + ID | — |
-| **S2E02** | Silsilah Nabi Muhammad shalallahu alaihi wasallam | 2:47 | ✅ EN | ✅ EN | — |
-
----
-
-## Isi setiap folder episode
+## Isi setiap folder
 
 ```
-SERI-1_Perjalanan-Akhirat/
-  EP01_Malam-Pertama-di-Alam-Barzakh/
-    S1E01_Malam_Pertama_di_Alam_Barzakh.mp4   ← video siap unggah
-    S1E01_cover_EN.png                        ← cover
-    S1E01_caption_EN.txt                      ← judul, caption, hashtag
-    _skrip/                                   ← skrip pembuat (arsip)
+DAFTAR-VIDEO/
+  01_Malam-Pertama-di-Alam-Barzakh/
+    01_Malam_Pertama_di_Alam_Barzakh.mp4   ← video siap unggah
+    01_cover_EN.png                        ← cover
+    01_caption_EN.txt                      ← judul, caption, hashtag
+    _skrip/                                ← arsip kode pembuat (tidak perlu dibuka)
 ```
-
-Folder `_skrip/` hanya arsip kode pembuat video dan cover; tidak perlu dibuka untuk mengunggah.
