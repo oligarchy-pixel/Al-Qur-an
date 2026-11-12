@@ -1,0 +1,145 @@
+<title>Arsip Mengenal Al-Qur'an</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700&family=Amiri:wght@700&display=swap">
+<style>
+/* Layout: arsip dosier — rak episode bernomor (urutan tayang memang urutan), klik → lembar detail cover + caption */
+:root{
+  --bg:#050505; --panel:#0e0e0a; --line:#2a2a14; --fg:#fbfbf2; --soft:#c9c9b4;
+  --y:#e9f23a; --ink:#111108; --ok:#7fe0a0; --warn:#ff8a5c;
+  --display:"Bebas Neue",Impact,"Arial Narrow",sans-serif;
+  --body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --arab:Amiri,"Traditional Arabic","Times New Roman",serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:2px solid var(--y);padding-bottom:18px}
+.eyebrow{font:700 12px var(--mono);letter-spacing:.14em;color:var(--y);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--y)}
+h1{font:400 clamp(44px,8vw,84px)/.9 var(--display);margin:8px 0 0;letter-spacing:.01em;text-wrap:balance}
+h1 mark{background:var(--y);color:var(--ink);padding:0 .12em}
+.handle{font:700 13px var(--mono);color:var(--soft);text-align:right}
+.handle b{display:block;color:var(--fg);font:800 18px var(--body)}
+.hint{color:var(--soft);font-size:15px;margin:18px 0 22px;max-width:62ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.ep{all:unset;cursor:pointer;display:flex;flex-direction:column;background:var(--panel);border:2px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s,transform .15s}
+.ep:hover{border-color:var(--y);transform:translateY(-2px)}
+.ep:focus-visible{outline:3px solid var(--y);outline-offset:3px}
+.ep img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:var(--ink)}
+.ep .meta{padding:12px 14px 14px;display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:center}
+.num{grid-row:span 2;font:400 44px/1 var(--display);color:var(--y);font-variant-numeric:tabular-nums}
+.tp{font:800 16px/1.2 var(--body);min-width:0}
+.ar{font:700 18px/1.3 var(--arab);color:var(--soft);direction:rtl;text-align:left}
+.draft{font:700 10px var(--mono);letter-spacing:.1em;color:var(--ink);background:var(--warn);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle}
+/* lembar detail */
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(5,5,5,.88);display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.card{width:100%;max-width:1080px;background:var(--bg);border:2px solid var(--y);border-radius:18px;padding:22px;margin-block:12px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top .num{font-size:64px}
+.top h2{font:400 clamp(30px,5vw,46px)/1 var(--display);margin:0;flex:1;min-width:0;text-wrap:balance}
+.top .ar{font-size:26px;color:var(--y)}
+.nav{display:flex;gap:8px;margin-left:auto}
+button.b{font:700 13px var(--mono);letter-spacing:.06em;color:var(--fg);background:transparent;border:2px solid var(--line);border-radius:10px;padding:9px 14px;cursor:pointer}
+button.b:hover{border-color:var(--y);color:var(--y)}
+button.b:focus-visible{outline:3px solid var(--y);outline-offset:2px}
+button.b.solid{background:var(--y);color:var(--ink);border-color:var(--y)}
+.body{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;margin-top:18px}
+@media (max-width:820px){.body{grid-template-columns:1fr}}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tabs button[aria-selected="true"]{background:var(--y);color:var(--ink);border-color:var(--y)}
+.view{background:var(--ink);border:2px solid var(--line);border-radius:12px;display:flex;justify-content:center;align-items:center;padding:10px;min-height:240px}
+.view img{max-height:70vh;width:auto;max-width:100%;border-radius:6px}
+.lbl{font:700 12px var(--mono);letter-spacing:.14em;color:var(--y);text-transform:uppercase;margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.box{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:14px 16px;white-space:pre-wrap;font:400 15px/1.6 var(--body);overflow-wrap:anywhere}
+.box.judul{font-weight:800;font-size:16px;line-height:1.45}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+.note{font-size:13px;color:var(--warn);margin:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--y);color:var(--ink);font:800 14px var(--body);padding:10px 18px;border-radius:999px;z-index:30}
+@media (prefers-reduced-motion:reduce){.ep{transition:none}.ep:hover{transform:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Arsip seri · Ep1–Ep14</div>
+      <h1>Mengenal <mark>Al-Qur'an</mark></h1>
+    </div>
+    <div class="handle">PENYAMPAI<b>@alurziyadahku</b></div>
+  </header>
+  <p class="hint">Klik salah satu episode untuk melihat cover YouTube, cover Reel, post seri IG, judul, dan caption-nya. Tombol <b>Salin</b> menyalin teks langsung.</p>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <div class="card">
+    <div class="top">
+      <span class="num" id="dNum"></span>
+      <h2 id="dTitle"></h2>
+      <span class="ar" id="dAr"></span>
+      <div class="nav">
+        <button class="b" id="prev" aria-label="Episode sebelumnya">◀</button>
+        <button class="b" id="next" aria-label="Episode berikutnya">▶</button>
+        <button class="b solid" id="close">Tutup ✕</button>
+      </div>
+    </div>
+    <div class="body">
+      <div>
+        <div class="tabs" role="tablist">
+          <button class="b" role="tab" data-k="yt" aria-selected="true">Cover YouTube</button>
+          <button class="b" role="tab" data-k="reel" aria-selected="false">Cover Reel</button>
+          <button class="b" role="tab" data-k="ig" aria-selected="false">Post seri IG</button>
+        </div>
+        <div class="view"><img id="dImg" alt=""></div>
+      </div>
+      <div class="stack">
+        <div><p class="lbl">Judul YouTube <button class="b" data-copy="dJudul">Salin</button></p><div class="box judul" id="dJudul"></div></div>
+        <div><p class="lbl">Caption + hashtag <button class="b" data-copy="dCap">Salin</button></p><p class="note" id="dDraft" hidden>Caption Ep1 belum pernah dibuat sebelumnya. Ini draf baru dari isi cover dan post seri Ep1.</p><div class="box" id="dCap"></div></div>
+        <div id="tagWrap"><p class="lbl">Tag YouTube <button class="b" data-copy="dTags">Salin</button></p><div class="box" id="dTags"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden>Tersalin ✓</div>
+
+<script>
+const EP = [{"no": 1, "topik": "Hurmatul Qur'an", "ar": "حُرْمَةُ الْقُرْآنِ", "judul": "Kehormatan Al-Qur'an | Sebaik-baik Kalian yang Belajar & Mengajarkan Al-Qur'an | Mengenal Al-Qur'an Ep1", "caption": "Kehormatan Al-Qur'an · Hurmatul Qur'an 📖✨\nSeberapa mulia Al-Qur'an di mata kita? Ini dalilnya… 👇\n\n✅ Sebaik-baik kalian: yang belajar & mengajarkan Al-Qur'an (HR. al-Bukhari 5027)\n✅ Al-Qur'an adalah jamuan Allah (Ibnu Mas'ud)\n✅ Mulut kita adalah jalan Al-Qur'an (atsar Yazid bin Abi Malik)\n✅ Kehormatan & adab terhadap Al-Qur'an (Tafsir al-Qurthubi)\n\nSemoga Allah jadikan kita ahli Al-Qur'an. Ketik AAMIIN 🤲\n💾 Simpan & 📤 bagikan ke keluarga.\n🔔 Follow @alurziyadahku untuk seri Mengenal Al-Qur'an.\n\n#fyp #islam #kajianislam #dakwahislam #mengenalalquran", "tags": "", "draft": true, "yt": "img/ep01_yt.jpg", "reel": "img/ep01_reel.jpg", "ig": "img/ep01_ig.jpg"}, {"no": 2, "topik": "16 Adab Al-Qur'an", "ar": "حُرْمَةُ الْقُرْآنِ", "judul": "16 Adab Membaca Al-Qur'an yang Sering Dilanggar Tanpa Kita Sadari | Hurmatul Qur'an #2", "caption": "Kamu pernah baca Al-Qur'an sambil menguap? Atau sambil ngobrol? 😶\n\nTernyata para ulama menyebutkan 16 KEHORMATAN Al-Qur'an yang harus kita jaga. Banyak di antaranya kita langgar tanpa sadar.\n\n✔️ menghadap kiblat\n✔️ berhenti saat menguap\n✔️ tidak memotong bacaan untuk bercakap\n✔️ mushaf tidak diletakkan di lantai\n✔️ tidak menafsir dengan pendapat sendiri\n…dan 11 lainnya di video lengkap 🎥\n\n📚 Rujukan: Muqaddimah Tafsir Al-Qurthubi\n\nNomor berapa yang paling sering kamu lupa? Tulis di komentar 👇\nSimpan & kirim ke orang yang kamu sayangi 🤍\n\n#HurmatulQuran #AdabAlQuran #AlQuran #KajianIslam #BelajarAlQuran #TadabburQuran #NgajiOnline #DakwahIslam #IlmuAgama #TafsirQuran #MuslimIndonesia #MuslimMalaysia #ReelsIslami #FYP #Islam", "tags": "", "draft": false, "yt": "img/ep02_yt.jpg", "reel": "img/ep02_reel.jpg", "ig": "img/ep02_ig.jpg"}, {"no": 3, "topik": "Turunnya Al-Qur'an", "ar": "نُزُولُ الْقُرْآنِ", "judul": "Turunnya Al-Qur'an: dari Lauh Mahfuzh sampai Mushaf di Tanganmu", "caption": "Al-Qur'an yang kita baca hari ini dulunya tidak bertitik dan tidak berbaris. 😳\n\nDi zaman Rasulullah ﷺ, Al-Qur'an belum dibukukan. Ia tersimpan di dada para sahabat, ditulis di batu, daun, dan kulit unta.\n\nLalu bagaimana bisa sampai di tangan kita dalam bentuk mushaf yang rapi?\n\n📜 Turun sekaligus di malam Lailatul Qadr\n📜 Diturunkan bertahap ± 23 tahun\n📜 Dihimpun oleh Zaid bin Tsabit\n📜 Disusun di masa Khalifah 'Utsman bin 'Affan\n📜 Diberi titik & baris di masa Khalifah 'Abdul Malik bin Marwan\n📜 Dan rahasia kenapa Al-Fatihah disebut *Ummul Qur'an*\n\nTonton sampai habis. Bagian terakhirnya akan membuatmu membaca Al-Fatihah dengan rasa yang berbeda. 🤍\n\nTulis di komentar: sudah berapa kali kamu khatam Al-Qur'an? 👇\nBagikan ke satu orang yang kamu sayang, semoga jadi pahala jariyah.\n\n#AlQuran #SejarahIslam #NuzululQuran #KajianIslam #FaktaIslam", "tags": "", "draft": false, "yt": "img/ep03_yt.jpg", "reel": "img/ep03_reel.jpg", "ig": "img/ep03_ig.jpg"}, {"no": 4, "topik": "Rahasia Bismillah", "ar": "بِسْمِ اللَّهِ", "judul": "Bismillah Dibaca Nyaring atau Pelan? Ternyata 4 Mazhab Berbeda!", "caption": "Pernah salat di belakang imam yang tidak membaca Bismillah dengan nyaring? 🤔\nJangan langsung menyalahkan. Ternyata 4 mazhab punya pendapat yang berbeda. 👇\n\n📌 Imam asy-Syafi'i: Bismillah ayat Al-Fatihah, dibaca nyaring\n📌 Imam Malik: tidak dibaca dalam salat\n📌 Imam Abu Hanifah: dibaca pelan\n📌 Imam Ahmad: ayat Al-Fatihah, tapi dibaca pelan\n\nDan ternyata Al-Fatihah punya 156 huruf. Kurang sehuruf saja, bacaannya tidak sah. 😳\n\nTonton sampai habis. Di akhir video ada keutamaan Bismillah yang membuatmu tidak akan lupa membacanya lagi. 🤍\n\n💬 Kamu ikut mazhab apa? Tulis di komentar\n🔁 Bagikan ke teman yang sering lupa baca Bismillah\n\n#Bismillah #AlFatihah #FiqihSalat #KajianIslam #FaktaIslam", "tags": "", "draft": false, "yt": "img/ep04_yt.jpg", "reel": "img/ep04_reel.jpg", "ig": "img/ep04_ig.jpg"}, {"no": 5, "topik": "Hukum Bismillah", "ar": "بِسْمِ اللَّهِ", "judul": "Baca Bismillah Bisa HARAM?! Ini 4 Hukumnya & Doa yang Benar di 5 Keadaan", "caption": "Ternyata membaca Bismillah bisa HARAM?! 😳\n\nTidak semua hal baik dimulai dengan \"Bismillahirrahmanirrahim\" lengkap. Ada lafaz dan doa khusus untuk setiap keadaan 👇\n\n✅ Wajib: dalam salat, saat membaca Al-Fatihah\n✅ Sunah: wudu, mandi, makan, minum\n⚠️ Makruh: pada perkara yang tidak mulia\n❌ Haram: sebelum berbuat dosa, malah menambah dosa\n\n🚽 Masuk jamban • 💑 Suami istri • 🚗 Naik kendaraan • 🛏️ Tidur • 👕 Memakai pakaian\nSetiap keadaan punya doa bismillahnya sendiri. Tonton sampai habis!\n\n💬 Doa mana yang baru kamu tahu? Tulis di komentar\n🔁 Bagikan, semoga jadi pahala jariyah 🤍\n\n#Bismillah #DoaHarian #HukumIslam #KajianIslam #FaktaIslam", "tags": "", "draft": false, "yt": "img/ep05_yt.jpg", "reel": "img/ep05_reel.jpg", "ig": "img/ep05_ig.jpg"}, {"no": 6, "topik": "Makna Bismillah", "ar": "مَعَانِي الْبَسْمَلَةِ", "judul": "Kenapa \"BISMILLAH\", Bukan \"BILLAH\"? Ternyata Ini Rahasianya", "caption": "Setiap hari kamu ucap Bismillah…\ntapi tahukah kenapa \"dengan NAMA Allah\", bukan langsung \"dengan Allah\"? 🤔\n\nTernyata ada 6 makna tersembunyi di dalamnya.\nDan 19 hurufnya disebut melindungi dari 19 Malaikat penjaga neraka. 😳\n\nTonton sampai habis, kamu tidak akan mengucap Bismillah dengan cara yang sama lagi. 🤍\n\n💬 Tulis \"Bismillah\" di komentar\n🔁 Bagikan, semoga jadi pahala jariyah\n\n#Bismillah #MaknaBismillah #KajianIslam #FaktaIslam #MengenalAlQuran", "tags": "", "draft": false, "yt": "img/ep06_yt.jpg", "reel": "img/ep06_reel.jpg", "ig": "img/ep06_ig.jpg"}, {"no": 7, "topik": "Rahasia Hamdalah", "ar": "الْحَمْدُ لِلَّهِ", "judul": "Ucapan Alhamdulillah Bisa HARAM?! Ternyata Ada Aturannya", "caption": "Hati-hati mengucap Alhamdulillah… ternyata bisa jadi DOSA. 😳\n\nAda ulama yang beristighfar 30 tahun hanya karena satu ucapan \"Alhamdulillah\" saat pasar terbakar.\n\nDan tahukah kamu: Alhamdulillah ada 8 huruf, pintu surga pun ada 8. 🤍\n\nTonton sampai habis, kamu akan mengucap Alhamdulillah dengan cara yang berbeda.\n\n💬 Tulis \"Alhamdulillah ala kulli hal\" di komentar\n🔁 Bagikan, semoga jadi pahala jariyah\n\n#Alhamdulillah #DoaHarian #KajianIslam #FaktaIslam #MengenalAlQuran", "tags": "", "draft": false, "yt": "img/ep07_yt.jpg", "reel": "img/ep07_reel.jpg", "ig": "img/ep07_ig.jpg"}, {"no": 8, "topik": "Rahasia Ar-Rahman", "ar": "الرَّحْمَٰنِ الرَّحِيمِ", "judul": "Ar-Rahman Ar-Rahim Bukan Sekadar \"Pengasih Penyayang\"! Ini Makna Aslinya", "caption": "Kamu pikir Allah hanya Maha Pengasih? Hati-hati… bisa tertipu. 😳\n\nSetelah \"Ar-Rahman Ar-Rahim\", Allah langsung menyebut \"Maliki yaumiddin\", Pemilik hari pembalasan.\nHarap dan takut harus seimbang. 🤍\n\nPlus: 4 kunci supaya ibadahmu sah, diterima, dan tidak gugur.\nTonton sampai habis!\n\n💬 Tulis \"Ya Rahman Ya Rahim\" di komentar\n🔁 Bagikan, semoga jadi pahala jariyah\n\n#ArRahmanArRahim #AlFatihah #KajianIslam #FaktaIslam #MengenalAlQuran", "tags": "", "draft": false, "yt": "img/ep08_yt.jpg", "reel": "img/ep08_reel.jpg", "ig": "img/ep08_ig.jpg"}, {"no": 9, "topik": "Perbanyaklah Bertaubat", "ar": "التَّوْبَةُ", "judul": "Ayam Sudah Berkokok, Engkau Masih Tidur? | Rahasia Waktu Sahur untuk Bertaubat — Mengenal Al-Qur'an Ep.9", "caption": "Ayam jantan berkokok di waktu sahur… karena ia melihat malaikat.\nLalu kita? Masih terlelap. 😴\n\nAllah memuji orang-orang yang beristighfar di waktu sahur:\nوَبِالْأَسْحَارِ هُمْ يَسْتَغْفِرُونَ (QS. Adz-Dzariyat: 18)\n\nDi episode 9 ini kita bedah:\n🌙 Tahajjud: tak harus ratusan rakaat, dua rakaat pun sudah cukup\n🕰️ Kenapa waktu sahur jadi waktu terbaik untuk bertaubat\n🐓 Hadis ayam berkokok (Bukhari 3303 · Muslim 2729)\n🌬️ \"Angin sahur\" yang membawa zikir & istighfar (Sufyan ats-Tsauri)\n⚖️ Mengaku cinta Allah, tapi mana buktinya?\n📜 Ibadah harus sesuai aturan syarak: mulailah dari dirimu sendiri\n\nSemua sumber kami tunjukkan langsung di layar: kitab, jilid, halaman, dan derajat hadisnya.\n\nMalam ini, coba bangun sebelum Subuh. Dua rakaat. Satu istighfar. Allah sedang memanggil.\n\n💬 Tulis \"أَسْتَغْفِرُ اللَّهَ\" di kolom komentar kalau kamu mau mulai malam ini.\n🔁 Bagikan ke satu orang yang ingin kamu ajak bertaubat bersama.\n🔔 Subscribe & follow @alurziyadahku untuk seri Mengenal Al-Qur'an berikutnya.\n\n#taubat #istighfar #tahajjud #kajianislam #mengenalalquran", "tags": "", "draft": false, "yt": "img/ep09_yt.jpg", "reel": "img/ep09_reel.jpg", "ig": "img/ep09_ig.jpg"}, {"no": 10, "topik": "Minta Pertolongan", "ar": "إِيَّاكَ نَسْتَعِينُ", "judul": "Semangat Ibadah Cuma di Awal? Ini Penyebabnya | إِيَّاكَ نَسْتَعِينُ — Mengenal Al-Qur'an Ep.10", "caption": "Pernah semangat salat malam 3 hari… lalu berhenti? 😔\nPernah niat khatam Al-Qur'an… tapi cuma sampai juz 2?\n\nBukan karena kamu lemah. Ibadah itu memang sulit dan rumit, dan kita tidak akan sanggup tanpa pertolongan Allah.\n\nإِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ\n\"Hanya kepada-Mu kami menyembah, dan hanya kepada-Mu kami memohon pertolongan.\"\n\nDi video ini:\n📚 Ibadah sah dengan ilmu, dan ilmu didapat dengan doa + belajar yang beradab\n🤲 Mau ibadah diterima? Bertaubat dulu sebelum beribadah\n💧 Amal yang paling dicintai Allah: yang rutin walau sedikit (HR. Bukhari & Muslim)\n🏪 Azan berkumandang: tutup toko, atau terus melayani pembeli?\n🔥 Akan datang masa dunia \"memakan\" iman\n🛤️ 4 jalan agar istiqamah sampai akhir hayat\n\nPilih yang abadi. Tinggalkan yang fana.\n\n👇 Jujur di komentar: ibadah apa yang paling sulit kamu jaga rutin?\n💬 Atau tulis \"إِيَّاكَ نَسْتَعِينُ\" sebagai doa agar kita semua diberi istiqamah.\n🔁 Kirim ke 1 sahabat yang sedang berjuang menjaga ibadahnya. Bisa jadi ini yang dia butuhkan hari ini.\n🔔 Follow @alurziyadahku. Seri Mengenal Al-Qur'an berlanjut setiap episode.\n\n#istiqamah #alfatihah #kajianislam #nasihatislami #mengenalalquran", "tags": "", "draft": false, "yt": "img/ep10_yt.jpg", "reel": "img/ep10_reel.jpg", "ig": "img/ep10_ig.jpg"}, {"no": 11, "topik": "Musuh di Dalam Diri", "ar": "النَّفْسُ", "judul": "Musuh Paling Berbahaya Bukan di Luar, Tapi di Dalam Dirimu | Mengenal Al-Qur'an Ep.11", "caption": "Kita sibuk waspada pada orang yang dengki, orang yang membenci, bahkan pada syaitan…\ntapi lupa ada satu musuh yang tinggal di dalam dada kita sendiri. 😔\n\nSyaitan mundur saat dibacakan zikir.\nNafsu? Ia bagian dari dirimu, dan tidak semudah itu diusir.\n\nDi episode 11 ini kita bedah:\n🔥 Kenapa nafsu disebut musuh yang paling sulit dididik & diobati\n🎁 14 nikmat Allah yang sering kita lupakan\n⚔️ Melatih nafsu seperti prajurit bersiap perang\n🖐️ 5 kesulitan orang beriman: pendengki, munafik, kafir, syaitan, dan nafsu\n👁️ Mata cinta vs mata benci: kenapa kita buta pada aib sendiri\n⚠️ Jebakan setelah taubat: merasa lebih baik dari orang lain\n\nMelawan nafsu adalah jihad yang paling besar.\nإِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ\n\n👇 Jujur di komentar: nafsu apa yang paling sulit kamu lawan?\n🔁 Kirim ke 1 sahabat yang sedang berjuang memperbaiki diri.\n🔔 Follow @alurziyadahku. Seri Mengenal Al-Qur'an berlanjut setiap episode.\n\n#melawannafsu #tazkiyatunnafs #kajianislam #nasihatislami #mengenalalquran", "tags": "", "draft": false, "yt": "img/ep11_yt.jpg", "reel": "img/ep11_reel.jpg", "ig": "img/ep11_ig.jpg"}, {"no": 12, "topik": "Minta yang Pasti Baik", "ar": "اهْدِنَا الصِّرَاطَ", "judul": "Jangan Asal Minta Rezeki & Jabatan! Ini Doa yang Pasti Baik | اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ — Mengenal Al-Qur'an Ep.12", "caption": "Pernah berdoa minta rezeki lancar, jabatan, jodoh, atau anak…\ntapi pernahkah kita bertanya: apakah itu pasti baik untuk kita? 🤔\n\nAllah sendiri mengajarkan permintaan yang paling utama:\nاهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ\n\"Tunjukilah kami jalan yang lurus.\"\n\nDi episode 12 ini kita bedah:\n🛣️ Kenapa jalan yang lurus adalah permintaan nomor satu\n💰 Harta melimpah yang justru membuat lupa Allah\n🗳️ Doa minta menang pemilihan, sehat, jodoh & anak: pakai kunci إِنْ كَانَ خَيْرًا لِي\n💧 Ilmu kita setetes dibanding ilmu Allah\n🔢 73 golongan, hanya satu yang di jalan lurus (HR. Abu Dawud, at-Tirmidzi, Ibnu Majah)\n🫀 Doa dari hati yang lalai tidak dikabulkan (HR. at-Tirmidzi)\n🤲 Ibadah dulu, baru berdoa (QS. Al-Baqarah 186)\n\nMintalah yang pasti baik. Yang belum pasti, serahkan dengan syarat: \"jika itu baik untukku\".\n\n👇 Jujur di komentar: doa apa yang paling sering kamu minta selama ini?\n🔁 Kirim ke 1 sahabat yang sedang menunggu doanya dikabulkan.\n🔔 Follow @alurziyadahku. Seri Mengenal Al-Qur'an berlanjut setiap episode.\n\n#adabberdoa #alfatihah #kajianislam #nasihatislami #mengenalalquran", "tags": "", "draft": false, "yt": "img/ep12_yt.jpg", "reel": "img/ep12_reel.jpg", "ig": "img/ep12_ig.jpg"}, {"no": 13, "topik": "Rahasia Sapi Betina", "ar": "سُورَةُ الْبَقَرَةِ", "judul": "Kisah Sapi Betina Nabi Musa & Keutamaan Surah Al-Baqarah | Arti Alif Lam Mim | Tafsir Al-Baqarah Ayat 1-2", "caption": "Kisah sapi betina Nabi Musa & keutamaan Surah Al-Baqarah 🐄📖\nKenapa surah terpanjang di Al-Qur'an dinamai \"sapi betina\"? Ternyata ada kisah mayat yang hidup kembali dan menyebut pembunuhnya…\n\nDi video ini:\n✅ Keutamaan Surah Al-Baqarah: rumah tidak dimasuki syaitan (HR. at-Tirmidzi 2877)\n✅ Kisah Bani Israil & sapi kuning di zaman Nabi Musa\n✅ Arti Alif Lam Mim menurut ulama\n✅ Tafsir Al-Baqarah ayat 1-2: ذَٰلِكَ الْكِتَابُ لَا رَيْبَ فِيهِ\n✅ Bukti Al-Qur'an dari Allah: tantangan & ramalan Romawi\n\n💬 Tulis \"AAMIIN\" agar rumah kita dijaga Allah\n📌 Simpan & bagikan ke keluarga\n\n#fyp #islam #kajianislam #kisahislami #mengenalalquran", "tags": "surah al baqarah, keutamaan surah al baqarah, kisah sapi betina, kisah nabi musa, arti alif lam mim, tafsir al baqarah ayat 1-2, kajian islam, ngaji online", "draft": false, "yt": "img/ep13_yt.jpg", "reel": "img/ep13_reel.jpg", "ig": "img/ep13_ig.jpg"}, {"no": 14, "topik": "Petunjuk Takwa Sehari-hari", "ar": "هُدًى لِلْمُتَّقِينَ", "judul": "Hukum Cukur Alis dalam Islam | Adab Makan, Pakaian & Memilih Jodoh Menurut Al-Qur'an | Mengenal Al-Qur'an Ep14", "caption": "Hukum cukur alis, makan berlebihan & memilih jodoh menurut Al-Qur'an 📖✨\nTernyata Al-Qur'an mengatur hidupmu dari piring makan sampai rumah tangga… sudah tahu? 👇\n\n✅ Makan & minum boleh, tapi jangan melampaui batas (QS. Al-A'raf: 31)\n✅ Jilbab = kain yang menutupi seluruh tubuh (QS. Al-Ahzab: 59)\n✅ Berhias boleh, asal tidak mengubah ciptaan Allah (QS. An-Nisa: 119 · HR. Bukhari & Muslim)\n✅ Pilih pasangan: IMAN dulu, baru yang lain (QS. Al-Baqarah: 221)\n✅ Hak suami & istri, dan cara bertahap menghadapi nusyuz (QS. Al-Baqarah: 228 · An-Nisa: 34)\n\nSemoga Allah jadikan kita golongan muttaqin. Ketik AAMIIN 🤲\n💾 Simpan video ini & 📤 bagikan ke pasangan / calon pasanganmu.\n🔔 Follow @alurziyadahku untuk episode berikutnya.\n\n#fyp #islam #kajianislam #dakwahislam #mengenalalquran", "tags": "hukum cukur alis, makan berlebihan dalam islam, adab berpakaian muslimah, memilih jodoh dalam islam, hak suami istri, nusyuz, tafsir al-quran, kajian islam", "draft": false, "yt": "img/ep14_yt.jpg", "reel": "img/ep14_reel.jpg", "ig": "img/ep14_ig.jpg"}];
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+$('grid').innerHTML = EP.map((e,i)=>`<button class="ep" data-i="${i}" aria-label="Episode ${e.no}: ${e.topik}">
+  <img src="${e.yt}" alt="Cover YouTube Ep${e.no}" loading="lazy">
+  <div class="meta"><span class="num">${pad(e.no)}</span><span class="tp">${e.topik}${e.draft?'<span class="draft">DRAF</span>':''}</span><span class="ar">${e.ar}</span></div></button>`).join('');
+let cur = -1, kind = 'yt', lastFocus = null;
+function show(i){
+  cur = (i + EP.length) % EP.length; const e = EP[cur];
+  $('dNum').textContent = pad(e.no); $('dTitle').textContent = e.topik; $('dAr').textContent = e.ar;
+  $('dJudul').textContent = e.judul; $('dCap').textContent = e.caption;
+  $('dDraft').hidden = !e.draft; $('tagWrap').hidden = !e.tags; $('dTags').textContent = e.tags || '';
+  setKind(kind); $('sheet').hidden = false; $('sheet').scrollTop = 0;
+  if (location.hash !== '#ep' + e.no) history.replaceState(null,'','#ep' + e.no);
+}
+function setKind(k){
+  kind = k; const e = EP[cur];
+  document.querySelectorAll('[role=tab]').forEach(b=>b.setAttribute('aria-selected', b.dataset.k===k));
+  $('dImg').src = e[k]; $('dImg').alt = {yt:'Cover YouTube',reel:'Cover Reel',ig:'Post seri IG'}[k] + ' Ep' + e.no;
+}
+function hide(){ $('sheet').hidden = true; cur = -1; history.replaceState(null,'',location.pathname); if (lastFocus) lastFocus.focus(); }
+$('grid').addEventListener('click', ev=>{ const b = ev.target.closest('.ep'); if (!b) return; lastFocus = b; show(+b.dataset.i); $('close').focus(); });
+$('close').onclick = hide; $('prev').onclick = ()=>show(cur-1); $('next').onclick = ()=>show(cur+1);
+$('sheet').addEventListener('click', ev=>{ if (ev.target === $('sheet')) hide(); });
+document.querySelectorAll('[role=tab]').forEach(b=>b.onclick = ()=>setKind(b.dataset.k));
+document.addEventListener('keydown', ev=>{ if (cur<0) return;
+  if (ev.key==='Escape') hide(); else if (ev.key==='ArrowRight') show(cur+1); else if (ev.key==='ArrowLeft') show(cur-1); });
+let tt;
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick = ()=>{
+  const el = $(b.dataset.copy), done = ()=>{ $('toast').hidden=false; clearTimeout(tt); tt=setTimeout(()=>$('toast').hidden=true,1400); };
+  const sel = ()=>{ const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); $('toast').textContent='Teks sudah dipilih, tekan salin'; done(); };
+  try { navigator.clipboard.writeText(el.textContent).then(()=>{ $('toast').textContent='Tersalin ✓'; done(); }, sel); } catch(e){ sel(); }
+});
+function fromHash(){ const m = location.hash.match(/^#ep(\d+)$/); if (m){ const i = EP.findIndex(e=>e.no==+m[1]); if (i>=0) show(i); } else if (cur>=0) { $('sheet').hidden = true; cur=-1; } }
+addEventListener('hashchange', fromHash); fromHash();
+</script>
