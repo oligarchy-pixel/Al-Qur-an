@@ -130,3 +130,4 @@ Template terbaru: `kit/short_vertikal/ep2_v4/index.html` (+ `render.js`, `overla
 - Short Ep2 v5: "suara dengungan dihapus, merusak pendengaran" → musik latar/drone DIHAPUS untuk semua video selanjutnya; hanya suara + SFX.
 - Simpan perintah short (Ep2) untuk episode selanjutnya → bagian 13 di atas menjadi standar short.
 - Cover short Ep2 (`kit/covers/short_cover.html`): vertikal HD 2160×3840, hook judul + daftar poin bernomor berikon + PENYAMPAI + ▶ TONTON; isi penting di area tengah agar aman dipotong 4:5 di grid IG.
+- Ep13: lanjutkan Ep13 (Surah Al-Baqarah · kisah sapi betina · Alif Lam Mim · ayat 2) → standar penuh: 20 kode sepakat, tab pencarian, bar bab, audio TANPA dengungan (full.sh baru: fxonly × 2.0 + limiter; salin dari episode/ep13).

@@ -1,7 +1,7 @@
 # Mengenal Al-Qur'an · @alurziyadahku — Arsip Produksi
 
-Semua skill, aturan, prompt, kode, dan aset untuk membuat video kajian seri **Mengenal Al-Qur'an** (Ep1–Ep12 dan seterusnya).
-Untuk episode baru: kirim **MP3 + transkrip bertimestamp**, lalu minta "lanjut ep13 sampai final". Claude membaca folder ini dan `PROMPT_DAN_ATURAN.md`.
+Semua skill, aturan, prompt, kode, dan aset untuk membuat video kajian seri **Mengenal Al-Qur'an** (Ep1–Ep13 dan seterusnya).
+Untuk episode baru: kirim **MP3 + transkrip bertimestamp**, lalu minta "lanjut ep14 sampai final". Claude membaca folder ini dan `PROMPT_DAN_ATURAN.md`.
 
 ## Isi folder
 
@@ -14,7 +14,7 @@ Untuk episode baru: kirim **MP3 + transkrip bertimestamp**, lalu minta "lanjut e
 | `kit/covers/` | Template cover: `cover_ep.html` (dosier lama, config per episode), `seri_latin_peny.html` (post seri IG PENYAMPAI), `cover_new.html`, `islamic.html`, `vlog*.html`, `air.html`, `kucing.html`, `hitam_ar.html`, `seri_*.html` + skrip `shot*.js` + `bg/`. |
 | `kit/fonts/` | Amiri, Kalam, Bebas Neue. |
 | `kit/toolkit_tulis_tangan/`, `kit/toolkit_sinematik/` | Kit skill gaya lain (tulisan tangan, sinematik). |
-| `episode/ep2` … `episode/ep12` | Naskah adegan tiap episode (`epN.js`) + konfigurasi render — contoh untuk episode berikutnya. |
+| `episode/ep2` … `episode/ep13` | Naskah adegan tiap episode (`epN.js`) + konfigurasi render — contoh untuk episode berikutnya. |
 | `transkrip/` | Semua transkrip yang pernah dikirim. |
 | `hasil/` | Semua cover, thumbnail, post IG, caption yang sudah jadi (tanpa video/MP3 karena ukurannya besar). |
 
