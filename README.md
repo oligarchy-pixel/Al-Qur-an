@@ -8,10 +8,11 @@
 | **02** | Saat Sangkakala Ditiup | 1:51 | voice-over EN | — | — | — |
 | **03** | Catatan Amal | 0:56 | voice-over EN | — | — | ✅ |
 | **04** | Mizan: Hari Perhitungan | 1:43 | voice-over EN | — | — | ✅ |
-| **05** | Nama-Nama Malaikat dan Tugasnya | 2:20 | ✅ EN + ID | ✅ EN + ID | — |
-| **06** | Silsilah Nabi Muhammad shalallahu alaihi wasallam | 2:47 | ✅ EN | ✅ EN | — |
+| **05** | Nama-Nama Malaikat dan Tugasnya | 2:20 | teks layar | ✅ EN + ID | ✅ EN + ID | — |
+| **06** | Silsilah Nabi Muhammad shalallahu alaihi wasallam | 2:47 | teks layar | ✅ EN | ✅ EN | — |
+| **07** | Titian Sirat: Perjalanan di Atas Jahannam | 1:52 | voice-over EN | — | — | ✅ |
 
-Nomor 01–04 berurutan sebagai satu cerita: kubur → kebangkitan → catatan amal → timbangan.
+Cerita akhirat berurutan: 01 kubur → 02 kebangkitan → 03 catatan amal → 04 timbangan → 07 titian Sirat (di video tertulis "Episode 5").
 
 ## Isi setiap folder
 
