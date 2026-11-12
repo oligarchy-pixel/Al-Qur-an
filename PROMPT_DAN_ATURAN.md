@@ -129,3 +129,4 @@ Template terbaru: `kit/short_vertikal/ep2_v4/index.html` (+ `render.js`, `overla
 - Short Ep2 v4: durasi 2:50 (suara diteruskan sampai 2:46 audio, poin 06 'memperdengarkan bacaan ke diri sendiri'), SFX keras.
 - Short Ep2 v5: "suara dengungan dihapus, merusak pendengaran" → musik latar/drone DIHAPUS untuk semua video selanjutnya; hanya suara + SFX.
 - Simpan perintah short (Ep2) untuk episode selanjutnya → bagian 13 di atas menjadi standar short.
+- Cover short Ep2 (`kit/covers/short_cover.html`): vertikal HD 2160×3840, hook judul + daftar poin bernomor berikon + PENYAMPAI + ▶ TONTON; isi penting di area tengah agar aman dipotong 4:5 di grid IG.
