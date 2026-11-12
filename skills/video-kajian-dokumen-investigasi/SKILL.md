@@ -91,3 +91,6 @@ Setiap episode WAJIB memakai sebanyak mungkin kode dari daftar sepakat (poin 13)
 
 ## Audio SHORT vertikal (keluhan pengguna: SFX senyap)
 Pisahkan jalur: `BK=1 FK=0 python3 sfx_split.py D bedonly.wav sfx.json` dan `BK=0 FK=1 … fxonly.wav`, lalu amix suara (loudnorm I=-16) + bedonly×0.45 + fxonly×2.2, `alimiter=limit=0.84:level=0`. Target: SFX jelas terdengar, puncak ≤ -1 dB.
+
+## ⛔ TANPA DENGUNGAN (keluhan pengguna: "suara dengungan merusak pendengaran")
+Musik latar ambient (pad nada rendah 55–165 Hz + noise + denyut) DIHAPUS. Mulai sekarang campur HANYA suara penyampai + jalur SFX (`BK=0 FK=1 python3 sfx_split.py …` → fxonly.wav, volume 2.2) + alimiter limit=0.84 level=0. Berlaku untuk short DAN video panjang (ubah full.sh: jangan pakai bed_full.wav; pakai fxonly).

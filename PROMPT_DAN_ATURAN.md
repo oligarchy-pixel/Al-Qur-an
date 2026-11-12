@@ -31,7 +31,7 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 - Tulis "ma dibaca pendek/panjang" dengan huruf م ditampilkan.
 
 ## 6. Audio
-- Suara: loudnorm I=-16, TP=-1.5. Musik latar volume 0.4.
+- Suara: loudnorm I=-16, TP=-1.5. **TANPA musik latar/dengungan** (dihapus atas permintaan pengguna) — hanya suara + SFX (fxonly × 2.2, alimiter).
 - **Volume SFX: `fx = fx[:n] * 5.8`** di `sfx.py` (riwayat: 2.1 → 2.7 → 3.8 → 4.8 → 5.8; pengguna beberapa kali minta dinaikkan).
 - Jika pengguna mengirim MP3 pengganti dengan durasi sama, cukup ganti audio (visual tetap).
 
@@ -118,3 +118,4 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 - Short Ep2 v2: durasi 2:45; hook penasaran 0–3 dtk ("rajin baca Al-Qur'an… tapi pahalanya bisa BERKURANG? 😳 · 5 adab yang sering dilupakan") lalu CTA like/follow/subscribe + panah klik di bawah (3–6 dtk), isi 5 adab dengan suara asli, penutup ringkasan + CTA.
 - Short Ep2 v3: "tambahkan sound sfx-nya, kenapa senyap" → untuk SHORT: pisahkan jalur musik & SFX (kit/short_vertikal/sfx_split.py, env BK/FK), campur suara (loudnorm -16) + musik 0.45 + SFX 2.2 + alimiter limit=0.84 level=0. Jangan campur bed+sfx lalu volume 0.5 (SFX jadi senyap).
 - Short Ep2 v4: durasi 2:50 (suara diteruskan sampai 2:46 audio, poin 06 'memperdengarkan bacaan ke diri sendiri'), SFX keras.
+- Short Ep2 v5: "suara dengungan dihapus, merusak pendengaran" → musik latar/drone DIHAPUS untuk semua video selanjutnya; hanya suara + SFX.
