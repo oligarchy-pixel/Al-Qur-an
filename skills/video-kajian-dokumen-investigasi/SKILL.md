@@ -94,3 +94,6 @@ Pisahkan jalur: `BK=1 FK=0 python3 sfx_split.py D bedonly.wav sfx.json` dan `BK=
 
 ## ⛔ TANPA DENGUNGAN (keluhan pengguna: "suara dengungan merusak pendengaran")
 Musik latar ambient (pad nada rendah 55–165 Hz + noise + denyut) DIHAPUS. Mulai sekarang campur HANYA suara penyampai + jalur SFX (`BK=0 FK=1 python3 sfx_split.py …` → fxonly.wav, volume 2.2) + alimiter limit=0.84 level=0. Berlaku untuk short DAN video panjang (ubah full.sh: jangan pakai bed_full.wav; pakai fxonly).
+
+## SHORT VERTIKAL — STANDAR (disetujui setelah Short Ep2 v5)
+Ikuti `PROMPT_DAN_ATURAN.md` bagian 13 dan `kit/short_vertikal/CARA_BUAT_SHORT.md` di repo: 2:50, suara asli, hook penasaran 0–3 dtk, hook LIKE/FOLLOW/SUBSCRIBE + panah 'klik di bawah ini' 3–6 dtk, isi poin bernomor sinkron kata per kata, penutup ringkasan + CTA, audio tanpa dengungan (suara + SFX×2.2 + limiter), cek overlap 0, foto preview sebelum render.

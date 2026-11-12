@@ -78,9 +78,18 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 - **5 hashtag**: 3 topik spesifik + `#kajianislam` / `#nasihatislami` + `#mengenalalquran`.
 - Tips unggah: balas 10–20 komentar pertama dalam 1 jam; unggah sesudah Isya / menjelang Subuh; potong 1 momen kuat jadi Reels terpisah.
 
-## 13. Short vertikal (Reels/TikTok/Shorts)
-- Template `kit/short_vertikal/` (1080×1920, ±100 dtk, < 3 menit): hook 0–4 dtk ("sudah sering…? tapi sudah tahu N … ini?"), poin bernomor dengan header "ADAB KE-n", ayat di kertas krem, alur 3 langkah ikon, penutup ringkasan + simpan/bagikan + SUBSCRIBE. Konten penting di area y 250–1500 (aman dari UI aplikasi).
-- Bila tersedia rekaman suara: pakai suara asli & sinkron kata per kata.
+## 13. Short vertikal (Reels/TikTok/Shorts) — STANDAR (disetujui pengguna setelah Short Ep2 v5)
+Template terbaru: `kit/short_vertikal/ep2_v4/index.html` (+ `render.js`, `overlap.js`, `sfx_split.py`). Panduan langkah: `kit/short_vertikal/CARA_BUAT_SHORT.md`.
+1. **Format**: 1080×1920, durasi **2:50 (170 dtk)** kecuali pengguna minta lain. Konten penting di y 250–1500 (aman dari UI aplikasi).
+2. **Pakai suara asli penyampai** (potongan terbaik dari MP3 episode, ±150–160 dtk) — pilih bagian berisi daftar/poin praktis yang utuh dan berakhir di kalimat yang tuntas.
+3. **Hook 1 · penasaran (0–3 dtk)**: kalimat menohok + jumlah poin (contoh: "rajin baca Al-Qur'an… tapi pahalanya bisa **BERKURANG?** 😳 · 5 adab yang sering dilupakan 👇" + kotak 01–05).
+4. **Hook 2 · ajakan (3–6 dtk)**: "sebelum mulai… bantu kami 🙏" + tombol ❤️ LIKE · ＋/✓ FOLLOW · 🔔 SUBSCRIBE yang ditekan satu per satu (animasi pop) + "📺 video lengkapnya **klik di bawah ini**" dengan panah ⬇ memantul (mengarah ke tautan "video terkait" di kiri bawah).
+5. **Isi**: suara mulai detik 6 (offset audio = waktu_audio − (awal_potongan − 6)). Tiap poin: header "ADAB/POIN KE-n" bernomor berwarna, lafaz Arab per kata dengan stabilo, teks kinetik per kalimat, kartu/ikon/alur 3 langkah, penghitung "n/5" di HUD. Visual baru tiap 2–4 dtk, sinkron kata per kata.
+6. **Penutup (±7 dtk)**: ringkasan semua poin (kotak ikon bernomor) + tombol LIKE/FOLLOW/SUBSCRIBE lagi + "masih banyak … lainnya 📖 · tonton video lengkapnya → klik di bawah ini ⬇".
+7. **Audio**: ⛔ TANPA musik latar/dengungan. Hanya suara (loudnorm I=-16, TP=-1.5, adelay 6000) + SFX keras (`BK=0 FK=1 python3 sfx_split.py 170 fxonly.wav sfx.json`, volume 2.2) + `alimiter=limit=0.84:level=0`, fade-out 1,4 dtk. Puncak ≤ −1 dB.
+8. **Cek**: `overlap.js` seluruh durasi langkah 0,25 dtk = 0 baris + foto preview sebelum render.
+9. **Kirim** video + caption singkat gaya viral (STOP/pantesan/ternyata + ajakan komentar "AAMIIN"/simpan/kirim + 5 hashtag: `#fyp #dakwahislam #<topik> #pengingatdiri #mengenalalquran`) + pengingat: di YouTube Shorts pilih "Video terkait" → video episode lengkap; di TikTok/IG taruh tautan di bio/komentar tersemat.
+10. Setiap versi nama file baru (`SHORT_EpN_vX_…`), jangan menimpa.
 
 ---
 
@@ -119,3 +128,4 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 - Short Ep2 v3: "tambahkan sound sfx-nya, kenapa senyap" → untuk SHORT: pisahkan jalur musik & SFX (kit/short_vertikal/sfx_split.py, env BK/FK), campur suara (loudnorm -16) + musik 0.45 + SFX 2.2 + alimiter limit=0.84 level=0. Jangan campur bed+sfx lalu volume 0.5 (SFX jadi senyap).
 - Short Ep2 v4: durasi 2:50 (suara diteruskan sampai 2:46 audio, poin 06 'memperdengarkan bacaan ke diri sendiri'), SFX keras.
 - Short Ep2 v5: "suara dengungan dihapus, merusak pendengaran" → musik latar/drone DIHAPUS untuk semua video selanjutnya; hanya suara + SFX.
+- Simpan perintah short (Ep2) untuk episode selanjutnya → bagian 13 di atas menjadi standar short.
