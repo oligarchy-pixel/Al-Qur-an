@@ -88,3 +88,6 @@ Mulai dari `episode/ep11/` di repo (ep11.js + ref.js). Wajib: gaya Ep10 2D + `re
 
 ## ⚠ KODE STYLE YANG DISEPAKATI WAJIB DIPAKAI (pengingat pengguna Ep12)
 Setiap episode WAJIB memakai sebanyak mungkin kode dari daftar sepakat (poin 13): /kinetic-type /venn /canvas /decision-matrix /spectrum /balance /layers /blueprint /citation /roadmap /iceberg /split-screen /callout /flowchart /infographic /diagram /badge /timeline /sketchnotes /cycle /handwritten /checklist /tree /exploded-view /teaser /mindmap /bar-chart — minimal ±18 kode berbeda dari daftar ini, baru ditambah kode khusus (/search, /scripture, dll). Contoh pemakaian Ep12 v2: doa bersyarat → /handwritten (font Kalam), contoh doa → /sketchnotes (Kalam + kartu miring), pasti-baik vs belum → /spectrum, sakit→ingat Allah→zikir→doa → /cycle, ilmu kita dalam ilmu Allah → /venn, makna luas → /mindmap, mulut berdoa vs hati lalai → /iceberg, ayat → /citation, #1 → /badge, jalan → /roadmap, latar grid biru → /blueprint, perjalanan hidup → /timeline, 73 titik → /infographic, ayat 5→6 → /exploded-view.
+
+## Audio SHORT vertikal (keluhan pengguna: SFX senyap)
+Pisahkan jalur: `BK=1 FK=0 python3 sfx_split.py D bedonly.wav sfx.json` dan `BK=0 FK=1 … fxonly.wav`, lalu amix suara (loudnorm I=-16) + bedonly×0.45 + fxonly×2.2, `alimiter=limit=0.84:level=0`. Target: SFX jelas terdengar, puncak ≤ -1 dB.
