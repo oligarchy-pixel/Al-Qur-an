@@ -97,3 +97,6 @@ Musik latar ambient (pad nada rendah 55–165 Hz + noise + denyut) DIHAPUS. Mula
 
 ## SHORT VERTIKAL — STANDAR (disetujui setelah Short Ep2 v5)
 Ikuti `PROMPT_DAN_ATURAN.md` bagian 13 dan `kit/short_vertikal/CARA_BUAT_SHORT.md` di repo: 2:50, suara asli, hook penasaran 0–3 dtk, hook LIKE/FOLLOW/SUBSCRIBE + panah 'klik di bawah ini' 3–6 dtk, isi poin bernomor sinkron kata per kata, penutup ringkasan + CTA, audio tanpa dengungan (suara + SFX×2.2 + limiter), cek overlap 0, foto preview sebelum render.
+
+## CAPTION SEO (mulai Ep13, permintaan pengguna)
+Ikuti `PROMPT_DAN_ATURAN.md` bagian 12: judul YouTube berisi kata kunci pencarian di depan (keutamaan surah / tafsir ayat / arti / kisah nabi), baris pertama caption = kata kunci + emoji, poin ✅ + sumber, ajakan AAMIIN/simpan/bagikan, 5 hashtag `#fyp #islam #kajianislam #<topik> #mengenalalquran`, plus 6–8 kata kunci untuk kolom tag YouTube.

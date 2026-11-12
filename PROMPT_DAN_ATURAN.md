@@ -68,15 +68,16 @@ Semua keluaran berbahasa Indonesia. Skill utama: `skills/video-kajian-dokumen-in
 6. Laporkan hasil cek sumber di chat (derajat lemah/palsu disebut di chat & tab pencarian, bukan dikoreksi di layar).
 7. Simpan semuanya ke repo (episode/epN, hasil/EpN_Dokumen, transkrip, skill).
 
-## 12. Rumus caption yang dipakai (Ep10–Ep11)
-- **Judul YouTube**: kalimat menohok + `|` + topik + `— Mengenal Al-Qur'an Ep.N` (contoh: "Musuh Paling Berbahaya Bukan di Luar, Tapi di Dalam Dirimu | Mengenal Al-Qur'an Ep.11").
-- **Pembuka 2 baris** yang menyentuh pengalaman umum penonton + emoji 😔.
-- Ayat/hadis kunci dalam aksara Arab + terjemahan singkat.
-- "Di episode N ini kita bedah:" + 5–7 poin ber-emoji (dengan sumber shahih bila ada, mis. Bukhari/Muslim).
-- Kalimat penutup yang kuat (mis. "Pilih yang abadi. Tinggalkan yang fana.").
-- 3 ajakan: 👇 pertanyaan jujur di komentar (memancing jawaban pribadi) · 🔁 "kirim ke 1 sahabat yang…" · 🔔 follow @alurziyadahku.
-- **5 hashtag**: 3 topik spesifik + `#kajianislam` / `#nasihatislami` + `#mengenalalquran`.
-- Tips unggah: balas 10–20 komentar pertama dalam 1 jam; unggah sesudah Isya / menjelang Subuh; potong 1 momen kuat jadi Reels terpisah.
+## 12. Rumus caption SEO (mudah dicari · berlaku mulai Ep13)
+Pencarian TikTok/IG/YouTube membaca KATA KUNCI di judul & caption → kata yang diketik orang wajib ada di depan.
+1. **Judul YouTube**: kata kunci pencarian di depan, dipisah `|` (contoh: "Kisah Sapi Betina Nabi Musa & Keutamaan Surah Al-Baqarah | Arti Alif Lam Mim | Tafsir Al-Baqarah Ayat 1-2"). Pakai frasa yang biasa dicari: *keutamaan surah …*, *tafsir … ayat …*, *arti …*, *kisah nabi …*, *doa …*, *hukum …*, *cara …*.
+2. **Baris pertama caption** = kata kunci utama + emoji (yang tampil sebelum "lihat selengkapnya").
+3. **Baris kedua** = hook penasaran ("Ternyata…", "Kenapa…?", "Pantesan…").
+4. **Poin isi** pakai ✅ + sumber (HR./QS.) — tiap poin mengandung kata kunci turunan.
+5. **Ajakan**: 💬 "Tulis AAMIIN…" · 📌 simpan & bagikan.
+6. **5 hashtag** (data hashtag paling konsisten 2025–2026): `#fyp #islam #kajianislam` + 1 topik (`#kisahislami` untuk kisah · `#dakwahislam` untuk nasihat · `#doa` untuk doa) + `#mengenalalquran`.
+7. **Kata kunci tambahan** (YouTube → kolom tag): 6–8 frasa pencarian (nama surah, keutamaan, tafsir ayat, tokoh kisah, "kajian islam", "ngaji online").
+8. Cek tren terbaru sebelum unggah: ketik kata kunci di kolom cari TikTok/YouTube → pakai saran otomatis yang muncul paling atas.
 
 ## 13. Short vertikal (Reels/TikTok/Shorts) — STANDAR (disetujui pengguna setelah Short Ep2 v5)
 Template terbaru: `kit/short_vertikal/ep2_v4/index.html` (+ `render.js`, `overlap.js`, `sfx_split.py`). Panduan langkah: `kit/short_vertikal/CARA_BUAT_SHORT.md`.
@@ -131,3 +132,4 @@ Template terbaru: `kit/short_vertikal/ep2_v4/index.html` (+ `render.js`, `overla
 - Simpan perintah short (Ep2) untuk episode selanjutnya → bagian 13 di atas menjadi standar short.
 - Cover short Ep2 (`kit/covers/short_cover.html`): vertikal HD 2160×3840, hook judul + daftar poin bernomor berikon + PENYAMPAI + ▶ TONTON; isi penting di area tengah agar aman dipotong 4:5 di grid IG.
 - Ep13: lanjutkan Ep13 (Surah Al-Baqarah · kisah sapi betina · Alif Lam Mim · ayat 2) → standar penuh: 20 kode sepakat, tab pencarian, bar bab, audio TANPA dengungan (full.sh baru: fxonly × 2.0 + limiter; salin dari episode/ep13).
+- Ep13: ganti caption ke yang sedang terkenal agar mudah dicari + hashtag → rumus caption SEO (bagian 12) diterapkan untuk episode selanjutnya.
