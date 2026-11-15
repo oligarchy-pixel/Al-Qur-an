@@ -1,0 +1,3 @@
+Taruh file mp3 bacaan Al-Quran milik sendiri di folder ini (mis. maqam Jiharkah).
+Game memutarnya berurutan menurut nama file (01 ..., 02 ...) lalu mengulang.
+Kosongkan folder ini untuk kembali ke bacaan dari internet.

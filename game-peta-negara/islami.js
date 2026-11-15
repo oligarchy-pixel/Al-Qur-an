@@ -146,7 +146,17 @@
   const qari = QARI[params.get("qari") || CFG.QURAN_QARI || "alafasy"] || QARI.alafasy;
   const qList = (params.get("surah") || (CFG.QURAN_SURAH || [1, 36, 55, 56, 67, 18, 19, 32, 78, 50, 2]).join(","))
     .split(",").map((n) => parseInt(n, 10)).filter((n) => n >= 1 && n <= 114);
-  const QLOCAL = Array.isArray(CFG.QURAN_LOKAL) ? CFG.QURAN_LOKAL : [];  // mp3 milik sendiri, mis. ["quran/yasin.mp3"]
+  let QLOCAL = Array.isArray(CFG.QURAN_LOKAL) ? CFG.QURAN_LOKAL : [];  // mp3 milik sendiri, mis. ["quran/yasin.mp3"]
+  // Otomatis: kalau folder game/quran berisi mp3 (mis. bacaan maqam Jiharkah), itulah yang diputar. ?quran=online → paksa dari internet.
+  if (!QLOCAL.length && params.get("quran") !== "online" && location.protocol.startsWith("http")) {
+    fetch("quran-list").then((r) => r.json()).then((list) => {
+      if (Array.isArray(list) && list.length) {
+        QLOCAL = list.map((f) => "quran/" + encodeURIComponent(f));
+        qIdx = 0;
+        if (qAudio.src && !qAudio.paused) qPlay(); else np.textContent = qLabel();
+      }
+    }).catch(() => {});
+  }
   let quranOn = false, qIdx = 0, qFails = 0, qBitrate = 64;
   const qAudio = new Audio();
   qAudio.preload = "auto";
@@ -161,7 +171,7 @@
     return `https://cdn.islamic.network/quran/audio-surah/${qBitrate}/${qari[0]}/${qList[qIdx % qList.length]}.mp3`;
   }
   function qLabel() {
-    if (QLOCAL.length) return "🎧 " + decodeURIComponent(String(QLOCAL[qIdx % QLOCAL.length]).split("/").pop().replace(/\.mp3$/i, ""));
+    if (QLOCAL.length) return "🎧 " + decodeURIComponent(String(QLOCAL[qIdx % QLOCAL.length]).split("/").pop()).replace(/\.(mp3|m4a|ogg|wav)$/i, "").replace(/[_]+/g, " ");
     const n = qList[qIdx % qList.length];
     return `🎧 ${SURAH[n] ? "Surah " + SURAH[n] : "Surah " + n} · ${qari[1]}`;
   }

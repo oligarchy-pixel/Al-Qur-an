@@ -26,10 +26,17 @@ const GAME_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const MIME = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
   ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg",
-  ".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".wav": "audio/wav", ".webmanifest": "application/manifest+json",
+  ".mp3": "audio/mpeg", ".m4a": "audio/mp4", ".ogg": "audio/ogg", ".wav": "audio/wav", ".webmanifest": "application/manifest+json",
 };
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent((req.url || "/").split("?")[0]);
+  // daftar mp3 di folder game/quran (untuk bacaan milik sendiri, mis. maqam Jiharkah)
+  if (p === "/quran-list") {
+    let files = [];
+    try { files = fs.readdirSync(path.join(GAME_DIR, "quran")).filter((f) => /\.(mp3|m4a|ogg|wav)$/i.test(f)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })); } catch (e) { /* folder belum ada */ }
+    res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-cache" });
+    res.end(JSON.stringify(files)); return;
+  }
   if (p === "/") p = "/index.html";
   const file = path.resolve(GAME_DIR, "." + p);
   if (!file.startsWith(GAME_DIR + path.sep) || file.includes(`${path.sep}server${path.sep}`)) {

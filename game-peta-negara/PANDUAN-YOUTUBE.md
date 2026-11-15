@@ -37,6 +37,14 @@ Game Islami otomatis memutar **bacaan Al-Quran** surah demi surah lalu mengulang
 - Butuh internet: ±30 MB per jam bacaan (di luar data siaran live).
 - ⚠️ Sebagian rakaman qari terkenal boleh terkena **tuntutan hak cipta (Content ID)** YouTube. Kalau muncul tuntutan, tukar qari (cuba `husary` atau `minshawi`) atau guna mp3 yang anda ada izin (`QURAN_LOKAL` di config.js).
 
+## 🎼 Bacaan milik sendiri (mis. maqam Jiharkah)
+
+Tidak ada sumber gratis yang memilah bacaan per maqam, jadi gunakan rakaman anda sendiri / yang anda ada izin:
+1. Simpan file mp3 di folder HP **Download/Jiharkah**. Namakan berurutan, mis. `01 Al-Fatihah.mp3`, `02 Yasin.mp3`.
+2. Termux: `bash ~/game-peta-negara/server/salin-quran.sh`
+3. Refresh Chrome. Game otomatis memutar file anda berurutan lalu mengulang (nama file tampil di layar).
+- Kembali ke bacaan dari internet: `rm ~/game-peta-negara/quran/*.mp3`, atau tambahkan `&quran=online`.
+
 ## ⏱ LIVE panjang (mis. 3 jam) tanpa menyentuh HP
 
 Buka **`localhost:21214/islami.html?auto=15`**. Game akan **bergantian otomatis**: 15 menit Kuis, lalu 15 menit Dzikir, dan seterusnya. Saat berganti, soal yang sedang berjalan diselesaikan dulu. Angka 15 bisa diganti, misalnya `?auto=20`. Untuk Bahasa Indonesia: `?auto=15&lang=id`.
