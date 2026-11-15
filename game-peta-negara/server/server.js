@@ -73,7 +73,14 @@ for (const [name, ev] of [
   ["chat", WebcastEvent.CHAT], ["gift", WebcastEvent.GIFT], ["like", WebcastEvent.LIKE],
   ["follow", WebcastEvent.FOLLOW], ["share", WebcastEvent.SHARE],
 ]) {
-  conn.on(ev, (data) => broadcast(name, data));
+  conn.on(ev, (data) => {
+    broadcast(name, data);
+    // tampilkan di Termux supaya mudah dicek apakah komentar/gift benar-benar masuk
+    const u = data?.user?.uniqueId || data?.uniqueId || "?";
+    if (name === "chat") console.log(`💬 ${u}: ${data.comment}`);
+    else if (name === "gift" && (data.repeatEnd || data.giftDetails?.giftType !== 1)) console.log(`🎁 ${u}: ${data.giftDetails?.giftName || data.giftName || "gift"} x${data.repeatCount || 1}`);
+    else if (name === "follow") console.log(`➕ ${u} follow`);
+  });
 }
 let retryT = null;
 const retry = (ms) => { clearTimeout(retryT); retryT = setTimeout(start, ms); };
