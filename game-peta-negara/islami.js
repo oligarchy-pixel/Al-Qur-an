@@ -114,9 +114,54 @@
     hello: (t) => tone(1047, t, 0.15, 0.05),
   };
   let lastS = 0;
-  const sfx = (n) => { if (CFG.SUARA === false || !ac || ac.state !== "running") return; const now = performance.now(); if ((n === "dz" || n === "hello") && now - lastS < 150) return; lastS = now; try { SFX[n](ac.currentTime + 0.01); } catch (e) { /* */ } };
+  const sfx = (n) => { if (CFG.SUARA === false || quranOn || !ac || ac.state !== "running") return; const now = performance.now(); if ((n === "dz" || n === "hello") && now - lastS < 150) return; lastS = now; try { SFX[n](ac.currentTime + 0.01); } catch (e) { /* */ } };
   const tap = $("#tap"); tap.textContent = T.tap; if (CFG.SUARA !== false) tap.classList.remove("hidden");
+  /* ---------- Bacaan Al-Quran (diputar berulang-ulang) ----------
+   * ?quran=0 → mati. ?qari=alafasy|husary|minshawi|sudais. ?surah=1,36,55 → daftar surah sendiri. ?qvol=0.8 → volume.
+   * Saat bacaan Al-Quran diputar, bunyi efek game dimatikan supaya bacaan didengar dengan tenang (QS Al-A'raf: 204).
+   */
+  const QARI = { alafasy: ["ar.alafasy", "Mishary Rashid Alafasy"], husary: ["ar.husary", "Mahmoud Khalil Al-Husary"],
+    minshawi: ["ar.minshawi", "Muhammad Siddiq Al-Minshawi"], sudais: ["ar.abdurrahmaansudais", "Abdurrahman As-Sudais"] };
+  const SURAH = { 1: "Al-Fatihah", 2: "Al-Baqarah", 3: "Ali 'Imran", 12: "Yusuf", 18: "Al-Kahf", 19: "Maryam", 32: "As-Sajdah", 36: "Yasin",
+    48: "Al-Fath", 50: "Qaf", 55: "Ar-Rahman", 56: "Al-Waqi'ah", 67: "Al-Mulk", 73: "Al-Muzzammil", 76: "Al-Insan", 78: "An-Naba'",
+    87: "Al-A'la", 89: "Al-Fajr", 93: "Ad-Duha", 94: "Asy-Syarh", 97: "Al-Qadr", 112: "Al-Ikhlas", 113: "Al-Falaq", 114: "An-Nas" };
+  const quranWanted = params.get("quran") !== "0" && CFG.QURAN !== false;
+  const qari = QARI[params.get("qari") || CFG.QURAN_QARI || "alafasy"] || QARI.alafasy;
+  const qList = (params.get("surah") || (CFG.QURAN_SURAH || [1, 36, 55, 56, 67, 18, 19, 32, 78, 50, 2]).join(","))
+    .split(",").map((n) => parseInt(n, 10)).filter((n) => n >= 1 && n <= 114);
+  const QLOCAL = Array.isArray(CFG.QURAN_LOKAL) ? CFG.QURAN_LOKAL : [];  // mp3 milik sendiri, mis. ["quran/yasin.mp3"]
+  let quranOn = false, qIdx = 0, qFails = 0, qBitrate = 64;
+  const qAudio = new Audio();
+  qAudio.preload = "auto";
+  qAudio.volume = Math.min(1, Math.max(0, Number(params.get("qvol") ?? CFG.QURAN_VOLUME ?? 0.9)));
+  const np = $("#np");
+  function qSrc() {
+    if (QLOCAL.length) return QLOCAL[qIdx % QLOCAL.length];
+    return `https://cdn.islamic.network/quran/audio-surah/${qBitrate}/${qari[0]}/${qList[qIdx % qList.length]}.mp3`;
+  }
+  function qLabel() {
+    if (QLOCAL.length) return "🎧 " + decodeURIComponent(String(QLOCAL[qIdx % QLOCAL.length]).split("/").pop().replace(/\.mp3$/i, ""));
+    const n = qList[qIdx % qList.length];
+    return `🎧 ${SURAH[n] ? "Surah " + SURAH[n] : "Surah " + n} · ${qari[1]}`;
+  }
+  function qPlay() {
+    qAudio.src = qSrc();
+    np.textContent = qLabel(); np.classList.remove("hidden");
+    qAudio.play().then(() => { quranOn = true; qFails = 0; }).catch(() => {});
+  }
+  qAudio.addEventListener("ended", () => { qIdx++; qPlay(); });            // surah berikutnya, lalu ulang dari awal
+  qAudio.addEventListener("error", () => {
+    if (!QLOCAL.length && qBitrate === 64) { qBitrate = 128; qPlay(); return; } // coba kualitas lain
+    qFails++; qBitrate = 64;
+    if (qFails > qList.length + 2) { quranOn = false; np.textContent = "🎧 Audio Al-Quran tidak dapat dimuat (cek internet)"; setTimeout(() => { qFails = 0; qPlay(); }, 60000); return; }
+    qIdx++; setTimeout(qPlay, 3000);
+  });
+  qAudio.addEventListener("playing", () => { quranOn = true; });
+  qAudio.addEventListener("pause", () => { if (!qAudio.ended) quranOn = false; });
+
+  if (quranWanted) tap.classList.remove("hidden");
   addEventListener("pointerdown", () => {
+    if (quranWanted && !quranOn && (!qAudio.src || qAudio.paused)) { if (!qAudio.src) qPlay(); else qAudio.play().catch(() => {}); }
     try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state !== "running") ac.resume(); } catch (e) { /* */ }
     tap.classList.add("hidden");
     if (matchMedia("(pointer: coarse)").matches && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {});

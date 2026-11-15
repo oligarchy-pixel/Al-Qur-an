@@ -27,6 +27,16 @@ localhost:21214/islami.html?lang=ms&auto=15
 - Server Termux **menyala ulang otomatis** kalau berhenti.
 - ⚠️ YouTube hanya menyimpan rakaman (VOD) untuk live **≤ 12 jam**. Live yang lebih lama tetap boleh berjalan, tetapi rakamannya tidak disimpan penuh.
 
+## 🎧 Bacaan Al-Quran sebagai latar
+
+Game Islami otomatis memutar **bacaan Al-Quran** surah demi surah lalu mengulanginya (±4 jam per putaran): Al-Fatihah, Yasin, Ar-Rahman, Al-Waqi'ah, Al-Mulk, Al-Kahf, Maryam, As-Sajdah, An-Naba', Qaf, Al-Baqarah.
+- Ketuk layar sekali agar bacaan mulai (aturan browser).
+- Ganti qari: `&qari=husary`, `&qari=minshawi`, `&qari=sudais` (bawaan: Mishary Alafasy).
+- Surah sendiri: `&surah=36,55,67`. Volume: `&qvol=0.6`. Matikan: `&quran=0`.
+- Selama bacaan diputar, bunyi efek game dimatikan.
+- Butuh internet: ±30 MB per jam bacaan (di luar data siaran live).
+- ⚠️ Sebagian rakaman qari terkenal boleh terkena **tuntutan hak cipta (Content ID)** YouTube. Kalau muncul tuntutan, tukar qari (cuba `husary` atau `minshawi`) atau guna mp3 yang anda ada izin (`QURAN_LOKAL` di config.js).
+
 ## ⏱ LIVE panjang (mis. 3 jam) tanpa menyentuh HP
 
 Buka **`localhost:21214/islami.html?auto=15`**. Game akan **bergantian otomatis**: 15 menit Kuis, lalu 15 menit Dzikir, dan seterusnya. Saat berganti, soal yang sedang berjalan diselesaikan dulu. Angka 15 bisa diganti, misalnya `?auto=20`. Untuk Bahasa Indonesia: `?auto=15&lang=id`.

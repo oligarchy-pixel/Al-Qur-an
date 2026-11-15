@@ -66,4 +66,13 @@ window.GAME_CONFIG = {
   // Nama efek: gabung, giftKecil, giftSedang, giftBesar, giftMega, follow, share, like,
   //            pemimpin, tik, tikAkhir, menang
   EFEK_FILE: {},
+
+  // --- Bacaan Al-Quran di Game Islami (islami.html) ---
+  // Diputar dari internet, berganti surah lalu diulang tanpa henti. Bunyi efek game dimatikan selama bacaan diputar.
+  QURAN: true,                  // false = tanpa bacaan Al-Quran (atau pakai alamat ?quran=0)
+  QURAN_QARI: "alafasy",        // alafasy | husary | minshawi | sudais   (atau ?qari=husary)
+  QURAN_SURAH: [1, 36, 55, 56, 67, 18, 19, 32, 78, 50, 2],  // urutan surah (atau ?surah=1,36,55)
+  QURAN_VOLUME: 0.9,            // 0 sampai 1 (atau ?qvol=0.6)
+  // Pakai mp3 milik sendiri (taruh di folder game/quran/): ["quran/yasin.mp3", "quran/ar-rahman.mp3"]
+  QURAN_LOKAL: [],
 };
