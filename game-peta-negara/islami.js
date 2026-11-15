@@ -8,7 +8,9 @@
   "use strict";
   const CFG = window.GAME_CONFIG || {};
   const params = new URLSearchParams(location.search);
-  const MODE = params.get("mode") === "dzikir" ? "dzikir" : "kuis";
+  let MODE = params.get("mode") === "dzikir" ? "dzikir" : "kuis";
+  // ?auto=15 → bergantian otomatis Kuis ⇄ Dzikir setiap 15 menit (untuk LIVE panjang tanpa menyentuh HP)
+  const AUTO_MIN = Math.max(0, Number(params.get("auto")) || 0);
   const LANG = (params.get("lang") || CFG.BAHASA) === "id" ? "id" : "en"; // ?lang=id → Bahasa Indonesia
   const $ = (s) => document.querySelector(s);
   const Q_SEC = CFG.KUIS_DETIK ?? 20, REVEAL_SEC = 7, ROUND_Q = 10;
@@ -25,6 +27,7 @@
     noPlayers: "No players yet — join in the chat!", total: (t) => `dzikir together · target ${t}`,
     champTitle: "🏆 QUIZ CHAMPIONS 🏆", champNext: "New round starting soon…",
     goalTitle: "MasyaAllah! 🤲", goal: (n) => `${n} dzikir together!`, goalNext: (t) => `Next target: ${t}`,
+    nowQuiz: "🕌 Quiz time! Answer with A, B, C or D", nowDz: "📿 Dzikir time! Type SubhanAllah, Alhamdulillah…",
     tap: "🔊 Tap the screen for sound", waiting: (u) => `Waiting for LIVE ${u}…`, live: (u) => `Connected to LIVE ${u}`,
     lost: "LIVE disconnected — retrying…", connecting: "Connecting to server…", noServer: "Server not running — start Termux",
     locale: "en-US",
@@ -39,6 +42,7 @@
     noPlayers: "Belum ada pemain — ayo ikut di komentar!", total: (t) => `dzikir bersama · target ${t}`,
     champTitle: "🏆 JUARA KUIS 🏆", champNext: "Ronde baru segera dimulai…",
     goalTitle: "MasyaAllah! 🤲", goal: (n) => `${n} dzikir bersama!`, goalNext: (t) => `Target berikutnya: ${t}`,
+    nowQuiz: "🕌 Waktunya kuis! Jawab dengan A, B, C atau D", nowDz: "📿 Waktunya dzikir! Ketik SubhanAllah, Alhamdulillah…",
     tap: "🔊 Ketuk layar untuk suara", waiting: (u) => `Menunggu LIVE ${u}…`, live: (u) => `Terhubung ke LIVE ${u}`,
     lost: "LIVE terputus — mencoba lagi…", connecting: "Menghubungkan ke server…", noServer: "Server belum jalan — buka Termux",
     locale: "id-ID",
@@ -58,16 +62,22 @@
   const optText = (o) => { const p = String(o).split(" | "); return LANG === "id" && p[1] ? p[1] : p[0]; };
 
   /* ---------- State ---------- */
-  const KEY = `islami.${MODE}.${params.get("demo") === "1" ? "demo" : "v1"}`;
+  const keyOf = (m) => `islami.${m}.${params.get("demo") === "1" ? "demo" : "v1"}`;
+  let KEY = keyOf(MODE);
   if (params.get("reset") === "1") {
     try { for (const k of ["islami.kuis.v1", "islami.kuis.demo", "islami.dzikir.v1", "islami.dzikir.demo"]) localStorage.removeItem(k); } catch (e) { /* */ }
     params.delete("reset");
     try { history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); } catch (e) { /* */ }
   }
-  let S = { u: {}, qn: 0, round: 1, dz: {}, total: 0, target: TARGET_STEP };
-  try { const v = JSON.parse(localStorage.getItem(KEY) || "null"); if (v && v.u) S = Object.assign(S, v); } catch (e) { /* */ }
+  let S;
+  function loadState() {
+    S = { u: {}, qn: 0, round: 1, dz: {}, total: 0, target: TARGET_STEP };
+    try { const v = JSON.parse(localStorage.getItem(KEY) || "null"); if (v && v.u) S = Object.assign(S, v); } catch (e) { /* */ }
+  }
+  const saveState = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* */ } };
+  loadState();
   let dirty = false;
-  setInterval(() => { if (!dirty) return; dirty = false; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* */ } }, 4000);
+  setInterval(() => { if (!dirty) return; dirty = false; saveState(); }, 4000);
   const user = (raw) => { const u = S.u[raw.id] || (S.u[raw.id] = { n: "", p: 0 }); u.n = short(raw.nick || raw.id, 18); return u; };
 
   /* ---------- Suara ringan (tanpa musik) ---------- */
@@ -173,6 +183,7 @@
     o.classList.add("show"); sfx("goal");
   }
   function quizTick() {
+    if (MODE !== "kuis") return;
     const now = Date.now(), left = Math.max(0, Math.ceil((phaseEnd - now) / 1000));
     if (phase === "q") {
       $("#qfill").style.transform = `scaleX(${Math.max(0, (phaseEnd - now) / (Q_SEC * 1000))})`;
@@ -181,6 +192,7 @@
       quizTick.last = left;
       if (now >= phaseEnd) reveal();
     } else if (phase === "r" && now >= phaseEnd) {
+      if (switchWanted) { setMode("dzikir"); return; }
       if (S.qn % ROUND_Q === 0) champions();
       if (phase !== "c" || !phaseEnd) newQuestion();
     } else if (phase === "c" && now >= phaseEnd) {
@@ -293,19 +305,42 @@
     step();
   }
 
+  /* ---------- Ganti mode (manual lewat ?mode= atau otomatis lewat ?auto=) ---------- */
+  let switchWanted = false;
+  function setMode(m, first) {
+    if (!first) { saveState(); }
+    switchWanted = false;
+    MODE = m; KEY = keyOf(m); loadState();
+    $("#over").classList.remove("show");
+    const quiz = m === "kuis";
+    $("#title").textContent = quiz ? T.quizTitle : T.dzTitle;
+    $("#sub").textContent = quiz ? T.quizSub : T.dzSub;
+    $("#quiz").classList.toggle("hidden", !quiz);
+    $("#dzikir").classList.toggle("hidden", quiz);
+    stage.classList.toggle("mode-dzikir", !quiz);
+    if (quiz) newQuestion();
+    else {
+      $("#cards").innerHTML = DZ.map((d) => `<div class="dz" id="dz-${d.k}"><div class="arab${d.sm ? " sm" : ""}">${d.ar}</div><div class="lt">${d.lt}</div><div class="c">0</div></div>`).join("");
+      dzRender();
+    }
+    renderBoard();
+    if (!first) { say(quiz ? T.nowQuiz : T.nowDz, "green", 6); sfx("goal"); }
+    scheduleAuto();
+  }
+  let autoT = null;
+  function scheduleAuto() {
+    clearTimeout(autoT);
+    if (!(AUTO_MIN > 0)) return;
+    autoT = setTimeout(function flip() {
+      if (MODE === "kuis") switchWanted = true;      // tunggu soal yang sedang berjalan selesai
+      else if (goalBusy) autoT = setTimeout(flip, 3000);
+      else setMode("kuis");
+    }, AUTO_MIN * 60 * 1000);
+  }
+
   /* ---------- Mulai ---------- */
   document.documentElement.lang = LANG;
-  if (MODE === "kuis") {
-    $("#title").textContent = T.quizTitle; $("#sub").textContent = T.quizSub;
-    $("#quiz").classList.remove("hidden");
-    newQuestion(); setInterval(quizTick, 250);
-  } else {
-    $("#title").textContent = T.dzTitle; $("#sub").textContent = T.dzSub;
-    $("#dzikir").classList.remove("hidden");
-    stage.classList.add("mode-dzikir");
-    $("#cards").innerHTML = DZ.map((d) => `<div class="dz" id="dz-${d.k}"><div class="arab${d.sm ? " sm" : ""}">${d.ar}</div><div class="lt">${d.lt}</div><div class="c">0</div></div>`).join("");
-    dzRender();
-  }
-  renderBoard();
+  setMode(MODE, true);
+  setInterval(quizTick, 250);
   connect();
 })();

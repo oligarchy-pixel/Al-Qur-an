@@ -9,11 +9,15 @@ Game Islami punya 2 mode, dan keduanya bisa dipakai di **YouTube** maupun **TikT
 
 Tampilan bawaan berbahasa Inggris. Tambahkan **`&lang=id`** (atau `?lang=id`) untuk Bahasa Indonesia, misalnya `localhost:21214/islami.html?lang=id`.
 
-- **Kuis Islami**: 51 soal (Al-Qur'an, rukun Islam & iman, para nabi, sirah). Satu soal berlangsung 20 detik. Jawaban benar dapat 10 poin, ditambah bonus untuk 3 penjawab tercepat. Setiap 10 soal muncul layar **Juara Kuis**.
+- **Kuis Islami**: 97 soal (Al-Qur'an, rukun Islam & iman, para nabi, sirah). Satu soal berlangsung 20 detik. Jawaban benar dapat 10 poin, ditambah bonus untuk 3 penjawab tercepat. Setiap 10 soal muncul layar **Juara Kuis**.
 - **Dzikir Bersama**: semua dzikir penonton dijumlahkan menuju target (500, 1.000, …). Saat target tercapai muncul **"MasyaAllah!"**.
 - Penonton baru disapa **"Assalamu'alaikum"** dan diajak ikut.
 - Gift, Super Chat, dan member **hanya diberi ucapan "Jazakallahu khairan 🤲"**, tidak dijadikan poin, supaya permainan tetap tentang ilmu dan dzikir.
 - Tanpa musik, hanya bunyi pendek. Sangat ringan untuk HP biasa.
+
+## ⏱ LIVE panjang (mis. 3 jam) tanpa menyentuh HP
+
+Buka **`localhost:21214/islami.html?auto=15`**. Game akan **bergantian otomatis**: 15 menit Kuis, lalu 15 menit Dzikir, dan seterusnya. Saat berganti, soal yang sedang berjalan diselesaikan dulu. Angka 15 bisa diganti, misalnya `?auto=20`. Untuk Bahasa Indonesia: `?auto=15&lang=id`.
 
 ---
 
