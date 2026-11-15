@@ -93,6 +93,22 @@
     }
   }
   nonAscii.sort((a, b) => b[0].length - a[0].length);
+  // Kata sebutan bangsa (demonym) yang sering diketik penonton: "Indonesian", "Filipino", dll.
+  const DEMONYM = {
+    indonesian: "ID", malaysian: "MY", thai: "TH", filipino: "PH", filipina: "PH", vietnamese: "VN", burmese: "MM",
+    cambodian: "KH", laotian: "LA", singaporean: "SG", bruneian: "BN", american: "US", canadian: "CA", mexican: "MX",
+    brazilian: "BR", argentinian: "AR", argentine: "AR", colombian: "CO", peruvian: "PE", chilean: "CL", venezuelan: "VE",
+    british: "GB", english: "GB", french: "FR", german: "DE", italian: "IT", spanish: "ES", portuguese: "PT", dutch: "NL",
+    russian: "RU", ukrainian: "UA", polish: "PL", turkish: "TR", egyptian: "EG", moroccan: "MA", algerian: "DZ",
+    tunisian: "TN", saudi: "SA", emirati: "AE", iraqi: "IQ", iranian: "IR", pakistani: "PK", indian: "IN",
+    bangladeshi: "BD", nepali: "NP", srilankan: "LK", afghan: "AF", chinese: "CN", japanese: "JP", korean: "KR",
+    nigerian: "NG", kenyan: "KE", ghanaian: "GH", ethiopian: "ET", somali: "SO", sudanese: "SD", palestinian: "PS",
+    jordanian: "JO", syrian: "SY", lebanese: "LB", yemeni: "YE", kuwaiti: "KW", qatari: "QA", omani: "OM", libyan: "LY",
+    australian: "AU", kiwi: "NZ", belarusian: "BY", kazakh: "KZ", uzbek: "UZ", azerbaijani: "AZ", georgian: "GE",
+    zambian: "ZM", zimbabwean: "ZW", tanzanian: "TZ", ugandan: "UG", cameroonian: "CM", senegalese: "SN", malian: "ML",
+  };
+  for (const [k, iso] of Object.entries(DEMONYM)) if (COUNTRIES[iso] && !aliasMap.has(k)) aliasMap.set(k, iso);
+  const longAliases = [...aliasMap.keys()].filter((a) => /^[a-z]{5,}$/.test(a));
   const okLen = (p) => (/[^\x00-\x7f]/.test(p) ? p.length >= 2 : p.replace(/ /g, "").length >= 4);
 
   function flagEmojiIso(text) {
@@ -118,6 +134,14 @@
       }
     }
     for (const [a, iso] of nonAscii) if (a.length >= 2 && n.includes(a)) return iso;
+    for (const word of w) if (["usa", "uae", "ksa", "drc", "rsa", "nkri", "indo", "pinas"].includes(word) && aliasMap.has(word)) return aliasMap.get(word);
+    // awalan: "indonesiaaa", "malaysiaa", "philippines!!" → cocok bila kata diawali nama negara (≥5 huruf)
+    for (const word of w) {
+      if (word.length < 5) continue;
+      let best = null;
+      for (const a of longAliases) if (word.startsWith(a) && word.length - a.length <= 4 && (!best || a.length > best.length)) best = a;
+      if (best) return aliasMap.get(best);
+    }
     return null;
   }
 
