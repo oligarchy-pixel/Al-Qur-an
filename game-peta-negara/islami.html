@@ -20,25 +20,25 @@
   #status { position: absolute; left: 16px; top: 16px; font-size: 20px; padding: 4px 12px; border-radius: 10px; background: rgba(0,0,0,.5); z-index: 9; }
   #tap { position: absolute; top: 200px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #1a1200; font-size: 28px; font-weight: 900; border: 0; border-radius: 30px; padding: 12px 26px; z-index: 9; }
   #head { position: absolute; top: 278px; left: 0; right: 0; text-align: center; }
-  .bism { font-family: "Noto Naskh Arabic", "Amiri", "Scheherazade New", serif; font-size: 46px; color: var(--gold); direction: rtl; }
-  #title { margin-top: 2px; font-size: 58px; font-weight: 900; letter-spacing: 1px; }
-  #sub { margin-top: 4px; font-size: 27px; font-weight: 700; color: var(--muted); }
+  .bism { font-family: "Noto Naskh Arabic", "Amiri", "Scheherazade New", serif; font-size: 50px; color: var(--gold); direction: rtl; }
+  #title { margin-top: 2px; font-size: 66px; font-weight: 900; letter-spacing: 1px; }
+  #sub { margin-top: 4px; font-size: 31px; font-weight: 700; color: var(--muted); }
   .arab { font-family: "Noto Naskh Arabic", "Amiri", serif; direction: rtl; }
   /* ---- Kuis ---- */
   #qcard { position: absolute; left: 40px; right: 40px; top: 480px; min-height: 196px; background: var(--card); border: 3px solid rgba(242,199,92,.5); border-radius: 26px; padding: 18px 30px; text-align: center; }
-  #qnum { font-size: 26px; font-weight: 800; color: var(--gold); }
-  #qtext { margin-top: 6px; font-size: 44px; font-weight: 800; line-height: 1.18; }
+  #qnum { font-size: 30px; font-weight: 800; color: var(--gold); }
+  #qtext { margin-top: 6px; font-size: 50px; font-weight: 800; line-height: 1.18; }
   #opts { position: absolute; left: 40px; right: 40px; top: 704px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .opt { display: flex; align-items: center; gap: 16px; height: 112px; background: var(--card); border: 3px solid rgba(255,255,255,.18); border-radius: 22px; padding: 0 20px; font-size: 34px; font-weight: 800; transition: opacity .3s, transform .3s; }
-  .opt b { flex: none; width: 66px; height: 66px; border-radius: 50%; background: var(--gold); color: #1a1200; display: grid; place-items: center; font-size: 36px; }
+  .opt { display: flex; align-items: center; gap: 16px; height: 120px; background: var(--card); border: 3px solid rgba(255,255,255,.18); border-radius: 22px; padding: 0 20px; font-size: 42px; font-weight: 800; transition: opacity .3s, transform .3s; }
+  .opt b { flex: none; width: 74px; height: 74px; border-radius: 50%; background: var(--gold); color: #1a1200; display: grid; place-items: center; font-size: 36px; }
   .opt span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .opt.ok { border-color: var(--green); background: rgba(31,191,122,.28); transform: scale(1.03); }
   .opt.ok b { background: var(--green); color: #fff; }
   .opt.no { opacity: .35; }
   .opt .n { margin-left: auto; font-size: 26px; color: var(--muted); flex: none; }
-  #qbar { position: absolute; left: 40px; right: 40px; top: 966px; height: 22px; background: rgba(255,255,255,.1); border-radius: 11px; overflow: hidden; }
+  #qbar { position: absolute; left: 40px; right: 40px; top: 982px; height: 22px; background: rgba(255,255,255,.1); border-radius: 11px; overflow: hidden; }
   #qfill { height: 100%; width: 100%; background: var(--gold); transform-origin: left; }
-  #qinfo { position: absolute; left: 0; right: 0; top: 994px; text-align: center; font-size: 28px; font-weight: 800; color: var(--muted); }
+  #qinfo { position: absolute; left: 0; right: 0; top: 1010px; text-align: center; font-size: 34px; font-weight: 800; color: var(--muted); }
   /* ---- Dzikir ---- */
   #total { position: absolute; left: 0; right: 0; top: 486px; text-align: center; }
   #total .num { font-size: 104px; font-weight: 900; color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; }
@@ -52,31 +52,32 @@
   .dz .c { font-size: 44px; font-weight: 900; margin-top: 4px; font-variant-numeric: tabular-nums; }
   .dz.hit { transform: scale(1.06); border-color: var(--gold); }
   /* ---- Bersama ---- */
-  #banner { position: absolute; left: 40px; right: 40px; top: 1046px; height: 84px; }
-  .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.45); border: 3px solid var(--gold); border-radius: 22px; font-size: 32px; font-weight: 800; padding: 0 22px; white-space: nowrap; overflow: hidden; transition: transform .35s, opacity .35s; }
+  #banner { position: absolute; left: 40px; right: 40px; top: 1064px; height: 92px; }
+  .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.45); border: 3px solid var(--gold); border-radius: 22px; font-size: 38px; font-weight: 800; padding: 0 22px; white-space: nowrap; overflow: hidden; transition: transform .35s, opacity .35s; }
   .msg span { overflow: hidden; text-overflow: ellipsis; }
   .msg.in { opacity: 0; transform: translateY(18px); }
   .msg.out { opacity: 0; transform: translateY(-18px); }
   .msg.green { border-color: var(--green); }
-  #board { position: absolute; left: 40px; right: 40px; top: 1150px; background: rgba(0,0,0,.25); border: 2px solid rgba(255,255,255,.12); border-radius: 22px; padding: 10px 22px; }
-  #board h3 { margin: 0 0 4px; font-size: 26px; color: var(--gold); display: flex; justify-content: space-between; }
+  #board { position: absolute; left: 40px; right: 40px; top: 1172px; background: rgba(0,0,0,.25); border: 2px solid rgba(255,255,255,.12); border-radius: 22px; padding: 10px 22px; }
+  #board h3 { margin: 0 0 4px; font-size: 30px; color: var(--gold); display: flex; justify-content: space-between; }
   #board h3 small { color: var(--muted); font-size: 22px; }
-  .pr { display: flex; align-items: center; gap: 14px; height: 54px; font-size: 30px; font-weight: 800; border-top: 1px solid rgba(255,255,255,.08); }
+  .pr { display: flex; align-items: center; gap: 14px; height: 56px; font-size: 36px; font-weight: 800; border-top: 1px solid rgba(255,255,255,.08); }
   .pr .r { width: 46px; text-align: center; color: var(--muted); }
   .pr .nm { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .pr .p { color: var(--gold); font-variant-numeric: tabular-nums; }
-  .empty { text-align: center; color: var(--muted); font-size: 26px; padding: 12px 0; }
+  .empty { text-align: center; color: var(--muted); font-size: 30px; padding: 12px 0; }
   #over { position: absolute; inset: 0; background: rgba(0,0,0,.75); display: none; align-items: center; justify-content: center; z-index: 8; }
   #over.show { display: flex; }
   #over .card { text-align: center; background: #072a1f; border: 5px solid var(--gold); border-radius: 30px; padding: 40px 50px; width: 860px; }
   #over h2 { margin: 0; font-size: 54px; color: var(--gold); }
   #over .big { font-size: 46px; font-weight: 900; margin-top: 18px; line-height: 1.4; }
   #over .t { font-size: 30px; color: var(--muted); margin-top: 14px; line-height: 1.5; }
+  .mode-dzikir #sub { font-size: 26px; }
   .mode-dzikir #banner { top: 1112px; }
-  .mode-dzikir #board { top: 1212px; }
+  .mode-dzikir #board { top: 1216px; }
   .dz .arab.sm { font-size: 30px; padding-top: 8px; }
   #np { position: absolute; left: 50%; top: 214px; transform: translateX(-50%); max-width: 900px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    font-size: 26px; font-weight: 800; color: var(--gold); background: rgba(0,0,0,.4); border: 2px solid rgba(242,199,92,.45); border-radius: 30px; padding: 6px 22px; }
+    font-size: 30px; font-weight: 800; color: var(--gold); background: rgba(0,0,0,.4); border: 2px solid rgba(242,199,92,.45); border-radius: 30px; padding: 6px 22px; }
 
   /* ---------- Animasi (ringan: hanya transform & opacity) ---------- */
   @keyframes cardIn { from { opacity: 0; transform: translateY(-40px) scale(.92); } }
@@ -96,14 +97,15 @@
   .opt.ok { animation: glow 1s 3; }
   .opt .n { font-size: 30px; color: #fff; }
   #qbar.hurry #qfill { background: #ff5a5a; animation: pulseBar .5s infinite; }
-  .chip { position: absolute; z-index: 7; padding: 6px 16px; border-radius: 20px; background: var(--gold); color: #1a1200; font-size: 26px; font-weight: 900; white-space: nowrap;
+  .chip { position: absolute; z-index: 7; padding: 6px 16px; border-radius: 20px; background: var(--gold); color: #1a1200; font-size: 30px; font-weight: 900; white-space: nowrap;
     transition: transform .8s cubic-bezier(.3,.8,.3,1), opacity .8s; will-change: transform; }
   .cf { position: absolute; z-index: 7; width: 16px; height: 22px; border-radius: 3px; animation: conf 1.6s cubic-bezier(.2,.7,.4,1) forwards; }
   #feed { position: absolute; left: 40px; right: 40px; top: 1040px; height: 0; }
   #sky { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
   .lantern { position: absolute; bottom: -80px; font-size: 44px; opacity: 0; animation: floatUp linear infinite; pointer-events: none; }
   .dzpop { position: absolute; z-index: 7; left: 50%; font-size: 34px; font-weight: 900; color: var(--gold); white-space: nowrap; animation: rise 1.6s ease-out forwards; text-shadow: 0 3px 8px #000; }
-  #run { position: absolute; left: 0; top: 1500px; width: 1080px; height: 405px; border-top: 3px solid rgba(242,199,92,.45); }
+  #main { position: absolute; left: 0; top: var(--dy, 0px); width: 1080px; height: 1920px; }
+  #run { position: absolute; left: 0; bottom: 0; width: 1080px; height: 405px; border-top: 3px solid rgba(242,199,92,.45); }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -111,6 +113,7 @@
 <div id="stage">
   <div id="sky"></div>
   <div id="status"></div>
+  <div id="main">
   <div id="np" class="hidden"></div>
   <button id="tap" class="hidden"></button>
   <div id="head">
@@ -129,9 +132,10 @@
     <div id="tbar"><div id="tfill"></div></div>
     <div id="cards"></div>
   </div>
-  <canvas id="run"></canvas>
   <div id="banner"></div>
   <div id="board"></div>
+  </div>
+  <canvas id="run"></canvas>
   <div id="over"><div class="card"><h2></h2><div class="big"></div><div class="t"></div></div></div>
 </div>
 <script src="config.js"></script>

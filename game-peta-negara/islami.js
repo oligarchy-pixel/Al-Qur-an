@@ -74,7 +74,16 @@
 
   /* ---------- Skala 1080x1920 ---------- */
   const stage = $("#stage");
-  const fit = () => { const s = Math.min(innerWidth / 1080, innerHeight / 1920); stage.style.transform = `translate(${-540 * s}px, ${-960 * s}px) scale(${s})`; };
+  // Isi selebar layar penuh. Layar HP yang lebih panjang dari 9:16 → panggung dibuat lebih tinggi (tanpa pita hitam),
+  // konten utama digeser ke tengah dan animasi unta menempel di bawah.
+  const main = $("#main");
+  const fit = () => {
+    let s = innerWidth / 1080, H = innerHeight / s;
+    if (H < 1920) { s = innerHeight / 1920; H = 1920; }
+    stage.style.height = H + "px";
+    stage.style.setProperty("--dy", Math.round((H - 1920) * 0.4) + "px");
+    stage.style.transform = `translate(${-540 * s}px, ${-H / 2 * s}px) scale(${s})`;
+  };
   addEventListener("resize", fit); fit();
 
   /* ---------- Util ---------- */
@@ -220,7 +229,7 @@
   let boardQ = false;
   function renderBoard() {
     boardQ = false;
-    const list = Object.values(S.u).filter((u) => u.p > 0).sort((a, b) => b.p - a.p).slice(0, 5);
+    const list = Object.values(S.u).filter((u) => u.p > 0).sort((a, b) => b.p - a.p).slice(0, MODE === "kuis" ? 5 : 4);
     $("#board").innerHTML = `<h3>${MODE === "kuis" ? T.top : T.topD}<small>${MODE === "kuis" ? T.q(S.qn || 1).replace(/\d+/, (n) => `${((S.qn - 1) % ROUND_Q) + 1}/${ROUND_Q}`) : ""}</small></h3>` +
       (list.length ? list.map((u, i) => `<div class="pr"><span class="r">${["🥇", "🥈", "🥉"][i] || i + 1}</span><span class="nm">${esc(u.n)}</span><span class="p">${MODE === "kuis" ? T.pts(u.p) : T.times(u.p)}</span></div>`).join("") : `<div class="empty">${T.noPlayers}</div>`);
   }
@@ -326,7 +335,7 @@
     const c = document.createElement("div"); c.className = "chip"; c.textContent = short(name, 12);
     const sx = 200 + Math.random() * 680, sy = 1500;
     c.style.left = sx + "px"; c.style.top = sy + "px";
-    stage.append(c); chips++;
+    main.append(c); chips++;
     const tx = el.offsetLeft + 40 + 40 + Math.random() * 200 - sx, ty = el.offsetTop + 704 + 20 - sy;
     requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transform = `translate(${tx}px, ${ty}px) scale(.8)`; }));
     setTimeout(() => { c.style.opacity = "0"; }, 800);
@@ -361,7 +370,7 @@
       d.style.left = cx + "px"; d.style.top = cy + "px"; d.style.background = colors[k % colors.length];
       d.style.setProperty("--x", (Math.random() * 700 - 350) + "px"); d.style.setProperty("--y", (Math.random() * 600 - 420) + "px");
       d.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
-      stage.append(d); setTimeout(() => d.remove(), 1700);
+      main.append(d); setTimeout(() => d.remove(), 1700);
     }
   }
 
@@ -401,7 +410,7 @@
     if (card && document.querySelectorAll(".dzpop").length < 10) {
       const pop = document.createElement("div"); pop.className = "dzpop"; pop.textContent = hits[0].lt + " ✨";
       pop.style.left = (card.offsetLeft + 40 + card.offsetWidth / 2) + "px"; pop.style.top = (card.offsetTop + 700) + "px";
-      stage.append(pop); setTimeout(() => pop.remove(), 1700);
+      main.append(pop); setTimeout(() => pop.remove(), 1700);
     }
     sfx("dz"); dzRender(hits[0].k); queueBoard();
     if (window.Runner) Runner.spawn(u.n, "star");
