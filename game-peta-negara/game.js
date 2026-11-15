@@ -55,12 +55,24 @@
   };
   const stage = $("#stage");
 
-  /* ---------- Skala panggung 1080x1920 ---------- */
+  /* ---------- Skala panggung: Portrait 1080×1920 atau Landscape 1920×1080 ----------
+   * Otomatis mengikuti posisi HP. ?layar=landscape / ?layar=portrait untuk mengunci.
+   * Panggung memenuhi layar penuh (tanpa pita hitam); peta ikut melebar/meninggi. */
+  const FORCE = params.get("layar");
+  const isLand = () => stage.classList.contains("land");
   function fit() {
-    const s = Math.min(innerWidth / 1080, innerHeight / 1920);
-    stage.style.transform = `translate(${-540 * s}px, ${-960 * s}px) scale(${s})`;
+    const land = FORCE === "landscape" || (FORCE !== "portrait" && innerWidth > innerHeight);
+    const BW = land ? 1920 : 1080, BH = land ? 1080 : 1920;
+    stage.classList.toggle("land", land);
+    let s, W, H;
+    if (land) { s = innerHeight / BH; W = innerWidth / s; H = BH; if (W < BW) { s = innerWidth / BW; W = BW; H = innerHeight / s; } }
+    else { s = innerWidth / BW; W = BW; H = innerHeight / s; if (H < BH) { s = innerHeight / BH; H = BH; } }
+    stage.style.width = W + "px"; stage.style.height = H + "px";
+    stage.style.transform = `translate(${-W / 2 * s}px, ${-H / 2 * s}px) scale(${s})`;
+    if (window.__petaMap) setTimeout(() => window.__petaMap.invalidateSize(), 50);
   }
   addEventListener("resize", fit);
+  addEventListener("orientationchange", () => setTimeout(fit, 300));
   fit();
 
   /* ---------- Util ---------- */
@@ -158,7 +170,9 @@
   }
   const satellite = !!CFG.TILE_URL;
   const WORLD_VIEW = L.latLngBounds([[-50, -150], [72, 165]]);
-  const PAD = { paddingTopLeft: [60, 440], paddingBottomRight: [480, 600] };
+  // ruang kosong di sekitar panel (supaya negara yang disorot tidak tertutup judul/papan)
+  const getPad = () => isLand() ? { paddingTopLeft: [420, 200], paddingBottomRight: [520, 140] } : { paddingTopLeft: [60, 440], paddingBottomRight: [480, 600] };
+  window.__petaMap = map;
   map.fitBounds(WORLD_VIEW, { padding: [0, 0] });
 
   const geo = topojson.feature(window.WORLD_TOPO, window.WORLD_TOPO.objects.countries);
@@ -416,7 +430,7 @@
     if (camQueue.length > 20) camQueue.shift();
   }
   function flyTo(iso) {
-    map.flyToBounds(shapes[iso].bounds, { ...PAD, maxZoom: CFG.ZOOM_MAKS, duration: 1.6 });
+    map.flyToBounds(shapes[iso].bounds, { ...getPad(), maxZoom: CFG.ZOOM_MAKS, duration: 1.6 });
     hot(iso);
     lastMove = Date.now();
   }
@@ -706,7 +720,9 @@
   // HP: ketuk layar sekali untuk layar penuh (sekaligus menyalakan suara)
   addEventListener("pointerdown", () => {
     const el = document.documentElement;
-    if (TOUCH && !document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+    if (TOUCH && !document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: "hide" }).then(() => {
+      if ((FORCE === "landscape" || FORCE === "portrait") && screen.orientation && screen.orientation.lock) screen.orientation.lock(FORCE).catch(() => {});
+    }).catch(() => {});
   });
   connect();
 })();

@@ -175,3 +175,12 @@ body { position: fixed; inset: 0; background: #030b16; }
   border: none; border-radius: 30px; padding: 14px 26px; cursor: pointer;
   box-shadow: 0 6px 20px rgba(0,0,0,.5); animation: blink 1.6s infinite;
 }
+
+/* ---------- Tata letak LANDSCAPE (1920×1080): peta penuh, judul tengah atas, keterangan kiri, peringkat kanan ---------- */
+.land #banner { top: 20px; }
+.land #legend { left: 24px; right: auto; top: 200px; }
+.land #board { right: 24px; top: 24px; bottom: auto; }
+.land #feed { left: 24px; bottom: 24px; }
+.land #toasts { top: 230px; }
+.land #bigGift { top: 250px; }
+.land #soundUnlock { top: auto; bottom: 30px; }
