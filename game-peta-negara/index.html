@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perang Peta Negara</title>
+<link rel="stylesheet" href="lib/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="stage">
+  <div id="map"></div>
+  <div id="vignette"></div>
+
+  <header id="banner">
+    <div id="judul"></div>
+    <div id="timer">--:--</div>
+  </header>
+
+  <aside id="legend"></aside>
+
+  <section id="board">
+    <div class="board-head"><span>NEGARA</span><span id="totalPlayers">0 pemain</span></div>
+    <ol id="boardList"></ol>
+  </section>
+
+  <section id="feed"></section>
+  <div id="toasts"></div>
+  <div id="bigGift" class="hidden"></div>
+
+  <div id="winner" class="hidden">
+    <div class="win-card">
+      <div class="win-title">🏆 PEMENANG RONDE 🏆</div>
+      <img class="win-flag" alt="">
+      <div class="win-name"></div>
+      <div class="win-meter"></div>
+      <div class="win-top"></div>
+      <div class="win-next">Ronde baru dimulai sebentar lagi…</div>
+    </div>
+  </div>
+
+  <div id="status" title="Status koneksi"></div>
+  <div id="help" class="hidden">
+    <b>Tombol pintas</b><br>
+    D = mode demo (simulasi penonton)<br>
+    G = tes gift · J = tes gabung · L = tes like<br>
+    R = reset skor · N = selesaikan ronde sekarang<br>
+    H = tampil/sembunyikan bantuan ini
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="lib/leaflet.js"></script>
+<script src="lib/topojson-client.min.js"></script>
+<script src="data/world.js"></script>
+<script src="data/countries.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
