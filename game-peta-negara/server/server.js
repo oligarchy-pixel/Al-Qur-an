@@ -12,6 +12,9 @@ import { WebSocketServer } from "ws";
 
 const ARG = (process.argv[2] || process.env.TIKTOK_USERNAME || "").trim();
 const YT = /^(yt:|youtube:|--youtube=?)/i.test(ARG);
+// Link/ID live langsung (cadangan bila pencarian lewat handle gagal):
+//   yt:https://youtube.com/live/XXXXXXXXXXX  ·  yt:https://youtu.be/XXXXXXXXXXX  ·  yt:...watch?v=XXXXXXXXXXX
+const LIVE_ID = (ARG.match(/(?:youtu\.be\/|\/live\/|[?&]v=|^(?:yt:|youtube:)?id:)([A-Za-z0-9_-]{11})/) || [])[1] || "";
 // buang awalan, spasi, dan tanda @ berlebih (mis. "@@nama" karena salah ketik), serta alamat lengkap youtube.com/@nama
 const username = ARG.replace(/^(yt:|youtube:|--youtube=?)/i, "").replace(/^https?:\/\/(www\.|m\.)?youtube\.com\//i, "").replace(/\/.*$/, "").replace(/\s+/g, "").replace(/^@+/, "");
 const PORT = Number(process.env.PORT || 21214);
@@ -139,13 +142,13 @@ async function startTikTok() {
 /* ---------- Koneksi ke YouTube Live (tanpa API key) ---------- */
 async function startYouTube() {
   const { LiveChat } = (await import("youtube-chat")).default;
-  const handle = "@" + username;
+  const handle = LIVE_ID ? "live " + LIVE_ID : "@" + username;
   let chat = null, timer = null;
   const again = (ms) => { clearTimeout(timer); timer = setTimeout(start, ms); };
   const text = (msg) => (msg || []).map((m) => m.text ?? m.emojiText ?? "").join("");
   async function start() {
     if (chat) { try { chat.stop(); } catch (e) { /* */ } }
-    chat = new LiveChat({ handle });
+    chat = new LiveChat(LIVE_ID ? { liveId: LIVE_ID } : { handle });
     chat.on("start", (liveId) => { status(true, `Terhubung ke YouTube Live ${handle}`, "connected"); console.log(`(live ${liveId})`); });
     chat.on("end", () => { status(false, "YouTube Live berakhir/terputus — mencoba lagi…", "lost"); again(15000); });
     chat.on("error", (e) => { const m = String(e?.message || e); if (!/live stream|not found|liveId/i.test(m)) console.log("Error:", m); });

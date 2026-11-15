@@ -14,6 +14,8 @@ fi
 pgrep -f "mulai-(hp|youtube).sh" | grep -vx "$$" | xargs -r kill 2>/dev/null
 pkill -f "node server.js" 2>/dev/null && sleep 1
 command -v termux-wake-lock >/dev/null 2>&1 && termux-wake-lock
+# Bisa juga langsung dengan link live:  bash mulai-youtube.sh https://youtube.com/live/XXXXXXXXXXX
+if [ -n "$1" ]; then LINK="$1"; fi
 if [ -f .youtube ]; then Y=$(cat .youtube); fi
 if [ -z "$Y" ]; then
   read -p "Masukkan handle channel YouTube kamu (contoh: @namachannel): " Y
@@ -23,7 +25,7 @@ fi
 echo "YouTube: $Y   (untuk mengganti: hapus file server/.youtube)"
 # LIVE tanpa batas: kalau server berhenti/crash, otomatis dinyalakan lagi (tekan CTRL+C dua kali untuk keluar)
 while true; do
-  node server.js "yt:$Y"
+  if [ -n "$LINK" ]; then node server.js "yt:$LINK"; else node server.js "yt:$Y"; fi
   echo "Server berhenti — menyala ulang dalam 3 detik… (CTRL+C untuk keluar)"
   sleep 3 || break
 done
