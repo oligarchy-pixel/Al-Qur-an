@@ -77,14 +77,26 @@
   // Isi selebar layar penuh. Layar HP yang lebih panjang dari 9:16 → panggung dibuat lebih tinggi (tanpa pita hitam),
   // konten utama digeser ke tengah dan animasi unta menempel di bawah.
   const main = $("#main");
+  // Portrait (tegak) 1080×1920 atau Landscape (mendatar) 1920×1080 — otomatis mengikuti posisi HP.
+  // ?layar=landscape / ?layar=portrait untuk memaksa satu tata letak.
+  const runEl = document.getElementById("run");
+  const FORCE = params.get("layar");
   const fit = () => {
-    let s = innerWidth / 1080, H = innerHeight / s;
-    if (H < 1920) { s = innerHeight / 1920; H = 1920; }
-    stage.style.height = H + "px";
-    stage.style.setProperty("--dy", Math.round((H - 1920) * 0.4) + "px");
-    stage.style.transform = `translate(${-540 * s}px, ${-H / 2 * s}px) scale(${s})`;
+    const land = FORCE === "landscape" || (FORCE !== "portrait" && innerWidth > innerHeight);
+    const BW = land ? 1920 : 1080, BH = land ? 1080 : 1920;
+    stage.classList.toggle("land", land);
+    let s, W, H;
+    if (land) { s = innerHeight / BH; W = innerWidth / s; H = BH; if (W < BW) { s = innerWidth / BW; W = BW; H = innerHeight / s; } }
+    else { s = innerWidth / BW; W = BW; H = innerHeight / s; if (H < BH) { s = innerHeight / BH; H = BH; } }
+    stage.style.width = W + "px"; stage.style.height = H + "px";
+    stage.style.setProperty("--dx", Math.round((W - BW) / 2) + "px");
+    stage.style.setProperty("--dy", Math.round((H - BH) * (land ? 0.5 : 0.4)) + "px");
+    stage.style.transform = `translate(${-W / 2 * s}px, ${-H / 2 * s}px) scale(${s})`;
+    if (runEl) { const want = land ? main : stage; if (runEl.parentNode !== want) want.append(runEl); }
   };
-  addEventListener("resize", fit); fit();
+  addEventListener("resize", fit); addEventListener("orientationchange", () => setTimeout(fit, 300)); fit();
+  // posisi elemen relatif terhadap #main (dipakai animasi chip/konfeti di kedua tata letak)
+  const posIn = (el) => { let x = 0, y = 0; while (el && el !== main) { x += el.offsetLeft; y += el.offsetTop; el = el.offsetParent; } return [x, y]; };
 
   /* ---------- Util ---------- */
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -205,7 +217,12 @@
     if (quranWanted && !quranOn && (!qAudio.src || qAudio.paused)) { if (!qAudio.src) qPlay(); else qAudio.play().catch(() => {}); }
     try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state !== "running") ac.resume(); } catch (e) { /* */ }
     tap.classList.add("hidden");
-    if (matchMedia("(pointer: coarse)").matches && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+    if (matchMedia("(pointer: coarse)").matches && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen({ navigationUI: "hide" }).then(() => {
+        // kunci posisi layar bila diminta (?layar=landscape / ?layar=portrait)
+        if ((FORCE === "landscape" || FORCE === "portrait") && screen.orientation && screen.orientation.lock) screen.orientation.lock(FORCE).catch(() => {});
+      }).catch(() => {});
+    }
   });
 
   /* ---------- Banner ---------- */
@@ -333,10 +350,11 @@
     if (chips > 14) return;
     const el = document.querySelectorAll(".opt")[i]; if (!el) return;
     const c = document.createElement("div"); c.className = "chip"; c.textContent = short(name, 12);
-    const sx = 200 + Math.random() * 680, sy = 1500;
+    const sx = 150 + Math.random() * (main.offsetWidth - 400), sy = main.offsetHeight * 0.82;
     c.style.left = sx + "px"; c.style.top = sy + "px";
     main.append(c); chips++;
-    const tx = el.offsetLeft + 40 + 40 + Math.random() * 200 - sx, ty = el.offsetTop + 704 + 20 - sy;
+    const [ex, ey] = posIn(el);
+    const tx = ex + 80 + Math.random() * 200 - sx, ty = ey + 20 - sy;
     requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transform = `translate(${tx}px, ${ty}px) scale(.8)`; }));
     setTimeout(() => { c.style.opacity = "0"; }, 800);
     setTimeout(() => { c.remove(); chips--; }, 1600);
@@ -363,7 +381,8 @@
   }
   function confetti(el) {
     if (!el) return;
-    const cx = el.offsetLeft + 40 + el.offsetWidth / 2, cy = el.offsetTop + 704 + el.offsetHeight / 2;
+    const [ex, ey] = posIn(el);
+    const cx = ex + el.offsetWidth / 2, cy = ey + el.offsetHeight / 2;
     const colors = ["#f2c75c", "#1fbf7a", "#ffffff", "#ff7a59", "#5ec8ff"];
     for (let k = 0; k < 28; k++) {
       const d = document.createElement("div"); d.className = "cf";
@@ -409,7 +428,8 @@
     const card = document.getElementById("dz-" + hits[0].k);
     if (card && document.querySelectorAll(".dzpop").length < 10) {
       const pop = document.createElement("div"); pop.className = "dzpop"; pop.textContent = hits[0].lt + " ✨";
-      pop.style.left = (card.offsetLeft + 40 + card.offsetWidth / 2) + "px"; pop.style.top = (card.offsetTop + 700) + "px";
+      const [px, py] = posIn(card);
+      pop.style.left = (px + card.offsetWidth / 2) + "px"; pop.style.top = py + "px";
       main.append(pop); setTimeout(() => pop.remove(), 1700);
     }
     sfx("dz"); dzRender(hits[0].k); queueBoard();
