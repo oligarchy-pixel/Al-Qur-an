@@ -33,7 +33,9 @@ const server = http.createServer((req, res) => {
   }
   fs.readFile(file, (err, data) => {
     if (err) { res.writeHead(404); res.end("Not found"); return; }
-    res.writeHead(200, { "Content-Type": MIME[path.extname(file).toLowerCase()] || "application/octet-stream", "Cache-Control": "no-cache" });
+    // bendera, library & data peta jarang berubah: simpan di cache agar tidak berkedip/termuat ulang
+    const stat = /^\/(flags|lib|data)\//.test(p) ? "public, max-age=604800" : "no-cache";
+    res.writeHead(200, { "Content-Type": MIME[path.extname(file).toLowerCase()] || "application/octet-stream", "Cache-Control": stat });
     res.end(data);
   });
 });
@@ -79,7 +81,11 @@ conn.on(ControlEvent.DISCONNECTED, () => {
   status(false, "Terputus dari TikTok LIVE — mencoba lagi…");
   retry(10000);
 });
-conn.on(ControlEvent.ERROR, (e) => console.log("Error:", e?.message || e));
+conn.on(ControlEvent.ERROR, (e) => {
+  const msg = String(e?.exception?.message || e?.message || e?.info || e);
+  if (/isn't online|offline/i.test(msg)) return; // belum LIVE: sudah ditangani di start()
+  console.log("Error:", msg);
+});
 
 async function start() {
   try {
