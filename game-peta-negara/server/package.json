@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Jembatan TikTok LIVE -> game Peta Negara (WebSocket ws://localhost:21214/)",
+  "description": "Jembatan TikTok LIVE / YouTube Live -> game (WebSocket ws://localhost:21214/)",
   "scripts": { "start": "node server.js" },
   "dependencies": {
     "tiktok-live-connector": "^2.5.0",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "youtube-chat": "^2.2.0"
   }
 }

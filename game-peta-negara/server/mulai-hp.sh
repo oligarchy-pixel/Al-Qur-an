@@ -6,7 +6,7 @@ if ! command -v node >/dev/null 2>&1; then
   echo "Menginstal Node.js (sekali saja)..."
   pkg install -y nodejs || exit 1
 fi
-if [ ! -d node_modules ]; then
+if [ ! -d node_modules/youtube-chat ] || [ ! -d node_modules/tiktok-live-connector ]; then
   echo "Menginstal paket game (sekali saja, butuh internet)..."
   npm install --no-audit --no-fund || exit 1
 fi

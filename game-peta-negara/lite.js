@@ -8,7 +8,7 @@
   const COUNTRIES = window.COUNTRIES;
   const params = new URLSearchParams(location.search);
   const $ = (s) => document.querySelector(s);
-  const LANG = CFG.BAHASA === "id" ? "id" : "en";
+  const LANG = (params.get("lang") || CFG.BAHASA) === "id" ? "id" : "en"; // ?lang=id → Bahasa Indonesia
   const P = {
     coin: CFG.METER_PER_KOIN ?? 100, like: CFG.METER_PER_LIKE ?? 1, follow: CFG.METER_FOLLOW ?? 50,
     share: CFG.METER_SHARE ?? 30, join: CFG.METER_GABUNG ?? 10, chat: CFG.METER_KOMENTAR ?? 5,

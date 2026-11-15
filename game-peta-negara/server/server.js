@@ -1,6 +1,7 @@
-// Jembatan TikTok LIVE -> game Peta Negara (bisa di PC atau di HP Android lewat Termux).
-// Pakai ini jika TIDAK memakai TikFinity.
-// Cara pakai:  node server.js username_tiktok_kamu
+// Jembatan TikTok LIVE / YouTube Live -> game (bisa di PC atau di HP Android lewat Termux).
+// Cara pakai:
+//   TikTok  : node server.js username_tiktok_kamu
+//   YouTube : node server.js yt:@handle_channel_kamu
 // Lalu buka game di browser:  http://localhost:21214/
 // (server ini juga menyajikan file game, jadi tidak perlu membuka index.html manual)
 import http from "node:http";
@@ -8,12 +9,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { WebSocketServer } from "ws";
-import { TikTokLiveConnection, WebcastEvent, ControlEvent } from "tiktok-live-connector";
 
-const username = (process.argv[2] || process.env.TIKTOK_USERNAME || "").trim().replace(/^@/, "");
+const ARG = (process.argv[2] || process.env.TIKTOK_USERNAME || "").trim();
+const YT = /^(yt:|youtube:|--youtube=?)/i.test(ARG);
+const username = ARG.replace(/^(yt:|youtube:|--youtube=?)/i, "").trim().replace(/^@/, "");
 const PORT = Number(process.env.PORT || 21214);
 if (!username) {
-  console.log("Pemakaian: node server.js USERNAME_TIKTOK   (tanpa @)");
+  console.log("Pemakaian:  TikTok  → node server.js USERNAME_TIKTOK");
+  console.log("            YouTube → node server.js yt:@HANDLE_CHANNEL");
   process.exit(1);
 }
 
@@ -43,13 +46,13 @@ const server = http.createServer((req, res) => {
 /* ---------- WebSocket ke game ---------- */
 const wss = new WebSocketServer({ server });
 const safe = (o) => JSON.stringify(o, (k, v) => (typeof v === "bigint" ? v.toString() : v));
-let lastStatus = { ok: false, code: "waiting", user: username, text: "Menunggu LIVE dimulai…" };
+let lastStatus = { ok: false, code: "waiting", user: (YT ? "@" : "") + username, text: "Menunggu LIVE dimulai…" };
 function broadcast(event, data) {
   const msg = safe({ event, data });
   for (const c of wss.clients) if (c.readyState === 1) c.send(msg);
 }
 function status(ok, text, code) {
-  lastStatus = { ok, text, code, user: username };
+  lastStatus = { ok, text, code, user: (YT ? "@" : "") + username };
   console.log(text);
   broadcast("status", lastStatus);
 }
@@ -60,6 +63,8 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log("==============================================");
   console.log(` Server siap. Buka di Chrome:`);
+  console.log(`   Game ISLAMI – Kuis      : http://localhost:${PORT}/islami.html`);
+  console.log(`   Game ISLAMI – Dzikir    : http://localhost:${PORT}/islami.html?mode=dzikir`);
   console.log(`   Versi RINGAN (HP biasa) : http://localhost:${PORT}/lite.html`);
   console.log(`   Versi PETA (HP kuat)    : http://localhost:${PORT}/`);
   console.log(" Biarkan jendela ini tetap berjalan selama LIVE.");
@@ -67,44 +72,85 @@ server.listen(PORT, () => {
 });
 
 /* ---------- Koneksi ke TikTok LIVE ---------- */
-const opts = {};
-if (process.env.SIGN_API_KEY) opts.signApiKey = process.env.SIGN_API_KEY;
-const conn = new TikTokLiveConnection(username, opts);
+async function startTikTok() {
+  const { TikTokLiveConnection, WebcastEvent, ControlEvent } = await import("tiktok-live-connector");
+  const opts = {};
+  if (process.env.SIGN_API_KEY) opts.signApiKey = process.env.SIGN_API_KEY;
+  const conn = new TikTokLiveConnection(username, opts);
 
-for (const [name, ev] of [
-  ["chat", WebcastEvent.CHAT], ["gift", WebcastEvent.GIFT], ["like", WebcastEvent.LIKE],
-  ["follow", WebcastEvent.FOLLOW], ["share", WebcastEvent.SHARE], ["member", WebcastEvent.MEMBER],
-]) {
-  conn.on(ev, (data) => {
-    broadcast(name, data);
-    // tampilkan di Termux supaya mudah dicek apakah komentar/gift benar-benar masuk
-    const u = data?.user?.uniqueId || data?.uniqueId || "?";
-    if (name === "chat") console.log(`💬 ${u}: ${data.comment}`);
-    else if (name === "gift" && (data.repeatEnd || data.giftDetails?.giftType !== 1)) console.log(`🎁 ${u}: ${data.giftDetails?.giftName || data.giftName || "gift"} x${data.repeatCount || 1}`);
-    else if (name === "follow") console.log(`➕ ${u} follow`);
-  });
-}
-let retryT = null;
-const retry = (ms) => { clearTimeout(retryT); retryT = setTimeout(start, ms); };
-conn.on(ControlEvent.DISCONNECTED, () => {
-  status(false, "Terputus dari TikTok LIVE — mencoba lagi…", "lost");
-  retry(10000);
-});
-conn.on(ControlEvent.ERROR, (e) => {
-  const msg = String(e?.exception?.message || e?.message || e?.info || e);
-  if (/isn't online|offline/i.test(msg)) return; // belum LIVE: sudah ditangani di start()
-  console.log("Error:", msg);
-});
-
-async function start() {
-  try {
-    const state = await conn.connect();
-    status(true, `Terhubung ke LIVE @${username}`, "connected");
-    console.log(`(room ${state.roomId})`);
-  } catch (e) {
-    console.log(`Belum bisa terhubung: ${e?.message || e}`);
-    status(false, `Menunggu LIVE @${username} dimulai… (cek tiap 15 detik)`, "waiting");
-    retry(15000);
+  for (const [name, ev] of [
+    ["chat", WebcastEvent.CHAT], ["gift", WebcastEvent.GIFT], ["like", WebcastEvent.LIKE],
+    ["follow", WebcastEvent.FOLLOW], ["share", WebcastEvent.SHARE], ["member", WebcastEvent.MEMBER],
+  ]) {
+    conn.on(ev, (data) => {
+      broadcast(name, data);
+      // tampilkan di Termux supaya mudah dicek apakah komentar/gift benar-benar masuk
+      const u = data?.user?.uniqueId || data?.uniqueId || "?";
+      if (name === "chat") console.log(`💬 ${u}: ${data.comment}`);
+      else if (name === "gift" && (data.repeatEnd || data.giftDetails?.giftType !== 1)) console.log(`🎁 ${u}: ${data.giftDetails?.giftName || data.giftName || "gift"} x${data.repeatCount || 1}`);
+      else if (name === "follow") console.log(`➕ ${u} follow`);
+    });
   }
+  let retryT = null;
+  const retry = (ms) => { clearTimeout(retryT); retryT = setTimeout(start, ms); };
+  conn.on(ControlEvent.DISCONNECTED, () => {
+    status(false, "Terputus dari TikTok LIVE — mencoba lagi…", "lost");
+    retry(10000);
+  });
+  conn.on(ControlEvent.ERROR, (e) => {
+    const msg = String(e?.exception?.message || e?.message || e?.info || e);
+    if (/isn't online|offline/i.test(msg)) return; // belum LIVE: sudah ditangani di start()
+    console.log("Error:", msg);
+  });
+
+  async function start() {
+    try {
+      const state = await conn.connect();
+      status(true, `Terhubung ke LIVE @${username}`, "connected");
+      console.log(`(room ${state.roomId})`);
+    } catch (e) {
+      console.log(`Belum bisa terhubung: ${e?.message || e}`);
+      status(false, `Menunggu LIVE @${username} dimulai… (cek tiap 15 detik)`, "waiting");
+      retry(15000);
+    }
+  }
+  start();
 }
-start();
+
+/* ---------- Koneksi ke YouTube Live (tanpa API key) ---------- */
+async function startYouTube() {
+  const { LiveChat } = (await import("youtube-chat")).default;
+  const handle = "@" + username;
+  let chat = null, timer = null;
+  const again = (ms) => { clearTimeout(timer); timer = setTimeout(start, ms); };
+  const text = (msg) => (msg || []).map((m) => m.text ?? m.emojiText ?? "").join("");
+  async function start() {
+    if (chat) { try { chat.stop(); } catch (e) { /* */ } }
+    chat = new LiveChat({ handle });
+    chat.on("start", (liveId) => { status(true, `Terhubung ke YouTube Live ${handle}`, "connected"); console.log(`(live ${liveId})`); });
+    chat.on("end", () => { status(false, "YouTube Live berakhir/terputus — mencoba lagi…", "lost"); again(15000); });
+    chat.on("error", (e) => { const m = String(e?.message || e); if (!/live stream|not found|liveId/i.test(m)) console.log("Error:", m); });
+    chat.on("chat", (c) => {
+      const a = c.author || {};
+      const base = { uniqueId: a.channelId || a.name, nickname: a.name, profilePictureUrl: a.thumbnail?.url, platform: "youtube" };
+      const comment = text(c.message);
+      if (c.superchat) {
+        broadcast("superchat", { ...base, amount: c.superchat.amount, comment });
+        console.log(`💝 ${a.name}: Super Chat ${c.superchat.amount} ${comment}`);
+      }
+      if (c.isMembership) { broadcast("follow", base); console.log(`⭐ ${a.name} menjadi member`); }
+      if (comment) { broadcast("chat", { ...base, comment }); console.log(`💬 ${a.name}: ${comment}`); }
+    });
+    const ok = await chat.start().catch(() => false);
+    if (!ok) {
+      status(false, `Menunggu YouTube Live ${handle} dimulai… (cek tiap 20 detik)`, "waiting");
+      again(20000);
+    }
+  }
+  start();
+}
+
+(YT ? startYouTube() : startTikTok()).catch((e) => {
+  console.log("Gagal memuat penghubung:", e?.message || e);
+  console.log("Jalankan:  cd ~/game-peta-negara/server && npm install");
+});
