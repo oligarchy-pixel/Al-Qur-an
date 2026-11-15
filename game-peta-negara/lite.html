@@ -55,6 +55,16 @@
   .card .m { font-size: 44px; font-weight: 800; color: var(--gold); }
   .card .t { margin-top: 18px; font-size: 30px; color: var(--muted); line-height: 1.5; }
   #tap { position: absolute; top: 190px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #111; font-size: 28px; font-weight: 900; border: 0; border-radius: 30px; padding: 12px 26px; z-index: 9; }
+  #wmap { display: none; position: absolute; border-radius: 20px; border: 3px solid rgba(255,255,255,.15); }
+  /* ---------- LANDSCAPE (1920×1080): kiri = judul + peta mini, kanan = balapan negara ---------- */
+  .land #head { top: 52px; left: var(--dx, 0px); right: auto; width: 1040px; }
+  .land #title { font-size: 58px; }
+  .land #timer { margin-top: 8px; font-size: 36px; }
+  .land #banner { top: 300px; left: calc(var(--dx, 0px) + 40px); right: auto; width: 960px; }
+  .land #wmap { display: block; left: calc(var(--dx, 0px) + 40px); top: 408px; width: 960px; height: 380px; }
+  .land #race { left: auto; right: calc(var(--dx, 0px) + 30px); top: 30px; width: 840px; height: 1000px; }
+  .land #tap { top: 820px; left: calc(var(--dx, 0px) + 520px); }
+  .land #winner .card { min-width: 900px; }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -67,12 +77,14 @@
     <div id="sub"></div>
     <div id="timer">--:--</div>
   </div>
+  <canvas id="wmap" width="1200" height="475"></canvas>
   <div id="banner"></div>
   <div id="race"><div id="empty"></div></div>
   <div id="winner"><div class="card"><h2></h2><img alt=""><div class="n"></div><div class="m"></div><div class="t"></div></div></div>
 </div>
 <script src="config.js"></script>
 <script src="data/countries.js"></script>
+<script src="data/world-lite.js"></script>
 <script src="lite.js"></script>
 </body>
 </html>

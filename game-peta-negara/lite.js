@@ -44,8 +44,20 @@
 
   /* ---------- Skala 1080x1920 ---------- */
   const stage = $("#stage");
-  function fit() { const s = Math.min(innerWidth / 1080, innerHeight / 1920); stage.style.transform = `translate(${-540 * s}px, ${-960 * s}px) scale(${s})`; }
-  addEventListener("resize", fit); fit();
+  // Portrait 1080×1920 atau Landscape 1920×1080 (otomatis; ?layar=landscape / ?layar=portrait untuk mengunci)
+  const FORCE = params.get("layar");
+  function fit() {
+    const land = FORCE === "landscape" || (FORCE !== "portrait" && innerWidth > innerHeight);
+    const BW = land ? 1920 : 1080, BH = land ? 1080 : 1920;
+    stage.classList.toggle("land", land);
+    let s, W, H;
+    if (land) { s = innerHeight / BH; W = innerWidth / s; H = BH; if (W < BW) { s = innerWidth / BW; W = BW; H = innerHeight / s; } }
+    else { s = innerWidth / BW; W = BW; H = innerHeight / s; if (H < BH) { s = innerHeight / BH; H = BH; } }
+    stage.style.width = W + "px"; stage.style.height = H + "px";
+    stage.style.setProperty("--dx", Math.round((W - BW) / 2) + "px");   // konten landscape di tengah layar lebar
+    stage.style.transform = `translate(${-W / 2 * s}px, ${-H / 2 * s}px) scale(${s})`;
+  }
+  addEventListener("resize", fit); addEventListener("orientationchange", () => setTimeout(fit, 300)); fit();
 
   /* ---------- Util ---------- */
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -155,7 +167,9 @@
     } catch (e) { /* */ }
     tapBtn.classList.add("hidden");
     if (matchMedia("(pointer: coarse)").matches && !document.fullscreenElement && document.documentElement.requestFullscreen)
-      document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+      document.documentElement.requestFullscreen({ navigationUI: "hide" }).then(() => {
+        if ((FORCE === "landscape" || FORCE === "portrait") && screen.orientation && screen.orientation.lock) screen.orientation.lock(FORCE).catch(() => {});
+      }).catch(() => {});
   }
   if (soundOn) tapBtn.classList.remove("hidden");
   addEventListener("pointerdown", unlock);
@@ -218,8 +232,49 @@
     const newLeader = top.length && top[0][1].m > 0 ? top[0][0] : null;
     if (newLeader && leader && newLeader !== leader) say(T.leads(esc(cname(newLeader))), "gift", newLeader, 3);
     leader = newLeader;
+    queueMap();
   }
   const queueRender = () => { if (!renderQ) { renderQ = true; setTimeout(render, 400); } };
+
+  /* ---------- Peta dunia mini (ringan): digambar sekali, negara peserta diwarnai ---------- */
+  const wm = document.getElementById("wmap"), WL = window.WORLD_LITE || {};
+  const MW = 1200, MH = 475, LAT0 = 84, LAT1 = -58;
+  const px = (lon) => (lon + 180) / 360 * MW, py = (lat) => (LAT0 - lat) / (LAT0 - LAT1) * MH;
+  // garis yang melompat > 180° bujur (melintasi garis tanggal) tidak digambar → tanpa garis lurus aneh
+  function trace(g2, ring) { g2.beginPath(); for (let k = 0; k < ring.length; k += 2) { const x = px(ring[k]), y = py(ring[k + 1]); (k && Math.abs(ring[k] - ring[k - 2]) < 180) ? g2.lineTo(x, y) : g2.moveTo(x, y); } }
+  const base = document.createElement("canvas"); base.width = MW; base.height = MH;
+  (() => {
+    const b = base.getContext("2d");
+    const gr = b.createLinearGradient(0, 0, 0, MH); gr.addColorStop(0, "#0c3354"); gr.addColorStop(1, "#071d33"); b.fillStyle = gr; b.fillRect(0, 0, MW, MH);
+    b.fillStyle = "#2a5b45"; b.strokeStyle = "rgba(160,220,180,.35)"; b.lineWidth = 1;
+    for (const rings of Object.values(WL)) for (const r of rings) { trace(b, r); b.fill(); b.stroke(); }
+  })();
+  const center = {};
+  for (const [iso, rings] of Object.entries(WL)) {        // titik tengah cincin terbesar (untuk lencana peringkat)
+    let best = null, bw = -1;
+    for (const r of rings) { let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; for (let k = 0; k < r.length; k += 2) { x0 = Math.min(x0, r[k]); x1 = Math.max(x1, r[k]); y0 = Math.min(y0, r[k + 1]); y1 = Math.max(y1, r[k + 1]); } const w = (x1 - x0) * (y1 - y0); if (w > bw) { bw = w; best = [(x0 + x1) / 2, (y0 + y1) / 2]; } }
+    center[iso] = best;
+  }
+  let mapQ = false;
+  function drawMap() {
+    mapQ = false;
+    if (!wm || getComputedStyle(wm).display === "none") return;
+    const g2 = wm.getContext("2d"); g2.drawImage(base, 0, 0);
+    const list = sorted();
+    list.forEach(([iso], i) => {
+      const rings = WL[iso]; if (!rings) return;
+      g2.fillStyle = i === 0 ? "#ffd54a" : `hsl(${hue(iso)} 75% 55%)`; g2.strokeStyle = "#fff"; g2.lineWidth = i === 0 ? 2.5 : 1.5;
+      for (const r of rings) { trace(g2, r); g2.fill(); g2.stroke(); }
+    });
+    list.slice(0, 3).forEach(([iso], i) => {
+      const c = center[iso]; if (!c) return;
+      const x = px(c[0]), y = py(c[1]);
+      g2.fillStyle = ["#ffd54a", "#e5e7eb", "#d08a4a"][i]; g2.beginPath(); g2.arc(x, y, 18, 0, 7); g2.fill();
+      g2.fillStyle = "#1a1200"; g2.font = "bold 22px sans-serif"; g2.textAlign = "center"; g2.textBaseline = "middle"; g2.fillText(String(i + 1), x, y + 1);
+    });
+  }
+  const queueMap = () => { if (!mapQ) { mapQ = true; setTimeout(drawMap, 800); } };
+  addEventListener("resize", () => setTimeout(drawMap, 400));
 
   /* ---------- Logika ---------- */
   function add(iso, m, u) { if (!iso || !(m > 0)) return; C(iso).m += m; if (u) u.pts = (u.pts || 0) + m; dirty = true; queueRender(); }
