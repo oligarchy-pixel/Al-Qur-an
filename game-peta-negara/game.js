@@ -211,7 +211,14 @@
   }
 
   /* ---------- State ---------- */
-  const SAVE_KEY = "petaNegara.v1";
+  // Mode demo memakai simpanan terpisah, jadi pemain palsu tidak pernah tercampur ke LIVE sungguhan.
+  const SAVE_KEY = params.get("demo") === "1" ? "petaNegara.demo" : "petaNegara.v1";
+  // ?reset=1 → hapus semua skor & pemain (berguna di HP yang tidak punya keyboard)
+  if (params.get("reset") === "1") {
+    try { localStorage.removeItem("petaNegara.v1"); localStorage.removeItem("petaNegara.demo"); } catch (e) { /* */ }
+    params.delete("reset");
+    try { history.replaceState(null, "", location.pathname + (params.toString() ? "?" + params : "")); } catch (e) { /* */ }
+  }
   let S = { countries: {}, users: {}, pending: {}, roundEnd: 0, round: 1 };
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");

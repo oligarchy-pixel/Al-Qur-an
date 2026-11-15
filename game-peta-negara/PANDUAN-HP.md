@@ -118,6 +118,7 @@ Lakukan hal yang sama untuk **Chrome** dan **TikTok**.
 | Komentar penonton tidak masuk ke game | Lihat tulisan di Termux. Kalau ada pesan error dari TikTok, coba matikan & jalankan ulang Termux. |
 | Penonton tidak mendengar musik | Di pengaturan Mobile Gaming TikTok, aktifkan **audio game/perangkat** (butuh Android 10+). Cara cadangan: besarkan volume speaker agar tertangkap mikrofon. |
 | HP panas / lambat | Buka game dengan **`localhost:21214/?satelit=0`** (peta tanpa citra satelit, jauh lebih ringan). Tutup aplikasi lain. Pasang charger. |
+| Papan peringkat berisi pemain lama/palsu | Buka **`localhost:21214/?reset=1`** sekali untuk menghapus semua skor & pemain. |
 | Notifikasi muncul di LIVE | Aktifkan mode **Jangan Ganggu** sebelum LIVE. |
 
 ### Memperbarui game (kalau ada versi baru)
