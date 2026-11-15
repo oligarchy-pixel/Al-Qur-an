@@ -17,6 +17,7 @@ command -v termux-wake-lock >/dev/null 2>&1 && termux-wake-lock
 if [ -f .youtube ]; then Y=$(cat .youtube); fi
 if [ -z "$Y" ]; then
   read -p "Masukkan handle channel YouTube kamu (contoh: @namachannel): " Y
+  Y="@$(echo "$Y" | tr -d ' ' | sed 's/^@*//')"   # rapikan: tepat satu @, tanpa spasi
   echo "$Y" > .youtube
 fi
 echo "YouTube: $Y   (untuk mengganti: hapus file server/.youtube)"

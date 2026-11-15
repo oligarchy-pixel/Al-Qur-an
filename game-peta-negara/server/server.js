@@ -12,7 +12,8 @@ import { WebSocketServer } from "ws";
 
 const ARG = (process.argv[2] || process.env.TIKTOK_USERNAME || "").trim();
 const YT = /^(yt:|youtube:|--youtube=?)/i.test(ARG);
-const username = ARG.replace(/^(yt:|youtube:|--youtube=?)/i, "").trim().replace(/^@/, "");
+// buang awalan, spasi, dan tanda @ berlebih (mis. "@@nama" karena salah ketik), serta alamat lengkap youtube.com/@nama
+const username = ARG.replace(/^(yt:|youtube:|--youtube=?)/i, "").replace(/^https?:\/\/(www\.|m\.)?youtube\.com\//i, "").replace(/\/.*$/, "").replace(/\s+/g, "").replace(/^@+/, "");
 const PORT = Number(process.env.PORT || 21214);
 if (!username) {
   console.log("Pemakaian:  TikTok  → node server.js USERNAME_TIKTOK");
