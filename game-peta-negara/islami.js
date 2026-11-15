@@ -11,12 +11,14 @@
   let MODE = params.get("mode") === "dzikir" ? "dzikir" : "kuis";
   // ?auto=15 → bergantian otomatis Kuis ⇄ Dzikir setiap 15 menit (untuk LIVE panjang tanpa menyentuh HP)
   const AUTO_MIN = Math.max(0, Number(params.get("auto")) || 0);
-  const LANG = (params.get("lang") || CFG.BAHASA) === "id" ? "id" : "en"; // ?lang=id → Bahasa Indonesia
+  // ?lang=ms → Bahasa Melayu, ?lang=id → Bahasa Indonesia, lainnya → English
+  const LANG = ["id", "ms"].includes(params.get("lang") || CFG.BAHASA) ? (params.get("lang") || CFG.BAHASA) : "en";
   const $ = (s) => document.querySelector(s);
   const Q_SEC = CFG.KUIS_DETIK ?? 20, REVEAL_SEC = 7, ROUND_Q = 10;
   const TARGET_STEP = CFG.DZIKIR_TARGET ?? 500;
 
-  const T = LANG === "en" ? {
+  const TX = {};
+  TX.en = {
     quizTitle: "ISLAMIC QUIZ 🕌", quizSub: "Type A, B, C or D in the chat to answer!",
     dzTitle: "DZIKIR TOGETHER 📿", dzSub: "Type in the chat: SubhanAllah · Alhamdulillah · Allahu Akbar…",
     q: (n) => `Question ${n}`, left: (s, n) => `⏱ ${s}s · ${n} answer${n === 1 ? "" : "s"}`,
@@ -31,7 +33,9 @@
     tap: "🔊 Tap the screen for sound", waiting: (u) => `Waiting for LIVE ${u}…`, live: (u) => `Connected to LIVE ${u}`,
     lost: "LIVE disconnected — retrying…", connecting: "Connecting to server…", noServer: "Server not running — start Termux",
     locale: "en-US",
-  } : {
+    remind: ["🤲 Share this LIVE — may it be a continuous reward (sadaqah jariyah)", "ﷺ Don't forget to send salawat upon the Prophet ﷺ", "🕌 Type A, B, C or D to answer the quiz", "📿 Type SubhanAllah · Alhamdulillah · Allahu Akbar", "👍 Like & subscribe to support this channel"],
+  };
+  TX.id = {
     quizTitle: "KUIS ISLAMI 🕌", quizSub: "Ketik A, B, C atau D di komentar untuk menjawab!",
     dzTitle: "DZIKIR BERSAMA 📿", dzSub: "Ketik di komentar: SubhanAllah · Alhamdulillah · Allahu Akbar…",
     q: (n) => `Soal ${n}`, left: (s, n) => `⏱ ${s} detik · ${n} jawaban`,
@@ -46,7 +50,26 @@
     tap: "🔊 Ketuk layar untuk suara", waiting: (u) => `Menunggu LIVE ${u}…`, live: (u) => `Terhubung ke LIVE ${u}`,
     lost: "LIVE terputus — mencoba lagi…", connecting: "Menghubungkan ke server…", noServer: "Server belum jalan — buka Termux",
     locale: "id-ID",
+    remind: ["🤲 Bagikan LIVE ini, semoga jadi amal jariyah", "ﷺ Jangan lupa bershalawat kepada Nabi ﷺ", "🕌 Ketik A, B, C atau D untuk menjawab kuis", "📿 Ketik SubhanAllah · Alhamdulillah · Allahu Akbar", "👍 Like & subscribe untuk mendukung channel ini"],
   };
+  TX.ms = {
+    quizTitle: "KUIZ ISLAM 🕌", quizSub: "Taip A, B, C atau D di ruangan sembang untuk menjawab!",
+    dzTitle: "ZIKIR BERSAMA 📿", dzSub: "Taip di ruangan sembang: SubhanAllah · Alhamdulillah · Allahu Akbar…",
+    q: (n) => `Soalan ${n}`, left: (s, n) => `⏱ ${s} saat · ${n} jawapan`,
+    correct: (n, names) => n ? `✅ ${n} betul! ${names}` : "Tiada jawapan betul kali ini — soalan seterusnya!",
+    salam: (u) => `Assalamualaikum ${u}! 👋`, askQ: (u) => `${u}, jawab dengan A, B, C atau D 😊`,
+    askD: (u) => `${u}, taip SubhanAllah atau Alhamdulillah 📿`, thanks: (u) => `Jazakallahu khairan, ${u} 🤲`,
+    dz: (u, d) => `${u}: ${d} ✨`, top: "PEMAIN TERBAIK", topD: "ZIKIR TERBANYAK", pts: (n) => `${n} mata`, times: (n) => `${n} kali`,
+    noPlayers: "Belum ada pemain — jom sertai di ruangan sembang!", total: (t) => `zikir bersama · sasaran ${t}`,
+    champTitle: "🏆 JUARA KUIZ 🏆", champNext: "Pusingan baharu akan bermula…",
+    goalTitle: "MasyaAllah! 🤲", goal: (n) => `${n} zikir bersama!`, goalNext: (t) => `Sasaran seterusnya: ${t}`,
+    nowQuiz: "🕌 Masa kuiz! Jawab dengan A, B, C atau D", nowDz: "📿 Masa zikir! Taip SubhanAllah, Alhamdulillah…",
+    tap: "🔊 Sentuh skrin untuk bunyi", waiting: (u) => `Menunggu LIVE ${u}…`, live: (u) => `Bersambung ke LIVE ${u}`,
+    lost: "LIVE terputus — mencuba semula…", connecting: "Menyambung ke pelayan…", noServer: "Pelayan belum berjalan — buka Termux",
+    locale: "ms-MY",
+    remind: ["🤲 Kongsikan LIVE ini, semoga menjadi amal jariah", "ﷺ Jangan lupa berselawat ke atas Nabi ﷺ", "🕌 Taip A, B, C atau D untuk menjawab kuiz", "📿 Taip SubhanAllah · Alhamdulillah · Allahu Akbar", "👍 Like & subscribe untuk menyokong saluran ini"],
+  };
+  const T = TX[LANG];
 
   /* ---------- Skala 1080x1920 ---------- */
   const stage = $("#stage");
@@ -59,7 +82,7 @@
   const short = (s, n = 16) => { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
   const norm = (s) => String(s).toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-  const optText = (o) => { const p = String(o).split(" | "); return LANG === "id" && p[1] ? p[1] : p[0]; };
+  const optText = (o) => { const p = String(o).split(" | "); return LANG === "en" ? p[0] : LANG === "ms" ? (p[2] || p[1] || p[0]) : (p[1] || p[0]); };
 
   /* ---------- State ---------- */
   const keyOf = (m) => `islami.${m}.${params.get("demo") === "1" ? "demo" : "v1"}`;
@@ -143,7 +166,7 @@
     if (!deck.length) deck = shuffle([...window.KUIS.keys()]);
     const item = window.KUIS[deck.pop()];
     const opts = shuffle(item.a.map((t, i) => ({ t, ok: i === 0 })));
-    Q = { text: LANG === "id" ? item.id : item.en, opts, correct: opts.findIndex((o) => o.ok) };
+    Q = { text: item[LANG] || item.en, opts, correct: opts.findIndex((o) => o.ok) };
     S.qn++; dirty = true;
     answers = new Map(); order = [];
     phase = "q"; phaseEnd = Date.now() + Q_SEC * 1000;
@@ -220,7 +243,7 @@
     { k: "allahuakbar", ar: "ٱللَّٰهُ أَكْبَرُ", lt: "Allahu Akbar", re: /al+ah?u?\s?akbar|al+ohu?\s?akbar|takbir|اكبر|أكبر/ },
     { k: "astaghfirullah", ar: "أَسْتَغْفِرُ ٱللَّٰهَ", lt: "Astaghfirullah", re: /ast[ae]?g+h?f[ie]?r|استغفر/ },
     { k: "lailahaillallah", ar: "لَا إِلَٰهَ إِلَّا ٱللَّٰهُ", lt: "La ilaha illallah", re: /la+\s?i?la+ha\s?il+al+ah|lailahail|laa?\s?ilaa?ha|لا اله|لا إله/ },
-    { k: "shalawat", ar: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّد", sm: true, lt: "Shalawat", re: /s[h]?[aoe]l+[ae]?wat|s[h]?[aoe]l+[ie]\s?a?la|s[h]?[aoe]l+al+ahu|ﷺ|صل/ },
+    { k: "shalawat", ar: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّد", sm: true, lt: LANG === "ms" ? "Selawat" : "Shalawat", re: /s[h]?[aoe]l+[ae]?wat|s[h]?[aoe]l+[ie]\s?a?la|s[h]?[aoe]l+al+ahu|ﷺ|صل/ },
   ];
   let goalBusy = false;
   function dzRender(hitKey) {
@@ -337,6 +360,21 @@
       else setMode("kuis");
     }, AUTO_MIN * 60 * 1000);
   }
+
+  /* ---------- LIVE tanpa batas: jaga memori tetap kecil + pengingat berkala ---------- */
+  setInterval(() => {
+    const ids = Object.keys(S.u);
+    if (ids.length > 3000) {                       // simpan 2000 pemain dengan poin tertinggi saja
+      ids.sort((a, b) => (S.u[b].p || 0) - (S.u[a].p || 0));
+      for (const id of ids.slice(2000)) delete S.u[id];
+      dirty = true;
+    }
+    if (greeted.size > 5000) greeted.clear();
+    for (const k of Object.keys(lastDz)) if (Date.now() - lastDz[k] > 60000) delete lastDz[k];
+  }, 60000);
+  const REMIND_MIN = Number(params.get("remind") ?? CFG.PENGINGAT_MENIT ?? 6);
+  let remindI = 0;
+  if (REMIND_MIN > 0) setInterval(() => { say(T.remind[remindI++ % T.remind.length], "", 2); }, REMIND_MIN * 60 * 1000);
 
   /* ---------- Mulai ---------- */
   document.documentElement.lang = LANG;

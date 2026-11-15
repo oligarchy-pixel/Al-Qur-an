@@ -44,6 +44,9 @@ const server = http.createServer((req, res) => {
 });
 
 /* ---------- WebSocket ke game ---------- */
+// LIVE tanpa batas: jangan sampai server mati karena satu kesalahan kecil
+process.on("unhandledRejection", (e) => console.log("Peringatan:", e?.message || e));
+process.on("uncaughtException", (e) => { console.log("Peringatan:", e?.message || e); if (e?.code === "EADDRINUSE") process.exit(1); });
 server.on("error", (e) => {
   if (e.code === "EADDRINUSE") {
     console.log(`Port ${PORT} sudah dipakai server lain yang masih berjalan.`);

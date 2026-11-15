@@ -11,6 +11,7 @@ if [ ! -d node_modules/youtube-chat ] || [ ! -d node_modules/tiktok-live-connect
   npm install --no-audit --no-fund || exit 1
 fi
 # hentikan server lama yang mungkin masih berjalan (mencegah error EADDRINUSE)
+pgrep -f "mulai-(hp|youtube).sh" | grep -vx "$$" | xargs -r kill 2>/dev/null
 pkill -f "node server.js" 2>/dev/null && sleep 1
 command -v termux-wake-lock >/dev/null 2>&1 && termux-wake-lock
 if [ -f .username ]; then U=$(cat .username); fi
@@ -19,4 +20,9 @@ if [ -z "$U" ]; then
   echo "$U" > .username
 fi
 echo "Username: @$U   (untuk mengganti: hapus file server/.username)"
-node server.js "$U"
+# LIVE tanpa batas: kalau server berhenti/crash, otomatis dinyalakan lagi (tekan CTRL+C dua kali untuk keluar)
+while true; do
+  node server.js "$U"
+  echo "Server berhenti — menyala ulang dalam 3 detik… (CTRL+C untuk keluar)"
+  sleep 3 || break
+done

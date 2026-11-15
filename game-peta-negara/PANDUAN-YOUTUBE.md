@@ -7,13 +7,25 @@ Game Islami punya 2 mode, dan keduanya bisa dipakai di **YouTube** maupun **TikT
 | 🕌 **Kuis Islami** | `localhost:21214/islami.html` | Ketik **A**, **B**, **C**, atau **D** di chat |
 | 📿 **Dzikir Bersama** | `localhost:21214/islami.html?mode=dzikir` | Ketik **SubhanAllah**, **Alhamdulillah**, **Allahu Akbar**, **Astaghfirullah**, **La ilaha illallah**, atau **shalawat** |
 
-Tampilan bawaan berbahasa Inggris. Tambahkan **`&lang=id`** (atau `?lang=id`) untuk Bahasa Indonesia, misalnya `localhost:21214/islami.html?lang=id`.
+Tampilan bawaan berbahasa Inggris. Pilih bahasa dengan **`?lang=ms`** (Bahasa Melayu) atau **`?lang=id`** (Bahasa Indonesia), misalnya `localhost:21214/islami.html?lang=ms`.
 
 - **Kuis Islami**: 97 soal (Al-Qur'an, rukun Islam & iman, para nabi, sirah). Satu soal berlangsung 20 detik. Jawaban benar dapat 10 poin, ditambah bonus untuk 3 penjawab tercepat. Setiap 10 soal muncul layar **Juara Kuis**.
 - **Dzikir Bersama**: semua dzikir penonton dijumlahkan menuju target (500, 1.000, …). Saat target tercapai muncul **"MasyaAllah!"**.
 - Penonton baru disapa **"Assalamu'alaikum"** dan diajak ikut.
 - Gift, Super Chat, dan member **hanya diberi ucapan "Jazakallahu khairan 🤲"**, tidak dijadikan poin, supaya permainan tetap tentang ilmu dan dzikir.
 - Tanpa musik, hanya bunyi pendek. Sangat ringan untuk HP biasa.
+
+## ♾️ LIVE sangat panjang (24 jam+) dalam Bahasa Melayu
+
+Alamat yang disarankan:
+```
+localhost:21214/islami.html?lang=ms&auto=15
+```
+- Kuiz ⇄ Zikir bergantian setiap 15 minit tanpa henti. Setiap 10 soalan muncul Juara Kuiz, lalu pusingan baharu.
+- Setiap 6 minit muncul **pengingat** (kongsikan LIVE, selawat, cara bermain, like & subscribe). Ubah dengan `&remind=10`, atau matikan dengan `&remind=0`.
+- Data pemain dirampingkan otomatis supaya HP tidak semakin berat walau berjalan berhari-hari.
+- Server Termux **menyala ulang otomatis** kalau berhenti.
+- ⚠️ YouTube hanya menyimpan rakaman (VOD) untuk live **≤ 12 jam**. Live yang lebih lama tetap boleh berjalan, tetapi rakamannya tidak disimpan penuh.
 
 ## ⏱ LIVE panjang (mis. 3 jam) tanpa menyentuh HP
 
