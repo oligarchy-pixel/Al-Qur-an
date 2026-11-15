@@ -44,6 +44,14 @@ const server = http.createServer((req, res) => {
 });
 
 /* ---------- WebSocket ke game ---------- */
+server.on("error", (e) => {
+  if (e.code === "EADDRINUSE") {
+    console.log(`Port ${PORT} sudah dipakai server lain yang masih berjalan.`);
+    console.log('Hentikan dulu dengan:  pkill -f "node server.js"   lalu jalankan lagi.');
+    process.exit(1);
+  }
+  throw e;
+});
 const wss = new WebSocketServer({ server });
 const safe = (o) => JSON.stringify(o, (k, v) => (typeof v === "bigint" ? v.toString() : v));
 let lastStatus = { ok: false, code: "waiting", user: (YT ? "@" : "") + username, text: "Menunggu LIVE dimulai…" };

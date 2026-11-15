@@ -10,6 +10,8 @@ if [ ! -d node_modules/youtube-chat ] || [ ! -d node_modules/tiktok-live-connect
   echo "Menginstal paket game (sekali saja, butuh internet)..."
   npm install --no-audit --no-fund || exit 1
 fi
+# hentikan server lama yang mungkin masih berjalan (mencegah error EADDRINUSE)
+pkill -f "node server.js" 2>/dev/null && sleep 1
 command -v termux-wake-lock >/dev/null 2>&1 && termux-wake-lock
 if [ -f .youtube ]; then Y=$(cat .youtube); fi
 if [ -z "$Y" ]; then
