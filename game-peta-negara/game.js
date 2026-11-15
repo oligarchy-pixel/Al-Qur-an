@@ -7,7 +7,9 @@
   const CFG = window.GAME_CONFIG;
   const COUNTRIES = window.COUNTRIES;
   const params = new URLSearchParams(location.search);
-  const WS_URL = params.get("ws") || CFG.WS_URL;
+  // Bila game dibuka lewat server bawaan (http://localhost:21214/), otomatis pakai WebSocket server itu.
+  const WS_URL = params.get("ws") || (location.protocol.startsWith("http") ? `ws://${location.host}/` : CFG.WS_URL);
+  const TOUCH = matchMedia("(pointer: coarse)").matches;
   if (params.get("satelit") === "0") CFG.TILE_URL = "";
   const $ = (s) => document.querySelector(s);
   const stage = $("#stage");
@@ -503,7 +505,10 @@
       let msg;
       try { msg = JSON.parse(m.data); } catch (e) { return; }
       const list = Array.isArray(msg) ? msg : [msg];
-      for (const x of list) dispatch(x.event || x.type || x.eventName, x.data || x.payload || x);
+      for (const x of list) {
+        if (x.event === "status" && x.data) { setStatus(!!x.data.ok, x.data.text); continue; }
+        dispatch(x.event || x.type || x.eventName, x.data || x.payload || x);
+      }
     };
     ws.onclose = () => { setStatus(false, "Terputus — mencoba lagi (" + WS_URL + ")"); setTimeout(connect, 3000); };
     ws.onerror = () => { try { ws.close(); } catch (e) { /* */ } };
@@ -616,6 +621,11 @@
   if (!(S.roundEnd > Date.now())) startRound();
   renderBoard();
   if (params.get("demo") === "1") toggleDemo();
-  else $("#help").classList.remove("hidden");
+  else if (!TOUCH) $("#help").classList.remove("hidden");
+  // HP: ketuk layar sekali untuk layar penuh (sekaligus menyalakan suara)
+  addEventListener("pointerdown", () => {
+    const el = document.documentElement;
+    if (TOUCH && !document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+  });
   connect();
 })();

@@ -61,7 +61,7 @@
     if (!unlockEl) {
       unlockEl = document.createElement("button");
       unlockEl.id = "soundUnlock";
-      unlockEl.textContent = "🔊 Klik untuk menyalakan suara";
+      unlockEl.textContent = "🔊 Ketuk layar untuk menyalakan suara";
       unlockEl.onclick = resume;
       (document.getElementById("stage") || document.body).append(unlockEl);
     }

@@ -14,6 +14,8 @@ Tampilan dibuat **vertikal 9:16 (1080×1920)** untuk LIVE dari PC dengan mode po
 
 ---
 
+> 📱 **Hanya punya HP Android?** Ikuti **[PANDUAN-HP.md](PANDUAN-HP.md)**: semuanya bisa dijalankan dari satu HP (Termux + Chrome + TikTok Mobile Gaming).
+
 ## Yang dibutuhkan
 
 1. Akun TikTok yang sudah bisa LIVE (umumnya 1.000+ followers, umur 18+).
@@ -35,9 +37,7 @@ Tampilan dibuat **vertikal 9:16 (1080×1920)** untuk LIVE dari PC dengan mode po
 1. Instal **Node.js** dari nodejs.org.
 2. Buka folder `server/`, lalu klik dua kali **`MULAI-SERVER.bat`** dan masukkan username TikTok kamu (tanpa @).
    Bisa juga lewat terminal: `cd server && npm install && node server.js usernamekamu`
-3. Buka game dengan alamat:
-   `index.html?ws=ws://localhost:21214/`
-   (atau ubah `WS_URL` di `config.js` menjadi `ws://localhost:21214/`)
+3. Buka game di browser: **`http://localhost:21214/`** (server juga menyajikan file game dan otomatis tersambung).
 
 > Server memakai library tidak resmi `tiktok-live-connector`. Kalau koneksi sering ditolak, daftar API key gratis di eulerstream.com, lalu jalankan dengan `set SIGN_API_KEY=kuncikamu` sebelum `node server.js`.
 
