@@ -14,7 +14,8 @@
   // ?lang=ms → Bahasa Melayu, ?lang=id → Bahasa Indonesia, lainnya → English
   const LANG = ["id", "ms"].includes(params.get("lang") || CFG.BAHASA) ? (params.get("lang") || CFG.BAHASA) : "en";
   const $ = (s) => document.querySelector(s);
-  const Q_SEC = CFG.KUIS_DETIK ?? 20, REVEAL_SEC = 7, ROUND_Q = 10;
+  // Siaran YouTube/TikTok tertinggal 10–30 detik dari layar HP → waktu menjawab dibuat lebih lama, dan jawaban terlambat tetap diterima.
+  const Q_SEC = Number(params.get("detik")) || CFG.KUIS_DETIK || 40, REVEAL_SEC = 10, LATE_SEC = 15, ROUND_Q = 10;
   const TARGET_STEP = CFG.DZIKIR_TARGET ?? 500;
 
   const TX = {};
@@ -249,7 +250,10 @@
     $("#qnum").textContent = T.q(((S.qn - 1) % ROUND_Q) + 1) + " / " + ROUND_Q;
     $("#qtext").textContent = Q.text;
     sfx("newq");
-    $("#opts").innerHTML = opts.map((o, i) => `<div class="opt"><b>${"ABCD"[i]}</b><span>${esc(optText(o.t))}</span><span class="n"></span></div>`).join("");
+    const qc = $("#qcard"); qc.classList.remove("anim"); void qc.offsetWidth; qc.classList.add("anim");
+    $("#qbar").classList.remove("hurry");
+    $("#opts").innerHTML = opts.map((o, i) => `<div class="opt"><div class="fill"></div><b>${"ABCD"[i]}</b><span>${esc(optText(o.t))}</span><span class="n"></span></div>`).join("");
+    lateUntil = 0;
     renderBoard();
   }
   function parseAnswer(comment) {
@@ -271,6 +275,8 @@
     const names = winners.slice(0, 3).map((id) => esc(S.u[id]?.n || "")).join(", ");
     say(T.correct(winners.length, names), "green", 5);
     sfx("reveal"); renderBoard();
+    lateUntil = Date.now() + LATE_SEC * 1000;
+    if (winners.length) confetti(els[Q.correct]);
   }
   function champions() {
     phase = "c"; phaseEnd = Date.now() + 9000;
@@ -289,6 +295,7 @@
       $("#qfill").style.transform = `scaleX(${Math.max(0, (phaseEnd - now) / (Q_SEC * 1000))})`;
       $("#qinfo").textContent = T.left(left, answers.size);
       if (left <= 5 && left > 0 && left !== quizTick.last) sfx("tick");
+      $("#qbar").classList.toggle("hurry", left <= 5);
       quizTick.last = left;
       if (now >= phaseEnd) reveal();
     } else if (phase === "r" && now >= phaseEnd) {
@@ -301,16 +308,59 @@
       S.round++; dirty = true; newQuestion();
     }
   }
+  let lateUntil = 0;
+  function liveCounts() {
+    const count = [0, 0, 0, 0]; for (const a of answers.values()) count[a]++;
+    const total = Math.max(1, answers.size);
+    document.querySelectorAll(".opt").forEach((el, i) => {
+      el.querySelector(".fill").style.transform = `scaleX(${count[i] / total})`;
+      el.querySelector(".n").textContent = count[i] ? count[i] : "";
+    });
+  }
+  // nama penonton "terbang" dari bawah ke pilihan yang ia jawab
+  let chips = 0;
+  function flyChip(name, i) {
+    if (chips > 14) return;
+    const el = document.querySelectorAll(".opt")[i]; if (!el) return;
+    const c = document.createElement("div"); c.className = "chip"; c.textContent = short(name, 12);
+    const sx = 200 + Math.random() * 680, sy = 1500;
+    c.style.left = sx + "px"; c.style.top = sy + "px";
+    stage.append(c); chips++;
+    const tx = el.offsetLeft + 40 + 40 + Math.random() * 200 - sx, ty = el.offsetTop + 704 + 20 - sy;
+    requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transform = `translate(${tx}px, ${ty}px) scale(.8)`; }));
+    setTimeout(() => { c.style.opacity = "0"; }, 800);
+    setTimeout(() => { c.remove(); chips--; }, 1600);
+    el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump");
+  }
   function quizChat(raw, comment) {
     const u = user(raw);
-    if (phase !== "q") return;
+    const late = phase === "r" && Date.now() < lateUntil;
+    if (phase !== "q" && !late) return;
     const a = parseAnswer(comment);
     if (a < 0) { greet(raw, true); return; }
     greeted.add(raw.id);
     if (answers.has(raw.id)) return;
-    answers.set(raw.id, a); order.push(raw.id); sfx("ans");
+    answers.set(raw.id, a); order.push(raw.id);
+    flyChip(u.n, a);
+    if (late) {                      // jawaban terlambat (karena siaran tertinggal) tetap dihitung, tanpa bonus kecepatan
+      if (a === Q.correct) { u.p += 10; dirty = true; queueBoard(); say(T.correct(1, esc(u.n)), "green", 3); }
+      const el = document.querySelectorAll(".opt")[a]; if (el) el.querySelector(".n").textContent = String((+el.querySelector(".n").textContent || 0) + 1);
+      return;
+    }
+    sfx("ans"); liveCounts();
     $("#qinfo").textContent = T.left(Math.max(0, Math.ceil((phaseEnd - Date.now()) / 1000)), answers.size);
-    void u;
+  }
+  function confetti(el) {
+    if (!el) return;
+    const cx = el.offsetLeft + 40 + el.offsetWidth / 2, cy = el.offsetTop + 704 + el.offsetHeight / 2;
+    const colors = ["#f2c75c", "#1fbf7a", "#ffffff", "#ff7a59", "#5ec8ff"];
+    for (let k = 0; k < 28; k++) {
+      const d = document.createElement("div"); d.className = "cf";
+      d.style.left = cx + "px"; d.style.top = cy + "px"; d.style.background = colors[k % colors.length];
+      d.style.setProperty("--x", (Math.random() * 700 - 350) + "px"); d.style.setProperty("--y", (Math.random() * 600 - 420) + "px");
+      d.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
+      stage.append(d); setTimeout(() => d.remove(), 1700);
+    }
   }
 
   /* ================= MODE DZIKIR ================= */
@@ -345,6 +395,12 @@
     for (const d of hits.slice(0, 3)) { S.dz[d.k] = (S.dz[d.k] || 0) + 1; S.total++; u.p++; }
     dirty = true;
     say(T.dz(esc(u.n), esc(hits[0].lt)), "", 2);
+    const card = document.getElementById("dz-" + hits[0].k);
+    if (card && document.querySelectorAll(".dzpop").length < 10) {
+      const pop = document.createElement("div"); pop.className = "dzpop"; pop.textContent = hits[0].lt + " ✨";
+      pop.style.left = (card.offsetLeft + 40 + card.offsetWidth / 2) + "px"; pop.style.top = (card.offsetTop + 700) + "px";
+      stage.append(pop); setTimeout(() => pop.remove(), 1700);
+    }
     sfx("dz"); dzRender(hits[0].k); queueBoard();
     if (S.total >= S.target && !goalBusy) {
       goalBusy = true;
@@ -375,7 +431,8 @@
 
   /* ---------- Koneksi ---------- */
   const WS_URL = params.get("ws") || (location.protocol.startsWith("http") ? `ws://${location.host}/` : CFG.WS_URL);
-  const st = $("#status"), setSt = (ok, t) => { st.textContent = (ok ? "🟢 " : "🔴 ") + t; st.style.opacity = ok ? ".35" : "1"; };
+  let chatN = 0, stOk = false, stText = "";
+  const st = $("#status"), setSt = (ok, t) => { stOk = ok; stText = t; st.textContent = (ok ? "🟢 " : "🔴 ") + t + (chatN ? ` · 💬 ${chatN}` : ""); st.style.opacity = ok ? ".55" : "1"; };
   function connect() {
     let ws; setSt(false, T.connecting);
     try { ws = new WebSocket(WS_URL); } catch (e) { setSt(false, T.noServer); setTimeout(connect, 3000); return; }
@@ -383,6 +440,7 @@
       let m; try { m = JSON.parse(e.data); } catch (er) { return; }
       for (const x of Array.isArray(m) ? m : [m]) {
         if (x.event === "status" && x.data) { const d = x.data; setSt(!!d.ok, d.code === "connected" ? T.live(d.user) : d.code === "waiting" ? T.waiting(d.user) : d.code === "lost" ? T.lost : d.text); continue; }
+        if ((x.event || x.type) === "chat") { chatN++; setSt(stOk, stText); }
         dispatch(x.event || x.type, x.data || x);
       }
     };
@@ -452,6 +510,16 @@
   const REMIND_MIN = Number(params.get("remind") ?? CFG.PENGINGAT_MENIT ?? 6);
   let remindI = 0;
   if (REMIND_MIN > 0) setInterval(() => { say(T.remind[remindI++ % T.remind.length], "", 2); }, REMIND_MIN * 60 * 1000);
+
+  /* ---------- Latar bergerak pelan: lentera & bintang (sangat ringan) ---------- */
+  const sky = $("#sky");
+  ["🏮", "✨", "🌙", "⭐", "✨", "🏮", "⭐"].forEach((e, i) => {
+    const d = document.createElement("div"); d.className = "lantern"; d.textContent = e;
+    d.style.left = (40 + i * 150 + Math.random() * 60) + "px";
+    d.style.animationDuration = (22 + Math.random() * 16) + "s"; d.style.animationDelay = (-Math.random() * 30) + "s";
+    d.style.fontSize = (30 + Math.random() * 26) + "px";
+    sky.append(d);
+  });
 
   /* ---------- Mulai ---------- */
   document.documentElement.lang = LANG;
