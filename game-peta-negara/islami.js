@@ -130,7 +130,7 @@
     if (CFG.SUARA === false || !ac || ac.state !== "running") return;
     const now = performance.now(); if ((n === "dz" || n === "hello" || n === "ans") && now - lastS < 150) return; lastS = now;
     try { SFX[n](ac.currentTime + 0.01); } catch (e) { /* */ }
-    if (n !== "ans" && n !== "dz" && n !== "tick") duck(DUR[n] || 0.5);
+    if (params.get("duck") === "1") duck(DUR[n] || 0.5);   // pengecilan sesaat hanya bila diminta (?duck=1)
   };
   const tap = $("#tap"); tap.textContent = T.tap; if (CFG.SUARA !== false) tap.classList.remove("hidden");
   /* ---------- Bacaan Al-Quran (diputar berulang-ulang) ----------
