@@ -12,6 +12,47 @@
   const TOUCH = matchMedia("(pointer: coarse)").matches;
   if (params.get("satelit") === "0") CFG.TILE_URL = "";
   const $ = (s) => document.querySelector(s);
+
+  /* ---------- Bahasa ---------- */
+  const LANG = (CFG.BAHASA || (CFG.BAHASA_NAMA_NEGARA === "en" ? "en" : "id")) === "id" ? "id" : "en";
+  const TEXT = {
+    en: {
+      leads: (c) => `👑 ${c} is leading!`, players: (n) => `${n} player${n === 1 ? "" : "s"}`,
+      empty: "No countries yet.<br>Type your country!", joined: (u, c) => `${u} joined ${c}!`,
+      joinedFeed: (u, c) => `${u} joined <b>${c}</b>!`, thanks: (u) => `@${u} thank you! Type your country first 🌍`,
+      sent: (u, g, n, m) => `${u} sent ${g} x${n} <b>+${m}</b>`, follow: (u, m) => `${u} followed ${m ? `<b>+${m}</b>` : "— type your country!"}`,
+      share: (u, m) => `${u} shared the LIVE ${m ? `<b>+${m}</b>` : ""}`, bigSent: (u, g, n) => `${u} sent ${g} x${n}`, bigFor: (c) => `for ${c}`,
+      board: "COUNTRIES", winTitle: "🏆 ROUND WINNER 🏆", heroes: "Country heroes:", next: "New round starting soon…", round: (n) => `Round ${n}`,
+      connecting: (u) => `Connecting… (${u})`, disconnected: "Disconnected — retrying…", connected: "Connected",
+      waiting: (u) => `Waiting for LIVE @${u}…`, live: (u) => `Connected to LIVE @${u}`, lost: "TikTok LIVE disconnected — retrying…",
+      demoOn: "Demo mode ON", demoOff: "Demo mode OFF", musicOn: "🎵 Music on", musicOff: "🔇 Music off", sfxOn: "🔊 Sound effects on", sfxOff: "🔇 Sound effects off",
+      reset: "Reset all scores?", gift: "gift", locale: "en-US",
+    },
+    id: {
+      leads: (c) => `👑 ${c} memimpin!`, players: (n) => `${n} pemain`,
+      empty: "Belum ada negara.<br>Ketik nama negaramu!", joined: (u, c) => `${u} bergabung ke ${c}!`,
+      joinedFeed: (u, c) => `${u} bergabung ke <b>${c}</b>!`, thanks: (u) => `@${u} terima kasih! Ketik nama negaramu dulu 🌍`,
+      sent: (u, g, n, m) => `${u} mengirim ${g} x${n} <b>+${m}</b>`, follow: (u, m) => `${u} follow ${m ? `<b>+${m}</b>` : "— ketik negaramu!"}`,
+      share: (u, m) => `${u} membagikan LIVE ${m ? `<b>+${m}</b>` : ""}`, bigSent: (u, g, n) => `${u} mengirim ${g} x${n}`, bigFor: (c) => `untuk ${c}`,
+      board: "NEGARA", winTitle: "🏆 PEMENANG RONDE 🏆", heroes: "Pahlawan negara:", next: "Ronde baru dimulai sebentar lagi…", round: (n) => `Ronde ${n}`,
+      connecting: (u) => `Menghubungkan… (${u})`, disconnected: "Terputus — mencoba lagi…", connected: "Terhubung",
+      waiting: (u) => `Menunggu LIVE @${u} dimulai…`, live: (u) => `Terhubung ke LIVE @${u}`, lost: "Terputus dari TikTok LIVE — mencoba lagi…",
+      demoOn: "Mode demo AKTIF", demoOff: "Mode demo mati", musicOn: "🎵 Musik nyala", musicOff: "🔇 Musik mati", sfxOn: "🔊 Efek suara nyala", sfxOff: "🔇 Efek suara mati",
+      reset: "Reset semua skor?", gift: "gift", locale: "id-ID",
+    },
+  };
+  const T = TEXT[LANG];
+  // nama pendek bahasa Inggris (nama resmi ISO terlalu panjang untuk papan peringkat)
+  const SHORT_EN = {
+    US: "USA", GB: "United Kingdom", RU: "Russia", KR: "South Korea", KP: "North Korea", IR: "Iran", VN: "Vietnam",
+    LA: "Laos", SY: "Syria", TZ: "Tanzania", TW: "Taiwan", MD: "Moldova", MK: "North Macedonia", PS: "Palestine",
+    CD: "DR Congo", CG: "Congo", CN: "China", CF: "Central African Rep.", BN: "Brunei", VA: "Vatican", FM: "Micronesia",
+    BO: "Bolivia", VE: "Venezuela", AE: "UAE", DO: "Dominican Rep.", BA: "Bosnia", GM: "Gambia", FK: "Falkland Islands",
+    VI: "US Virgin Islands", VG: "British Virgin Islands", TF: "French Southern Lands", IO: "British Indian Ocean",
+    GS: "South Georgia", HM: "Heard Island", MF: "Saint Martin", SX: "Sint Maarten", CI: "Ivory Coast", CZ: "Czechia",
+    TT: "Trinidad & Tobago", ST: "São Tomé & Príncipe", VC: "St Vincent", KN: "St Kitts & Nevis", AG: "Antigua & Barbuda",
+    TC: "Turks & Caicos", PM: "St Pierre & Miquelon", MP: "N. Mariana Islands", XK: "Kosovo",
+  };
   const stage = $("#stage");
 
   /* ---------- Skala panggung 1080x1920 ---------- */
@@ -23,11 +64,11 @@
   fit();
 
   /* ---------- Util ---------- */
-  const fmt = (n) => Math.round(n).toLocaleString("id-ID") + " m";
+  const fmt = (n) => Math.round(n).toLocaleString(T.locale) + " m";
   const flagUrl = (iso) => `flags/${iso.toLowerCase()}.svg`;
   const cname = (iso) => {
     const c = COUNTRIES[iso];
-    return c ? (CFG.BAHASA_NAMA_NEGARA === "en" ? c.name : c.nameId) : iso;
+    return c ? (LANG === "en" ? SHORT_EN[iso] || c.name : c.nameId) : iso;
   };
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
   const hash = (s) => { let h = 0; for (const ch of String(s)) h = (h * 31 + ch.codePointAt(0)) | 0; return Math.abs(h); };
@@ -287,20 +328,20 @@
       if (old) { refreshCountryStyle(old); updateLabel(old); }
       if (newLeader) {
         refreshCountryStyle(newLeader); updateLabel(newLeader);
-        if (old) { toast(`👑 ${esc(cname(newLeader))} memimpin!`, newLeader); SFX("pemimpin"); }
+        if (old) { toast(T.leads(esc(cname(newLeader))), newLeader); SFX("pemimpin"); }
       }
     }
     const top = list.slice(0, 10);
     $("#boardList").innerHTML = top.length
       ? top.map(([iso, c], i) => {
           const flash = prevMeters[iso] !== undefined && prevMeters[iso] !== c.meters ? " flash" : "";
-          return `<li class="${flash}"><span class="rk">${i === 0 ? "👑" : i + 1}</span><img src="${flagUrl(iso)}" alt=""><span class="nm">${esc(cname(iso))}<small>${c.players} pemain</small></span><span class="mt">${fmt(c.meters)}</span></li>`;
+          return `<li class="${flash}"><span class="rk">${i === 0 ? "👑" : i + 1}</span><img src="${flagUrl(iso)}" alt=""><span class="nm">${esc(cname(iso))}<small>${T.players(c.players)}</small></span><span class="mt">${fmt(c.meters)}</span></li>`;
         }).join("")
-      : `<span class="empty">Belum ada negara.<br>Ketik nama negaramu!</span>`;
+      : `<span class="empty">${T.empty}</span>`;
     for (const [iso, c] of list) prevMeters[iso] = c.meters;
     setTimeout(() => document.querySelectorAll("#boardList li.flash").forEach((li) => li.classList.remove("flash")), 600);
     const total = list.reduce((s, [, c]) => s + c.players, 0);
-    $("#totalPlayers").textContent = `${total} pemain`;
+    $("#totalPlayers").textContent = T.players(total);
   }
   const queueBoard = () => { if (!boardQueued) { boardQueued = true; setTimeout(renderBoard, 250); } };
 
@@ -326,7 +367,7 @@
   let bigT;
   function bigGift(user, giftName, count, meters, iso) {
     const el = $("#bigGift");
-    el.innerHTML = `${avatarHtml(user, "gav")}<div class="gtx">${esc(user.nick)} mengirim ${esc(giftName)} x${count}</div><div class="gpl">+${fmt(meters)} ${iso ? "untuk " + esc(cname(iso)) : ""}</div>`;
+    el.innerHTML = `${avatarHtml(user, "gav")}<div class="gtx">${T.bigSent(esc(user.nick), esc(giftName), count)}</div><div class="gpl">+${fmt(meters)} ${iso ? T.bigFor(esc(cname(iso))) : ""}</div>`;
     el.classList.remove("hidden", "show"); void el.offsetWidth; el.classList.add("show");
     clearTimeout(bigT);
     bigT = setTimeout(() => el.classList.add("hidden"), 4000);
@@ -393,8 +434,8 @@
     if (pend) { delete S.pending[user.id]; addMeters(iso, pend, user); }
     updateLabel(iso);
     addPin(user, true);
-    feed(user, `${esc(user.nick)} bergabung ke <b>${esc(cname(iso))}</b>!`, iso);
-    toast(`${esc(user.nick)} bergabung ke ${esc(cname(iso))}!`, iso);
+    feed(user, T.joinedFeed(esc(user.nick), esc(cname(iso))), iso);
+    toast(T.joined(esc(user.nick), esc(cname(iso))), iso);
     requestCam(iso, 1);
     SFX("gabung");
     queueBoard();
@@ -415,12 +456,12 @@
       const ok = credit(user, m, "gift");
       if (window.GameAudio) window.GameAudio.gift(coins, count);
       if (ok) {
-        feed(user, `${esc(user.nick)} mengirim ${esc(d.giftName || "gift")} x${count} <b>+${fmt(m)}</b>`, user.iso);
+        feed(user, T.sent(esc(user.nick), esc(d.giftName || T.gift), count, fmt(m)), user.iso);
         hot(user.iso);
         requestCam(user.iso, 2);
         if (coins >= CFG.GIFT_BESAR_KOIN) bigGift(user, d.giftName || "gift", count, m, user.iso);
       } else {
-        toast(`@${esc(user.nick)} terima kasih! Ketik nama negaramu dulu 🌍`);
+        toast(T.thanks(esc(user.nick)));
       }
     },
     like(u, d) {
@@ -432,13 +473,13 @@
       const user = upsertUser(u);
       const ok = credit(user, CFG.METER_FOLLOW, "follow");
       SFX("follow");
-      feed(user, `${esc(user.nick)} follow ${ok ? `<b>+${fmt(CFG.METER_FOLLOW)}</b>` : "— ketik negaramu!"}`, user.iso);
+      feed(user, T.follow(esc(user.nick), ok ? fmt(CFG.METER_FOLLOW) : ""), user.iso);
     },
     share(u) {
       const user = upsertUser(u);
       const ok = credit(user, CFG.METER_SHARE, "share");
       SFX("share");
-      feed(user, `${esc(user.nick)} membagikan LIVE ${ok ? `<b>+${fmt(CFG.METER_SHARE)}</b>` : ""}`, user.iso);
+      feed(user, T.share(esc(user.nick), ok ? fmt(CFG.METER_SHARE) : ""), user.iso);
     },
   };
 
@@ -499,18 +540,22 @@
   function connect() {
     let ws;
     try { ws = new WebSocket(WS_URL); } catch (e) { setStatus(false, "URL WebSocket salah: " + WS_URL); return; }
-    setStatus(false, "Menghubungkan ke " + WS_URL + " …");
-    ws.onopen = () => { setStatus(true, "Terhubung"); if (!demoOn) $("#help").classList.add("hidden"); };
+    setStatus(false, T.connecting(WS_URL));
+    ws.onopen = () => { setStatus(true, T.connected); if (!demoOn) $("#help").classList.add("hidden"); };
     ws.onmessage = (m) => {
       let msg;
       try { msg = JSON.parse(m.data); } catch (e) { return; }
       const list = Array.isArray(msg) ? msg : [msg];
       for (const x of list) {
-        if (x.event === "status" && x.data) { setStatus(!!x.data.ok, x.data.text); continue; }
+        if (x.event === "status" && x.data) {
+          const d = x.data, u = d.user || "";
+          setStatus(!!d.ok, d.code === "connected" ? T.live(u) : d.code === "waiting" ? T.waiting(u) : d.code === "lost" ? T.lost : d.text);
+          continue;
+        }
         dispatch(x.event || x.type || x.eventName, x.data || x.payload || x);
       }
     };
-    ws.onclose = () => { setStatus(false, "Terputus — mencoba lagi (" + WS_URL + ")"); setTimeout(connect, 3000); };
+    ws.onclose = () => { setStatus(false, T.disconnected); setTimeout(connect, 3000); };
     ws.onerror = () => { try { ws.close(); } catch (e) { /* */ } };
   }
 
@@ -542,22 +587,23 @@
     w.querySelector(".win-name").textContent = cname(iso);
     w.querySelector(".win-meter").textContent = fmt(c.meters);
     w.querySelector(".win-top").innerHTML = tops.length
-      ? "Pahlawan negara:<br>" + tops.map((u, i) => `${["🥇", "🥈", "🥉"][i]} ${esc(u.nick)} — ${fmt(u.contrib)}`).join("<br>")
+      ? T.heroes + "<br>" + tops.map((u, i) => `${["🥇", "🥈", "🥉"][i]} ${esc(u.nick)} — ${fmt(u.contrib)}`).join("<br>")
       : "";
     w.classList.remove("hidden");
     flyTo(iso);
     SFX("menang");
+    // reset sekarang, supaya gift yang masuk selama layar pemenang tampil dihitung untuk ronde berikutnya
+    S.round++;
+    if (CFG.RESET_SETELAH_RONDE) resetScores();
     setTimeout(() => {
       w.classList.add("hidden");
       inWinner = false;
-      S.round++;
-      if (CFG.RESET_SETELAH_RONDE) resetScores();
       startRound();
     }, CFG.LAMA_LAYAR_PEMENANG * 1000);
   }
   setInterval(() => {
     const t = $("#timer");
-    if (!(CFG.DURASI_RONDE_DETIK > 0)) { t.textContent = `Ronde ${S.round}`; return; }
+    if (!(CFG.DURASI_RONDE_DETIK > 0)) { t.textContent = T.round(S.round); return; }
     if (inWinner) { t.textContent = "00:00"; return; }
     let left = Math.ceil((S.roundEnd - Date.now()) / 1000);
     if (left <= 0) { endRound(); left = 0; }
@@ -596,23 +642,27 @@
     demoOn = !demoOn;
     clearTimeout(demoT);
     if (demoOn) demoStep();
-    toast(demoOn ? "Mode demo AKTIF" : "Mode demo mati");
+    toast(demoOn ? T.demoOn : T.demoOff);
   }
   addEventListener("keydown", (e) => {
     const k = e.key.toLowerCase();
     const tu = { uniqueId: "tester", nickname: "Tester" };
     if (k === "d") toggleDemo();
     else if (k === "h") $("#help").classList.toggle("hidden");
-    else if (k === "m" && window.GameAudio) toast(window.GameAudio.toggleMusic() ? "🎵 Musik nyala" : "🔇 Musik mati");
-    else if (k === "s" && window.GameAudio) toast(window.GameAudio.toggleSfx() ? "🔊 Efek suara nyala" : "🔇 Efek suara mati");
+    else if (k === "m" && window.GameAudio) toast(window.GameAudio.toggleMusic() ? T.musicOn : T.musicOff);
+    else if (k === "s" && window.GameAudio) toast(window.GameAudio.toggleSfx() ? T.sfxOn : T.sfxOff);
     else if (k === "j") dispatch("chat", { ...tu, comment: rnd(DEMO_ISO) === "ID" ? "Indonesia" : COUNTRIES[rnd(DEMO_ISO)].name });
     else if (k === "g") dispatch("gift", { ...tu, giftName: "Doughnut", diamondCount: 30, giftType: 2, repeatCount: 1, repeatEnd: true });
     else if (k === "l") dispatch("like", { ...tu, likeCount: 50 });
-    else if (k === "r" && confirm("Reset semua skor?")) { S = { countries: {}, users: {}, pending: {}, roundEnd: 0, round: 1 }; Object.keys(labels).forEach((i) => { map.removeLayer(labels[i]); delete labels[i]; }); Object.values(pins).forEach((l) => l.forEach((p) => map.removeLayer(p.marker))); Object.keys(pins).forEach((k2) => delete pins[k2]); for (const iso of Object.keys(shapes)) refreshCountryStyle(iso); leaderIso = null; startRound(); renderBoard(); dirty = true; }
+    else if (k === "r" && confirm(T.reset)) { S = { countries: {}, users: {}, pending: {}, roundEnd: 0, round: 1 }; Object.keys(labels).forEach((i) => { map.removeLayer(labels[i]); delete labels[i]; }); Object.values(pins).forEach((l) => l.forEach((p) => map.removeLayer(p.marker))); Object.keys(pins).forEach((k2) => delete pins[k2]); for (const iso of Object.keys(shapes)) refreshCountryStyle(iso); leaderIso = null; startRound(); renderBoard(); dirty = true; }
     else if (k === "n" && CFG.DURASI_RONDE_DETIK > 0) S.roundEnd = Date.now();
   });
 
   /* ---------- Mulai ---------- */
+  document.documentElement.lang = LANG;
+  $(".board-head span").textContent = T.board;
+  $(".win-title").textContent = T.winTitle;
+  $(".win-next").textContent = T.next;
   $("#judul").innerHTML = `${esc(CFG.JUDUL)}<small>${esc(CFG.SUBJUDUL)}</small>`;
   $("#legend").innerHTML = CFG.KETERANGAN.map((k) => `<div><span class="i">${k.ikon}</span>${esc(k.teks)}</div>`).join("");
   // pulihkan tampilan dari data tersimpan

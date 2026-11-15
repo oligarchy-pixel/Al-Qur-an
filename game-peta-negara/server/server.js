@@ -43,13 +43,13 @@ const server = http.createServer((req, res) => {
 /* ---------- WebSocket ke game ---------- */
 const wss = new WebSocketServer({ server });
 const safe = (o) => JSON.stringify(o, (k, v) => (typeof v === "bigint" ? v.toString() : v));
-let lastStatus = { ok: false, text: "Menunggu LIVE dimulai…" };
+let lastStatus = { ok: false, code: "waiting", user: username, text: "Menunggu LIVE dimulai…" };
 function broadcast(event, data) {
   const msg = safe({ event, data });
   for (const c of wss.clients) if (c.readyState === 1) c.send(msg);
 }
-function status(ok, text) {
-  lastStatus = { ok, text };
+function status(ok, text, code) {
+  lastStatus = { ok, text, code, user: username };
   console.log(text);
   broadcast("status", lastStatus);
 }
@@ -78,7 +78,7 @@ for (const [name, ev] of [
 let retryT = null;
 const retry = (ms) => { clearTimeout(retryT); retryT = setTimeout(start, ms); };
 conn.on(ControlEvent.DISCONNECTED, () => {
-  status(false, "Terputus dari TikTok LIVE — mencoba lagi…");
+  status(false, "Terputus dari TikTok LIVE — mencoba lagi…", "lost");
   retry(10000);
 });
 conn.on(ControlEvent.ERROR, (e) => {
@@ -90,11 +90,11 @@ conn.on(ControlEvent.ERROR, (e) => {
 async function start() {
   try {
     const state = await conn.connect();
-    status(true, `Terhubung ke LIVE @${username}`);
+    status(true, `Terhubung ke LIVE @${username}`, "connected");
     console.log(`(room ${state.roomId})`);
   } catch (e) {
     console.log(`Belum bisa terhubung: ${e?.message || e}`);
-    status(false, `Menunggu LIVE @${username} dimulai… (cek tiap 15 detik)`);
+    status(false, `Menunggu LIVE @${username} dimulai… (cek tiap 15 detik)`, "waiting");
     retry(15000);
   }
 }

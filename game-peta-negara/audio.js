@@ -61,7 +61,7 @@
     if (!unlockEl) {
       unlockEl = document.createElement("button");
       unlockEl.id = "soundUnlock";
-      unlockEl.textContent = "🔊 Ketuk layar untuk menyalakan suara";
+      unlockEl.textContent = CFG.BAHASA === "id" ? "🔊 Ketuk layar untuk menyalakan suara" : "🔊 Tap the screen to turn on sound";
       unlockEl.onclick = resume;
       (document.getElementById("stage") || document.body).append(unlockEl);
     }

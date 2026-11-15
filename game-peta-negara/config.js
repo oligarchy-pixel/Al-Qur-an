@@ -9,10 +9,13 @@ window.GAME_CONFIG = {
   // Bisa juga diubah lewat URL: index.html?ws=ws://localhost:21214/
   WS_URL: "ws://localhost:21213/",
 
-  // --- Teks di layar ---
-  JUDUL: "KETIK NAMA NEGARAMU!",
-  SUBJUDUL: "ketik nama negara di komentar untuk bergabung",
-  BAHASA_NAMA_NEGARA: "id", // "id" = Indonesia, "en" = Inggris
+  // --- Bahasa & teks di layar ---
+  // "en" = English (untuk penonton seluruh dunia), "id" = Bahasa Indonesia
+  BAHASA: "en",
+  JUDUL: "TYPE YOUR COUNTRY!",
+  SUBJUDUL: "type your country in the comments to join",
+  // Versi Indonesia (salin ke atas bila BAHASA: "id"):
+  //   JUDUL: "KETIK NAMA NEGARAMU!", SUBJUDUL: "ketik nama negara di komentar untuk bergabung"
 
   // --- Poin (tinggi negara dalam meter) ---
   METER_PER_KOIN: 100,   // 1 koin gift (mis. Rose) = 100 m
@@ -24,11 +27,12 @@ window.GAME_CONFIG = {
 
   // Daftar keterangan di pojok kanan atas (hanya tampilan)
   KETERANGAN: [
-    { ikon: "🌹", teks: "1 koin = 100 m" },
-    { ikon: "❤️", teks: "100 like = 100 m" },
+    { ikon: "🌹", teks: "1 coin = 100 m" },
+    { ikon: "❤️", teks: "100 likes = 100 m" },
     { ikon: "➕", teks: "follow = 50 m" },
     { ikon: "↗️", teks: "share = 30 m" },
   ],
+  // Versi Indonesia: "1 koin = 100 m", "100 like = 100 m", "follow = 50 m", "share = 30 m"
 
   // --- Ronde ---
   DURASI_RONDE_DETIK: 300,  // 0 = tanpa ronde (skor terus bertambah)
