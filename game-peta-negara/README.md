@@ -8,6 +8,7 @@ Game peta dunia ini meniru konsep live "country battle":
 - **Papan peringkat 10 negara**, mahkota 👑 untuk negara pemimpin, timer ronde, dan **layar pemenang** berisi 3 "pahlawan negara" penyumbang terbanyak.
 - Gift yang dikirim sebelum penonton memilih negara **tetap disimpan** dan dihitung setelah ia mengetik negaranya.
 - Skor tersimpan otomatis, jadi aman kalau halaman tidak sengaja di-refresh.
+- **Musik latar & efek suara** dibuat langsung oleh game (tanpa file rekaman, jadi aman dari klaim hak cipta musik). Lihat bagian *Suara* di bawah.
 
 Tampilan dibuat **vertikal 9:16 (1080×1920)** untuk LIVE dari PC dengan mode portrait.
 
@@ -49,6 +50,30 @@ Tampilan dibuat **vertikal 9:16 (1080×1920)** untuk LIVE dari PC dengan mode po
 
 Untuk **OBS**, tambahkan **Browser Source**, centang *Local file*, pilih `index.html`, dan isi ukuran **1080 × 1920**.
 
+## Suara
+
+Semua suara disintesis langsung oleh game:
+
+| Kejadian | Suara |
+|---|---|
+| Musik latar | Musik bernuansa "strategi/epik" yang terus berputar. Makin ramai saat banyak gift dan saat 30 detik terakhir ronde. |
+| Penonton bergabung | "pop" + denting |
+| Gift kecil (< 10 koin) | Lonceng naik; makin panjang combo, makin banyak nadanya |
+| Gift sedang (10–29 koin) | Hujan koin + akor |
+| Gift besar (≥ 30 koin) | Whoosh → dentuman → fanfare terompet. Musik otomatis dikecilkan sesaat. |
+| Gift raksasa (≥ 900 koin) | Gulungan drum + fanfare panjang |
+| Follow / share | Ding-dong / whoosh |
+| Negara pemimpin berganti | Terompet pendek |
+| 10 detik terakhir | Detak hitung mundur |
+| Pemenang ronde | Fanfare kemenangan |
+
+- **Chrome/Edge biasa:** klik sekali di layar game (atau tombol kuning *"Klik untuk menyalakan suara"*), karena browser melarang suara otomatis.
+- **OBS Browser Source:** suara langsung jalan. Centang *Control audio via OBS* agar volumenya bisa diatur di mixer OBS.
+- **TikTok LIVE Studio + Window Capture:** suara browser masuk lewat audio desktop/speaker. Pastikan audio sistem ikut tertangkap di pengaturan audio LIVE Studio.
+- Tombol **M** menyalakan/mematikan musik, tombol **S** menyalakan/mematikan efek.
+- Volume dan pilihan suara diatur di `config.js`: `VOLUME_MUSIK`, `VOLUME_EFEK`, `SUARA_LIKE`.
+- **Mau pakai musik sendiri?** Taruh mp3 bebas hak cipta di folder game (mis. `musik/latar.mp3`) lalu isi `MUSIK_FILE: "musik/latar.mp3"`. Efek tertentu juga bisa diganti, mis. `EFEK_FILE: { giftBesar: "suara/wow.mp3" }`.
+
 ## Coba dulu sebelum LIVE
 
 Buka `index.html?demo=1` untuk melihat simulasi penonton palsu, atau tekan tombol berikut saat game terbuka:
@@ -59,6 +84,7 @@ Buka `index.html?demo=1` untuk melihat simulasi penonton palsu, atau tekan tombo
 | **J** / **G** / **L** | tes gabung / gift / like |
 | **N** | selesaikan ronde sekarang |
 | **R** | reset semua skor |
+| **M** / **S** | musik / efek suara on/off |
 | **H** | tampil/sembunyikan bantuan |
 
 ## Mengatur game

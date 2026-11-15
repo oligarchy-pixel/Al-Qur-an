@@ -167,3 +167,10 @@ html, body {
 #status { position: absolute; z-index: 950; left: 16px; top: 16px; font-size: 18px; padding: 4px 10px; border-radius: 10px; background: rgba(0,0,0,.5); }
 #help { position: absolute; z-index: 950; left: 16px; top: 56px; font-size: 20px; line-height: 1.5; padding: 10px 14px; border-radius: 12px; background: rgba(0,0,0,.75); }
 .hidden { display: none !important; }
+
+#soundUnlock {
+  position: absolute; z-index: 960; left: 50%; top: 200px; transform: translateX(-50%);
+  font: 800 26px/1 inherit; font-family: inherit; color: #111; background: var(--gold);
+  border: none; border-radius: 30px; padding: 14px 26px; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0,0,0,.5); animation: blink 1.6s infinite;
+}

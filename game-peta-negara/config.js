@@ -46,5 +46,19 @@ window.GAME_CONFIG = {
   ZOOM_MAKS: 6,
   JEDA_KAMERA_DETIK: 2.5,   // jarak minimal antar perpindahan kamera
   AVATAR_PER_NEGARA: 14,    // foto profil maksimal di dalam satu negara
-  SUARA: true,              // bunyi kecil saat ada gift/gabung
+
+  // --- Suara ---
+  // Musik & efek dibuat langsung oleh game (tanpa file rekaman, aman dari klaim hak cipta).
+  // Browser biasa: klik sekali di layar game agar suara menyala. OBS: otomatis.
+  SUARA: true,              // efek suara (gift, gabung, follow, pemimpin, hitung mundur, pemenang)
+  MUSIK: true,              // musik latar
+  VOLUME_MUSIK: 0.45,       // 0 sampai 1
+  VOLUME_EFEK: 0.8,         // 0 sampai 1
+  SUARA_LIKE: false,        // bunyi kecil tiap like (bisa ramai, default mati)
+  // Pakai musik sendiri (mp3 bebas hak cipta), mis. "musik/latar.mp3". Kosong = musik bawaan.
+  MUSIK_FILE: "",
+  // Ganti efek tertentu dengan file sendiri, mis. { giftBesar: "suara/wow.mp3" }
+  // Nama efek: gabung, giftKecil, giftSedang, giftBesar, giftMega, follow, share, like,
+  //            pemimpin, tik, tikAkhir, menang
+  EFEK_FILE: {},
 };

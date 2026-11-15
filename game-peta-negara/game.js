@@ -285,7 +285,7 @@
       if (old) { refreshCountryStyle(old); updateLabel(old); }
       if (newLeader) {
         refreshCountryStyle(newLeader); updateLabel(newLeader);
-        if (old) toast(`👑 ${esc(cname(newLeader))} memimpin!`, newLeader);
+        if (old) { toast(`👑 ${esc(cname(newLeader))} memimpin!`, newLeader); SFX("pemimpin"); }
       }
     }
     const top = list.slice(0, 10);
@@ -330,19 +330,8 @@
     bigT = setTimeout(() => el.classList.add("hidden"), 4000);
   }
 
-  /* ---------- Suara ---------- */
-  let actx = null;
-  function beep(freq = 880, dur = 0.12, vol = 0.08) {
-    if (!CFG.SUARA) return;
-    try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      const o = actx.createOscillator(), g = actx.createGain();
-      o.type = "triangle"; o.frequency.value = freq;
-      g.gain.setValueAtTime(vol, actx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
-      o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + dur);
-    } catch (e) { /* abaikan */ }
-  }
+  /* ---------- Suara (lihat audio.js) ---------- */
+  const SFX = (name, arg) => { try { window.GameAudio && window.GameAudio.play(name, arg); } catch (e) { /* */ } };
 
   /* ---------- Kamera ---------- */
   let camQueue = [], lastMove = 0, tourIdx = 0;
@@ -405,7 +394,7 @@
     feed(user, `${esc(user.nick)} bergabung ke <b>${esc(cname(iso))}</b>!`, iso);
     toast(`${esc(user.nick)} bergabung ke ${esc(cname(iso))}!`, iso);
     requestCam(iso, 1);
-    beep(660);
+    SFX("gabung");
     queueBoard();
   }
 
@@ -422,12 +411,12 @@
       const coins = (d.diamondCount || 1) * count;
       const m = coins * CFG.METER_PER_KOIN;
       const ok = credit(user, m, "gift");
+      if (window.GameAudio) window.GameAudio.gift(coins, count);
       if (ok) {
         feed(user, `${esc(user.nick)} mengirim ${esc(d.giftName || "gift")} x${count} <b>+${fmt(m)}</b>`, user.iso);
         hot(user.iso);
         requestCam(user.iso, 2);
-        if (coins >= CFG.GIFT_BESAR_KOIN) { bigGift(user, d.giftName || "gift", count, m, user.iso); beep(990, 0.3, 0.12); }
-        else beep(880);
+        if (coins >= CFG.GIFT_BESAR_KOIN) bigGift(user, d.giftName || "gift", count, m, user.iso);
       } else {
         toast(`@${esc(user.nick)} terima kasih! Ketik nama negaramu dulu 🌍`);
       }
@@ -435,15 +424,18 @@
     like(u, d) {
       const user = upsertUser(u);
       credit(user, (d.likeCount || 1) * CFG.METER_PER_LIKE, "like");
+      if (CFG.SUARA_LIKE) SFX("like");
     },
     follow(u) {
       const user = upsertUser(u);
       const ok = credit(user, CFG.METER_FOLLOW, "follow");
+      SFX("follow");
       feed(user, `${esc(user.nick)} follow ${ok ? `<b>+${fmt(CFG.METER_FOLLOW)}</b>` : "— ketik negaramu!"}`, user.iso);
     },
     share(u) {
       const user = upsertUser(u);
       const ok = credit(user, CFG.METER_SHARE, "share");
+      SFX("share");
       feed(user, `${esc(user.nick)} membagikan LIVE ${ok ? `<b>+${fmt(CFG.METER_SHARE)}</b>` : ""}`, user.iso);
     },
   };
@@ -518,7 +510,7 @@
   }
 
   /* ---------- Ronde ---------- */
-  let inWinner = false;
+  let inWinner = false, lastLeft = -1;
   function startRound() {
     if (CFG.DURASI_RONDE_DETIK > 0) S.roundEnd = Date.now() + CFG.DURASI_RONDE_DETIK * 1000;
     dirty = true;
@@ -549,7 +541,7 @@
       : "";
     w.classList.remove("hidden");
     flyTo(iso);
-    beep(523, 0.2); setTimeout(() => beep(659, 0.2), 200); setTimeout(() => beep(784, 0.4), 400);
+    SFX("menang");
     setTimeout(() => {
       w.classList.add("hidden");
       inWinner = false;
@@ -566,6 +558,11 @@
     if (left <= 0) { endRound(); left = 0; }
     t.textContent = `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
     t.classList.toggle("urgent", left <= 10);
+    if (left !== lastLeft) {
+      if (left > 0 && left <= 10) SFX(left <= 3 ? "tikAkhir" : "tik");
+      if (left === 30 && window.GameAudio) window.GameAudio.boost(0.6); // musik makin ramai menjelang akhir
+      lastLeft = left;
+    }
   }, 250);
 
   /* ---------- Mode demo / tes ---------- */
@@ -601,6 +598,8 @@
     const tu = { uniqueId: "tester", nickname: "Tester" };
     if (k === "d") toggleDemo();
     else if (k === "h") $("#help").classList.toggle("hidden");
+    else if (k === "m" && window.GameAudio) toast(window.GameAudio.toggleMusic() ? "🎵 Musik nyala" : "🔇 Musik mati");
+    else if (k === "s" && window.GameAudio) toast(window.GameAudio.toggleSfx() ? "🔊 Efek suara nyala" : "🔇 Efek suara mati");
     else if (k === "j") dispatch("chat", { ...tu, comment: rnd(DEMO_ISO) === "ID" ? "Indonesia" : COUNTRIES[rnd(DEMO_ISO)].name });
     else if (k === "g") dispatch("gift", { ...tu, giftName: "Doughnut", diamondCount: 30, giftType: 2, repeatCount: 1, repeatEnd: true });
     else if (k === "l") dispatch("like", { ...tu, likeCount: 50 });
