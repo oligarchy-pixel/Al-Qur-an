@@ -277,6 +277,7 @@
     sfx("reveal"); renderBoard();
     lateUntil = Date.now() + LATE_SEC * 1000;
     if (winners.length) confetti(els[Q.correct]);
+    if (window.Runner) Runner.celebrate(winners.length ? `✅ ${"ABCD"[Q.correct]} · ${winners.length} 🏆` : `✅ ${"ABCD"[Q.correct]}`);
   }
   function champions() {
     phase = "c"; phaseEnd = Date.now() + 9000;
@@ -342,6 +343,7 @@
     if (answers.has(raw.id)) return;
     answers.set(raw.id, a); order.push(raw.id);
     flyChip(u.n, a);
+    if (window.Runner) Runner.spawn(u.n, "date");
     if (late) {                      // jawaban terlambat (karena siaran tertinggal) tetap dihitung, tanpa bonus kecepatan
       if (a === Q.correct) { u.p += 10; dirty = true; queueBoard(); say(T.correct(1, esc(u.n)), "green", 3); }
       const el = document.querySelectorAll(".opt")[a]; if (el) el.querySelector(".n").textContent = String((+el.querySelector(".n").textContent || 0) + 1);
@@ -402,6 +404,7 @@
       stage.append(pop); setTimeout(() => pop.remove(), 1700);
     }
     sfx("dz"); dzRender(hits[0].k); queueBoard();
+    if (window.Runner) Runner.spawn(u.n, "star");
     if (S.total >= S.target && !goalBusy) {
       goalBusy = true;
       const o = $("#over");
@@ -410,6 +413,7 @@
       S.target += TARGET_STEP;
       o.querySelector(".t").textContent = T.goalNext(num(S.target));
       o.classList.add("show"); sfx("goal");
+      if (window.Runner) Runner.celebrate("MasyaAllah! 🤲");
       setTimeout(() => { o.classList.remove("show"); goalBusy = false; dzRender(); }, 6000);
     }
   }

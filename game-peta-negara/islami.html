@@ -103,6 +103,7 @@
   #sky { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
   .lantern { position: absolute; bottom: -80px; font-size: 44px; opacity: 0; animation: floatUp linear infinite; pointer-events: none; }
   .dzpop { position: absolute; z-index: 7; left: 50%; font-size: 34px; font-weight: 900; color: var(--gold); white-space: nowrap; animation: rise 1.6s ease-out forwards; text-shadow: 0 3px 8px #000; }
+  #run { position: absolute; left: 0; top: 1500px; width: 1080px; height: 405px; border-top: 3px solid rgba(242,199,92,.45); }
   .hidden { display: none !important; }
 </style>
 </head>
@@ -128,12 +129,14 @@
     <div id="tbar"><div id="tfill"></div></div>
     <div id="cards"></div>
   </div>
+  <canvas id="run"></canvas>
   <div id="banner"></div>
   <div id="board"></div>
   <div id="over"><div class="card"><h2></h2><div class="big"></div><div class="t"></div></div></div>
 </div>
 <script src="config.js"></script>
 <script src="islami-data.js"></script>
+<script src="runner.js"></script>
 <script src="islami.js"></script>
 </body>
 </html>
