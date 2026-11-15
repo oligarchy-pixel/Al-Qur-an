@@ -59,7 +59,9 @@ wss.on("connection", (ws) => {
 });
 server.listen(PORT, () => {
   console.log("==============================================");
-  console.log(` Server siap. Buka di Chrome:  http://localhost:${PORT}/`);
+  console.log(` Server siap. Buka di Chrome:`);
+  console.log(`   Versi RINGAN (HP biasa) : http://localhost:${PORT}/lite.html`);
+  console.log(`   Versi PETA (HP kuat)    : http://localhost:${PORT}/`);
   console.log(" Biarkan jendela ini tetap berjalan selama LIVE.");
   console.log("==============================================");
 });
@@ -71,7 +73,7 @@ const conn = new TikTokLiveConnection(username, opts);
 
 for (const [name, ev] of [
   ["chat", WebcastEvent.CHAT], ["gift", WebcastEvent.GIFT], ["like", WebcastEvent.LIKE],
-  ["follow", WebcastEvent.FOLLOW], ["share", WebcastEvent.SHARE],
+  ["follow", WebcastEvent.FOLLOW], ["share", WebcastEvent.SHARE], ["member", WebcastEvent.MEMBER],
 ]) {
   conn.on(ev, (data) => {
     broadcast(name, data);

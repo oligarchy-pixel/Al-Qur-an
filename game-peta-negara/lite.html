@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Country Race Lite</title>
+<style>
+  /* Versi ringan: tanpa peta, tanpa blur/bayangan berat. Animasi hanya transform & opacity. */
+  :root { --gold: #ffd54a; --pink: #ff3b8d; --muted: rgba(255,255,255,.7); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #071526; color: #fff; touch-action: none; }
+  body { position: fixed; inset: 0; font-family: "Segoe UI", Roboto, Arial, sans-serif; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1080px; height: 1920px; transform-origin: 0 0; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 30%, #17406b 0%, #0a2340 55%, #071526 100%); }
+  #status { position: absolute; left: 16px; top: 16px; font-size: 20px; padding: 4px 12px; border-radius: 10px; background: rgba(0,0,0,.5); z-index: 9; }
+  #head { position: absolute; top: 290px; left: 0; right: 0; text-align: center; }
+  #title { font-size: 66px; font-weight: 900; letter-spacing: 1px; }
+  #title span { color: var(--gold); }
+  #sub { margin-top: 6px; font-size: 27px; font-weight: 700; color: var(--muted); }
+  #timer { display: inline-block; margin-top: 12px; font-size: 40px; font-weight: 900; background: rgba(0,0,0,.45); border-radius: 14px; padding: 2px 22px; font-variant-numeric: tabular-nums; }
+  #timer.urgent { color: #ff5252; }
+  #banner { position: absolute; left: 40px; right: 40px; top: 540px; height: 86px; }
+  .msg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 14px;
+    background: rgba(0,0,0,.6); border: 3px solid var(--pink); border-radius: 22px; font-size: 34px; font-weight: 800;
+    transition: transform .35s, opacity .35s; white-space: nowrap; overflow: hidden; padding: 0 20px; }
+  .msg img { width: 64px; height: 48px; border-radius: 6px; flex: none; }
+  .msg.gift { border-color: var(--gold); color: var(--gold); }
+  .msg.hello { border-color: #3be0ff; }
+  .msg.out { opacity: 0; transform: translateY(-20px); }
+  .msg.in { opacity: 0; transform: translateY(20px); }
+  .msg span { overflow: hidden; text-overflow: ellipsis; }
+  #race { position: absolute; left: 30px; right: 30px; top: 650px; height: 880px; }
+  .row { position: absolute; left: 0; right: 0; height: 98px; display: flex; align-items: center; gap: 14px;
+    background: rgba(255,255,255,.07); border-radius: 18px; padding: 0 18px 0 12px; transition: transform .6s ease, opacity .4s; will-change: transform; }
+  .row.first { background: rgba(255,213,74,.16); }
+  .rk { width: 52px; text-align: center; font-size: 36px; font-weight: 900; color: var(--muted); flex: none; }
+  .row.first .rk { color: var(--gold); }
+  .row img { width: 88px; height: 66px; border-radius: 8px; flex: none; }
+  .info { width: 250px; flex: none; line-height: 1.05; overflow: hidden; }
+  .nm { font-size: 32px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pl { font-size: 22px; color: var(--muted); font-weight: 700; }
+  .track { flex: 1; height: 30px; background: rgba(255,255,255,.08); border-radius: 15px; overflow: hidden; }
+  .bar { height: 100%; width: 100%; border-radius: 15px; transform-origin: left; transform: scaleX(0); transition: transform .6s ease; }
+  .mt { width: 190px; text-align: right; font-size: 32px; font-weight: 900; color: var(--gold); flex: none; font-variant-numeric: tabular-nums; }
+  .pop { animation: pop .5s; }
+  @keyframes pop { 40% { transform: var(--y) scale(1.04); } }
+  #empty { position: absolute; top: 250px; left: 0; right: 0; text-align: center; font-size: 40px; font-weight: 800; color: var(--muted); line-height: 1.5; }
+  #winner { position: absolute; inset: 0; background: rgba(0,0,0,.72); display: none; align-items: center; justify-content: center; z-index: 8; }
+  #winner.show { display: flex; }
+  .card { text-align: center; background: #10223c; border: 5px solid var(--gold); border-radius: 30px; padding: 40px 60px; min-width: 760px; }
+  .card h2 { margin: 0; font-size: 50px; color: var(--gold); }
+  .card img { width: 300px; height: 225px; border-radius: 12px; margin: 24px auto 8px; display: block; }
+  .card .n { font-size: 72px; font-weight: 900; }
+  .card .m { font-size: 44px; font-weight: 800; color: var(--gold); }
+  .card .t { margin-top: 18px; font-size: 30px; color: var(--muted); line-height: 1.5; }
+  #tap { position: absolute; top: 190px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #111; font-size: 28px; font-weight: 900; border: 0; border-radius: 30px; padding: 12px 26px; z-index: 9; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="status"></div>
+  <button id="tap" class="hidden"></button>
+  <div id="head">
+    <div id="title"></div>
+    <div id="sub"></div>
+    <div id="timer">--:--</div>
+  </div>
+  <div id="banner"></div>
+  <div id="race"><div id="empty"></div></div>
+  <div id="winner"><div class="card"><h2></h2><img alt=""><div class="n"></div><div class="m"></div><div class="t"></div></div></div>
+</div>
+<script src="config.js"></script>
+<script src="data/countries.js"></script>
+<script src="lite.js"></script>
+</body>
+</html>

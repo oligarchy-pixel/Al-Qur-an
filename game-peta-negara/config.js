@@ -22,6 +22,7 @@ window.GAME_CONFIG = {
   METER_PER_LIKE: 1,     // 100 like = 100 m
   METER_FOLLOW: 50,      // follow = 50 m
   METER_SHARE: 30,       // share = 30 m
+  METER_KOMENTAR: 5,     // (versi Lite) tiap komentar pemain = 5 m (maks. 1x per 2 detik per orang)
   METER_GABUNG: 10,      // bonus saat pertama kali bergabung
   GIFT_BESAR_KOIN: 30,   // gift senilai >= ini koin tampil besar di tengah layar
 

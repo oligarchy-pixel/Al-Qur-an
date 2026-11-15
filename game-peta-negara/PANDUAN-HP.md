@@ -12,6 +12,8 @@ Chrome (menampilkan game)  →  disiarkan ke penonton lewat TikTok "Mobile Gamin
 
 ---
 
+> 💡 **HP spesifikasinya biasa/rendah?** Pakai **versi Lite**: buka **`localhost:21214/lite.html`** (bukan `localhost:21214`). Versi ini tanpa peta, jauh lebih ringan, otomatis menyapa penonton baru, dan setiap komentar pemain menambah poin.
+
 ## BAGIAN A: Cek syarat dulu (2 menit)
 
 1. Buka **TikTok** → tekan **＋** di bawah → geser ke **LIVE**.
