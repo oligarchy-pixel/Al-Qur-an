@@ -35,8 +35,9 @@ const server = http.createServer((req, res) => {
   let p = decodeURIComponent((req.url || "/").split("?")[0]);
   // daftar mp3 di folder game/quran (untuk bacaan milik sendiri, mis. maqam Jiharkah)
   if (p === "/quran-list") {
+    const dir = /[?&]dir=sholawat\b/.test(req.url || "") ? "sholawat" : "quran";   // hanya folder yang diizinkan
     let files = [];
-    try { files = fs.readdirSync(path.join(GAME_DIR, "quran")).filter((f) => /\.(mp3|m4a|ogg|wav)$/i.test(f)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })); } catch (e) { /* folder belum ada */ }
+    try { files = fs.readdirSync(path.join(GAME_DIR, dir)).filter((f) => /\.(mp3|m4a|ogg|wav)$/i.test(f)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })); } catch (e) { /* folder belum ada */ }
     res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-cache" });
     res.end(JSON.stringify(files)); return;
   }

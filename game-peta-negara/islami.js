@@ -164,16 +164,21 @@
   const SURAH = { 1: "Al-Fatihah", 2: "Al-Baqarah", 3: "Ali 'Imran", 12: "Yusuf", 18: "Al-Kahf", 19: "Maryam", 32: "As-Sajdah", 36: "Yasin",
     48: "Al-Fath", 50: "Qaf", 55: "Ar-Rahman", 56: "Al-Waqi'ah", 67: "Al-Mulk", 73: "Al-Muzzammil", 76: "Al-Insan", 78: "An-Naba'",
     87: "Al-A'la", 89: "Al-Fajr", 93: "Ad-Duha", 94: "Asy-Syarh", 97: "Al-Qadr", 112: "Al-Ikhlas", 113: "Al-Falaq", 114: "An-Nas" };
-  const quranWanted = params.get("quran") !== "0" && CFG.QURAN !== false;
+  // Suara latar: ?latar=quran (bawaan) · ?latar=qasidah (instrumental orisinal) · ?latar=sholawat (mp3 milik sendiri di folder sholawat) · ?latar=0 (sunyi)
+  const LATAR = (params.get("latar") || CFG.LATAR || (params.get("quran") === "0" ? "0" : "quran")).toLowerCase();
+  const quranWanted = (LATAR === "quran" || LATAR === "sholawat") && CFG.QURAN !== false;
+  const qasidahWanted = LATAR === "qasidah";
+  const AUDIO_DIR = LATAR === "sholawat" ? "sholawat" : "quran";
   const qari = QARI[params.get("qari") || CFG.QURAN_QARI || "alafasy"] || QARI.alafasy;
   const qList = (params.get("surah") || (CFG.QURAN_SURAH || [1, 36, 55, 56, 67, 18, 19, 32, 78, 50, 2]).join(","))
     .split(",").map((n) => parseInt(n, 10)).filter((n) => n >= 1 && n <= 114);
   let QLOCAL = Array.isArray(CFG.QURAN_LOKAL) ? CFG.QURAN_LOKAL : [];  // mp3 milik sendiri, mis. ["quran/yasin.mp3"]
   // Otomatis: kalau folder game/quran berisi mp3 (mis. bacaan maqam Jiharkah), itulah yang diputar. ?quran=online → paksa dari internet.
+  if (LATAR === "sholawat") QLOCAL = [];
   if (!QLOCAL.length && params.get("quran") !== "online" && location.protocol.startsWith("http")) {
-    fetch("quran-list").then((r) => r.json()).then((list) => {
+    fetch("quran-list?dir=" + AUDIO_DIR).then((r) => r.json()).then((list) => {
       if (Array.isArray(list) && list.length) {
-        QLOCAL = list.map((f) => "quran/" + encodeURIComponent(f));
+        QLOCAL = list.map((f) => AUDIO_DIR + "/" + encodeURIComponent(f));
         qIdx = 0;
         if (qAudio.src && !qAudio.paused) qPlay(); else np.textContent = qLabel();
       }
@@ -189,15 +194,19 @@
   function duck(sec) { duckUntil = Math.max(duckUntil, performance.now() + sec * 1000 + 250); qAudio.volume = QBASE * 0.35; }
   setInterval(() => { if (performance.now() > duckUntil && qAudio.volume < QBASE) qAudio.volume = Math.min(QBASE, qAudio.volume + QBASE * 0.08); }, 60);
   function qSrc() {
+    if (LATAR === "sholawat" && !QLOCAL.length) return "";
     if (QLOCAL.length) return QLOCAL[qIdx % QLOCAL.length];
     return `https://cdn.islamic.network/quran/audio-surah/${qBitrate}/${qari[0]}/${qList[qIdx % qList.length]}.mp3`;
   }
   function qLabel() {
+    if (LATAR === "sholawat" && !QLOCAL.length) return "🎵 Folder sholawat masih kosong";
+    if (LATAR === "sholawat") return "🎵 " + decodeURIComponent(String(QLOCAL[qIdx % QLOCAL.length]).split("/").pop()).replace(/\.(mp3|m4a|ogg|wav)$/i, "").replace(/[_]+/g, " ");
     if (QLOCAL.length) return "🎧 " + decodeURIComponent(String(QLOCAL[qIdx % QLOCAL.length]).split("/").pop()).replace(/\.(mp3|m4a|ogg|wav)$/i, "").replace(/[_]+/g, " ");
     const n = qList[qIdx % qList.length];
     return `🎧 ${SURAH[n] ? "Surah " + SURAH[n] : "Surah " + n} · ${qari[1]}`;
   }
   function qPlay() {
+    if (LATAR === "sholawat" && !QLOCAL.length) { np.textContent = qLabel(); np.classList.remove("hidden"); return; }
     qAudio.src = qSrc();
     np.textContent = qLabel(); np.classList.remove("hidden");
     qAudio.play().then(() => { quranOn = true; qFails = 0; }).catch(() => {});
@@ -212,10 +221,14 @@
   qAudio.addEventListener("playing", () => { quranOn = true; });
   qAudio.addEventListener("pause", () => { if (!qAudio.ended) quranOn = false; });
 
-  if (quranWanted) tap.classList.remove("hidden");
+  if (quranWanted || qasidahWanted) tap.classList.remove("hidden");
   addEventListener("pointerdown", () => {
     if (quranWanted && !quranOn && (!qAudio.src || qAudio.paused)) { if (!qAudio.src) qPlay(); else qAudio.play().catch(() => {}); }
     try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state !== "running") ac.resume(); } catch (e) { /* */ }
+    if (qasidahWanted && window.Qasidah && ac && !Qasidah.playing) {
+      Qasidah.start(ac, Math.min(1, Math.max(0, Number(params.get("qvol") ?? CFG.QURAN_VOLUME ?? 0.3))));
+      np.textContent = "🥁 Qasidah instrumental (Maqam Hijaz)"; np.classList.remove("hidden");
+    }
     tap.classList.add("hidden");
     if (matchMedia("(pointer: coarse)").matches && !document.fullscreenElement && document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen({ navigationUI: "hide" }).then(() => {
