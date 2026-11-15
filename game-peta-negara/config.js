@@ -72,6 +72,7 @@ window.GAME_CONFIG = {
   QURAN: true,                  // false = tanpa bacaan Al-Quran (atau pakai alamat ?quran=0)
   QURAN_QARI: "alafasy",        // alafasy | husary | minshawi | sudais   (atau ?qari=husary)
   QURAN_SURAH: [1, 36, 55, 56, 67, 18, 19, 32, 78, 50, 2],  // urutan surah (atau ?surah=1,36,55)
+  VOLUME_EFEK_KUIS: 1,         // kekuatan bunyi kuiz (1 = keras, 1.5 = lebih keras) atau ?svol=1.5
   QURAN_VOLUME: 0.3,            // 0 sampai 1 (atau ?qvol=0.6) — bawaan 30%
   // Pakai mp3 milik sendiri (taruh di folder game/quran/): ["quran/yasin.mp3", "quran/ar-rahman.mp3"]
   QURAN_LOKAL: [],

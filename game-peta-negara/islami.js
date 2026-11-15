@@ -105,16 +105,33 @@
 
   /* ---------- Suara ringan (tanpa musik) ---------- */
   let ac = null;
-  const tone = (f, t, d, v = 0.1, type = "sine") => { const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g).connect(ac.destination); o.start(t); o.stop(t + d + 0.02); };
-  const SFX = {
-    tick: (t) => tone(1400, t, 0.05, 0.06, "square"),
-    reveal: (t) => [659, 784, 988].forEach((f, i) => tone(f, t + i * 0.1, 0.4, 0.1)),
-    dz: (t) => tone(880 + Math.random() * 300, t, 0.25, 0.05),
-    goal: (t) => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, t + i * 0.14, 0.6, 0.1)),
-    hello: (t) => tone(1047, t, 0.15, 0.05),
+  // Bunyi kuiz: keras & jelas (?svol=1.5 untuk lebih keras). Lewat kompresor supaya keras tanpa pecah.
+  const SVOL = Math.max(0, Number(params.get("svol") ?? CFG.VOLUME_EFEK_KUIS ?? 1));
+  let out = null;
+  const bus = () => {
+    if (out) return out;
+    const comp = ac.createDynamicsCompressor(); comp.threshold.value = -10; comp.ratio.value = 6; comp.attack.value = 0.003; comp.release.value = 0.15;
+    out = ac.createGain(); out.gain.value = 2.2 * SVOL; out.connect(comp); comp.connect(ac.destination);
+    return out;
   };
+  const tone = (f, t, d, v = 0.1, type = "sine") => { const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g).connect(bus()); o.start(t); o.stop(t + d + 0.02); };
+  const SFX = {
+    newq: (t) => { tone(784, t, 0.18, 0.16, "triangle"); tone(1047, t + 0.12, 0.3, 0.16, "triangle"); },       // soal baru
+    ans: (t) => tone(660 + Math.random() * 200, t, 0.08, 0.07, "triangle"),                                       // ada yang menjawab
+    tick: (t) => tone(1400, t, 0.07, 0.12, "square"),
+    reveal: (t) => [659, 784, 988, 1319].forEach((f, i) => tone(f, t + i * 0.1, 0.45, 0.16, "triangle")),
+    dz: (t) => tone(880 + Math.random() * 300, t, 0.3, 0.09),
+    goal: (t) => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, t + i * 0.14, 0.7, 0.16, "triangle")),
+    hello: (t) => tone(1047, t, 0.18, 0.08),
+  };
+  const DUR = { newq: 0.5, ans: 0.1, tick: 0.1, reveal: 0.8, dz: 0.3, goal: 1.3, hello: 0.2 };
   let lastS = 0;
-  const sfx = (n) => { if (CFG.SUARA === false || quranOn || !ac || ac.state !== "running") return; const now = performance.now(); if ((n === "dz" || n === "hello") && now - lastS < 150) return; lastS = now; try { SFX[n](ac.currentTime + 0.01); } catch (e) { /* */ } };
+  const sfx = (n) => {
+    if (CFG.SUARA === false || !ac || ac.state !== "running") return;
+    const now = performance.now(); if ((n === "dz" || n === "hello" || n === "ans") && now - lastS < 150) return; lastS = now;
+    try { SFX[n](ac.currentTime + 0.01); } catch (e) { /* */ }
+    if (n !== "ans" && n !== "dz" && n !== "tick") duck(DUR[n] || 0.5);
+  };
   const tap = $("#tap"); tap.textContent = T.tap; if (CFG.SUARA !== false) tap.classList.remove("hidden");
   /* ---------- Bacaan Al-Quran (diputar berulang-ulang) ----------
    * ?quran=0 → mati. ?qari=alafasy|husary|minshawi|sudais. ?surah=1,36,55 → daftar surah sendiri. ?qvol=0.8 → volume.
@@ -135,6 +152,10 @@
   qAudio.preload = "auto";
   qAudio.volume = Math.min(1, Math.max(0, Number(params.get("qvol") ?? CFG.QURAN_VOLUME ?? 0.9)));
   const np = $("#np");
+  // Ducking: kecilkan bacaan Al-Quran sesaat ketika bunyi kuiz berbunyi, lalu kembalikan perlahan
+  const QBASE = qAudio.volume; let duckUntil = 0;
+  function duck(sec) { duckUntil = Math.max(duckUntil, performance.now() + sec * 1000 + 250); qAudio.volume = QBASE * 0.35; }
+  setInterval(() => { if (performance.now() > duckUntil && qAudio.volume < QBASE) qAudio.volume = Math.min(QBASE, qAudio.volume + QBASE * 0.08); }, 60);
   function qSrc() {
     if (QLOCAL.length) return QLOCAL[qIdx % QLOCAL.length];
     return `https://cdn.islamic.network/quran/audio-surah/${qBitrate}/${qari[0]}/${qList[qIdx % qList.length]}.mp3`;
@@ -217,6 +238,7 @@
     phase = "q"; phaseEnd = Date.now() + Q_SEC * 1000;
     $("#qnum").textContent = T.q(((S.qn - 1) % ROUND_Q) + 1) + " / " + ROUND_Q;
     $("#qtext").textContent = Q.text;
+    sfx("newq");
     $("#opts").innerHTML = opts.map((o, i) => `<div class="opt"><b>${"ABCD"[i]}</b><span>${esc(optText(o.t))}</span><span class="n"></span></div>`).join("");
     renderBoard();
   }
@@ -256,7 +278,7 @@
     if (phase === "q") {
       $("#qfill").style.transform = `scaleX(${Math.max(0, (phaseEnd - now) / (Q_SEC * 1000))})`;
       $("#qinfo").textContent = T.left(left, answers.size);
-      if (left <= 3 && left > 0 && left !== quizTick.last) sfx("tick");
+      if (left <= 5 && left > 0 && left !== quizTick.last) sfx("tick");
       quizTick.last = left;
       if (now >= phaseEnd) reveal();
     } else if (phase === "r" && now >= phaseEnd) {
@@ -276,7 +298,7 @@
     if (a < 0) { greet(raw, true); return; }
     greeted.add(raw.id);
     if (answers.has(raw.id)) return;
-    answers.set(raw.id, a); order.push(raw.id);
+    answers.set(raw.id, a); order.push(raw.id); sfx("ans");
     $("#qinfo").textContent = T.left(Math.max(0, Math.ceil((phaseEnd - Date.now()) / 1000)), answers.size);
     void u;
   }
@@ -339,7 +361,7 @@
       else if (ev === "superchat" || ev === "follow" || (ev === "social" && /follow/i.test(d.displayType || ""))) say(T.thanks(esc(short(raw.nick))), "green", 4);
     } catch (e) { console.error(ev, e); }
   }
-  window.islamiGame = { dispatch, state: () => S };
+  window.islamiGame = { dispatch, state: () => S, quranAudio: () => qAudio };
 
   /* ---------- Koneksi ---------- */
   const WS_URL = params.get("ws") || (location.protocol.startsWith("http") ? `ws://${location.host}/` : CFG.WS_URL);
