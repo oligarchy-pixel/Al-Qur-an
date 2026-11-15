@@ -11,7 +11,9 @@ if [ ! -d node_modules/youtube-chat ] || [ ! -d node_modules/tiktok-live-connect
   npm install --no-audit --no-fund || exit 1
 fi
 # hentikan server lama yang mungkin masih berjalan (mencegah error EADDRINUSE)
-pgrep -f "mulai-(hp|youtube).sh" | grep -vx "$$" | xargs -r kill 2>/dev/null
+# hentikan skrip lama lewat file PID (aman: tidak pernah menghentikan dirinya sendiri)
+if [ -f .pid ]; then OLD=$(cat .pid); if [ -n "$OLD" ] && [ "$OLD" != "$$" ] && kill -0 "$OLD" 2>/dev/null; then kill "$OLD" 2>/dev/null; fi; fi
+echo $$ > .pid
 pkill -f "node server.js" 2>/dev/null && sleep 1
 command -v termux-wake-lock >/dev/null 2>&1 && termux-wake-lock
 # Bisa juga langsung dengan link live:  bash mulai-youtube.sh https://youtube.com/live/XXXXXXXXXXX
