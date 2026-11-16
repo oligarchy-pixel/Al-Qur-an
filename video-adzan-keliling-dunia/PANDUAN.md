@@ -41,6 +41,27 @@ beri *fade-out* 0,3 detik sebelum detik **Selesai**.
 **Kalau rekaman sebuah negara tidak didapat**, ganti dengan negara lain yang ada
 rekamannya dan beri tahu saya. Peta, bendera, dan label bisa saya render ulang.
 
+### Pesan yang tampil di tiap lafaz
+
+| No | Lafaz | Pesan | Sumber |
+|---|---|---|---|
+| 01 | Allāhu akbar | Apa pun kesibukanmu, Allah lebih besar. | — |
+| 02 | Allāhu akbar | Dunia yang kita kejar itu kecil di hadapan-Nya. | — |
+| 03 | Asyhadu an lā ilāha illallāh | Hanya kepada-Nya kita menyembah dan meminta. | QS. Al-Fatihah: 5 |
+| 04 | Asyhadu an lā ilāha illallāh | Inilah kalimat yang dibawa oleh seluruh nabi. | QS. Al-Anbiya: 25 |
+| 05 | Asyhadu anna Muḥammadar Rasūlullāh | Kita shalat seperti yang dicontohkan Nabi ﷺ. | HR. Bukhari |
+| 06 | Asyhadu anna Muḥammadar Rasūlullāh | Mencintai Nabi berarti mengikuti sunnahnya. | QS. Ali 'Imran: 31 |
+| 07 | Ḥayya ‘alaṣ-ṣalāh | Panggilan ini ditujukan untukmu, bukan orang lain. | — |
+| 08 | Ḥayya ‘alaṣ-ṣalāh | Shalat adalah amal pertama yang dihisab. | HR. At-Tirmidzi |
+| 09 | Ḥayya ‘alal-falāḥ | Kemenangan sejati dimulai dari sajadah. | — |
+| 10 | Ḥayya ‘alal-falāḥ | Beruntunglah orang yang khusyuk dalam shalatnya. | QS. Al-Mu'minun: 1–2 |
+| 11 | Aṣ-ṣalātu khairum minan-naum | Nikmat tidur tak sebanding dengan nikmat sujud. | — |
+| 12 | Aṣ-ṣalātu khairum minan-naum | Dua rakaat sebelum Subuh lebih baik dari dunia dan isinya. | HR. Muslim |
+| 13 | Allāhu akbar | Dibuka dengan kebesaran-Nya, ditutup dengan kebesaran-Nya. | — |
+| 14 | Lā ilāha illallāh | Semoga ini juga menjadi kalimat terakhir hidup kita. | HR. Abu Dawud |
+
+Pesan tanpa sumber adalah renungan, bukan kutipan dalil.
+
 ## 2. Cara menempel di CapCut / editor lain
 
 1. Impor `adzan-keliling-dunia.mp4` (efek suaranya sudah ikut).
