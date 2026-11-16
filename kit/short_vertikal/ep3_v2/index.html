@@ -1,0 +1,152 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+:root{--y:#e9f23a;--r:#ff8a5c;--g:#7fe0a0;--b:#7fd6ff;--cream:#ebe6d6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:#000;overflow:hidden;font-family:Inter,sans-serif;color:#fff}
+.ab{position:absolute}
+.ar{font-family:Amiri,serif;direction:rtl;unicode-bidi:isolate}
+.mono{font-family:'DejaVu Sans Mono',monospace;letter-spacing:.06em}
+.mk{background:linear-gradient(var(--y),var(--y)) no-repeat;background-size:0% 92%;background-position:left 60%;padding:0 .08em}
+.mk.on{color:#111}
+.w{display:inline-block;opacity:0;transform:translateY(16px);margin-right:.24em}
+.paper{background:var(--cream);color:#151515;border-radius:10px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.chip{display:inline-block;padding:10px 16px;border:2px solid var(--y);color:var(--y);font:600 22px 'DejaVu Sans Mono';letter-spacing:.04em;border-radius:6px}
+.card{border:4px solid var(--y);border-radius:22px;background:rgba(233,242,58,.07)}
+.num{font:900 34px 'DejaVu Sans Mono';color:var(--y)}
+#bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 35%,#16140a,#000 65%)}
+#hud{position:absolute;inset:0;z-index:50;pointer-events:none}
+#flash{position:absolute;inset:0;background:var(--y);opacity:0;z-index:60}
+</style></head><body>
+<div id="bg"></div><div id="stage" class="ab" style="inset:0"></div>
+<div id="hud">
+  <div class="ab mono" style="left:60px;top:150px;font-size:24px"><span style="color:var(--y)">●</span> EP 03 · TURUNNYA AL-QUR'AN</div>
+  <div class="ab mono" id="cnt" style="right:60px;top:150px;font-size:24px;color:var(--y)"></div>
+  <div class="ab mono" style="left:60px;top:1560px;font-size:24px">@alurziyadahku · Mengenal Al-Qur'an</div>
+  <div class="ab" style="left:60px;right:60px;top:1610px;height:6px;background:rgba(233,242,58,.2)"><div id="prog" style="height:100%;width:0;background:var(--y)"></div></div>
+</div><div id="flash"></div>
+<script>
+const TOTAL = 170, Y = '#e9f23a', R = '#ff8a5c', GR = '#7fe0a0', BL = '#7fd6ff';
+const CG = GR, CB = BL, CR = R;
+const ITEMS = [], SFX = [], CUTS = [];
+const S = document.getElementById('stage');
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), eo = x => 1 - Math.pow(1 - clamp(x), 3), eio = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const sfx = (t, type, g = 1) => SFX.push({ t: +t.toFixed(3), type, g });
+function getSFX() { return SFX; }
+function node(html, css) { const d = document.createElement('div'); d.className = 'ab'; d.style.cssText = css; d.innerHTML = html; d.style.opacity = 0; S.appendChild(d); return d; }
+function item(t0, t1, n, fn) { ITEMS.push({ t0, t1, n, fn }); return n; }
+function show(html, css, t0, t1, kind = 'up', snd) { const n = node(html, css); if (snd) sfx(t0, snd, .8);
+  return item(t0, t1, n, (lt, t) => { const k = eo(lt / .45), out = clamp((t1 - t) / .25); n.style.opacity = k * out;
+    n.style.transform = kind === 'up' ? `translateY(${(1 - k) * 50}px)` : kind === 'scale' ? `scale(${.8 + .2 * k})` : kind === 'left' ? `translateX(${(1 - k) * -80}px)` : kind === 'drop' ? `translateY(${(1 - k) * -90}px) rotate(${(1 - k) * -6}deg)` : ''; }); }
+// teks kinetik kata demi kata; [kata] distabilo pada marks[i]
+function kin(text, css, t0, t1, o = {}) {
+  const parts = []; text.replace(/\[([^\]]+)\]|([^\s\[\]]+)/g, (m, a, b) => { if (a) a.split(' ').forEach((w, j, A) => parts.push({ w, g: parts.mk = (j ? parts.mk : (parts.mk ?? -1) + 1), last: j === A.length - 1 })); else parts.push({ w: b, g: -1 }); });
+  const n = node(parts.map(p => `<span class="w${p.g >= 0 ? ' mk' : ''}" data-g="${p.g}">${p.w}</span>`).join(' '), css + `;font:${o.w || 800} ${o.fs || 52}px Inter;line-height:1.3;color:${o.c || '#fff'}`);
+  const W = [...n.querySelectorAll('.w')], iv = o.iv || .07, M = o.m || [];
+  W.forEach((w, i) => { if (i % 3 === 0) sfx(t0 + i * iv, 'tick', .45); });
+  M.forEach(m => sfx(m, 'mark', .8));
+  return item(t0, t1, n, (lt, t) => { n.style.opacity = clamp((t1 - t) / .25);
+    W.forEach((w, i) => { const k = eo((lt - i * iv) / .25); w.style.opacity = k; w.style.transform = `translateY(${(1 - k) * 16}px)`;
+      const g = +w.dataset.g; if (g >= 0 && M[g] != null) { const u = eo((t - M[g]) / .35); w.style.backgroundSize = `${u * 100}% 92%`; w.classList.toggle('on', u > .5); } }); }); }
+// arab muncul per kata
+function arw(text, css, t0, t1, dur, o = {}) { const parts = []; text.replace(/\[([^\]]+)\]|([^\s\[\]]+)/g, (m, a, b) => { if (a) a.split(' ').forEach(w => parts.push({ w, g: 1 })); else parts.push({ w: b, g: 0 }); });
+  const n = node(parts.map(p => `<span class="w${p.g ? ' mk' : ''}" style="margin:0 .12em">${p.w}</span>`).join(' '), css + ';font-family:Amiri,serif;direction:rtl'); n.classList.add('ar');
+  const W = [...n.querySelectorAll('.w')]; sfx(t0, 'whoosh', .5); if (o.mark) sfx(o.mark, 'mark', .8);
+  return item(t0, t1, n, (lt, t) => { n.style.opacity = clamp((t1 - t) / .25); W.forEach((w, i) => { const k = eo((lt - i * dur / W.length) / .35); w.style.opacity = k; w.style.transform = `translateY(${(1 - k) * 14}px)`;
+    if (w.classList.contains('mk') && o.mark) { const u = eo((t - o.mark) / .35); w.style.backgroundSize = `${u * 100}% 92%`; w.classList.toggle('on', u > .5); } }); }); }
+function sv(inner, css, w, h, t0, t1, dur = 1) { const n = node(`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible">${inner}</svg>`, css); sfx(t0, 'draw', .5);
+  return item(t0, t1, n, (lt, t) => { n.style.opacity = clamp(lt / .2) * clamp((t1 - t) / .25);
+    n.querySelectorAll('[data-d]').forEach(p => { const L = +p.dataset.d, k = eio((lt - +(p.dataset.del || 0)) / dur); p.style.strokeDasharray = L; p.style.strokeDashoffset = L * (1 - k); });
+    n.querySelectorAll('[data-f]').forEach(p => { p.style.opacity = eo((lt - +p.dataset.f) / .35); }); }); }
+const T = (x, y, s, o = {}) => `<text x="${x}" y="${y}" data-f="${o.f ?? 0}" text-anchor="${o.a || 'middle'}" font-family="Inter" font-weight="${o.fw || 900}" font-size="${o.fs || 34}" fill="${o.c || '#fff'}">${s}</text>`;
+function scene(t, cut = 'flash') { CUTS.push({ t, cut }); if (t > 0) sfx(t, cut === 'flash' ? 'whoosh' : 'click', .7); }
+const header = (no, title, t0, t1, c = Y) => show(`<div style="display:flex;align-items:center;gap:22px"><div style="width:110px;height:110px;border-radius:20px;background:${c};color:#111;font:900 56px Inter;display:flex;align-items:center;justify-content:center">${no}</div><div><div class="mono" style="font-size:24px;color:${c}">TAHAP KE-${+no}</div><div style="font:900 50px Inter;line-height:1.1;margin-top:6px">${title}</div></div></div>`, 'left:70px;top:250px;width:940px', t0, t1, 'left', 'stamp');
+const flow = (steps, top, t0s, t1) => steps.forEach(([e, s, c], i) => { show(`<div style="width:290px;height:250px;border:4px solid ${c};border-radius:20px;text-align:center;padding-top:26px;background:rgba(255,255,255,.03)"><div style="font-size:84px">${e}</div><div style="font:900 30px Inter;color:${c};margin-top:8px;line-height:1.15">${s}</div></div>`, `left:${60 + i * 340}px;top:${top}px`, t0s[i], t1, 'up', 'click');
+  if (i) show(`<div style="font:900 50px Inter;color:${Y}">→</div>`, `left:${i * 340 + 22}px;top:${top + 95}px`, t0s[i] - .15, t1, 'scale'); });
+const box2 = (c, inner) => `<div style="width:960px;border:5px solid ${c};border-radius:20px;padding:22px 28px">${inner}</div>`;
+const A = x => +(x - 84.0).toFixed(2), B = x => +(x - 116.9).toFixed(2); // audio Ep3 90.0–189.2 → 6.0–105.2 ; 222.1–282.6 → 105.2–165.7
+// tombol CTA: like, follow, subscribe
+function cta(t0, t1, top) { const n = node(`<div style="display:flex;gap:22px;justify-content:center">
+  <div class="b1" style="width:290px;height:150px;border:5px solid #ff4d6d;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="i" style="font-size:66px">🤍</div><div style="font:900 34px Inter;color:#ff4d6d">LIKE</div></div>
+  <div class="b2" style="width:290px;height:150px;border:5px solid ${Y};border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="i" style="font-size:60px">💬</div><div style="font:900 34px Inter;color:${Y}">COMMENT</div></div>
+  <div class="b3" style="width:290px;height:150px;border:5px solid #d7322b;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#d7322b"><div class="i" style="font-size:60px">🔔</div><div style="font:900 30px Inter;color:#fff">SUBSCRIBE</div></div></div>`, `left:60px;top:${top}px;width:960px`);
+  const [b1, b2, b3] = ['.b1', '.b2', '.b3'].map(s => n.querySelector(s)), T0 = [t0 + .5, t0 + 1.0, t0 + 1.5]; T0.forEach(t => sfx(t, 'click', 1));
+  return item(t0, t1, n, (lt, t) => { n.style.opacity = eo(lt / .3) * clamp((t1 - t) / .25);
+    [b1, b2, b3].forEach((b, i) => { const k = t - T0[i], pop = k > 0 && k < .35 ? 1 + .18 * Math.sin(k / .35 * Math.PI) : 1; b.style.transform = `scale(${pop})`; });
+    b1.querySelector('.i').textContent = t > T0[0] ? '❤️' : '🤍'; b1.style.background = t > T0[0] ? 'rgba(255,77,109,.18)' : '';
+    b2.querySelector('.i').textContent = t > T0[1] ? '✍️' : '💬'; b2.style.background = t > T0[1] ? 'rgba(233,242,58,.18)' : '';
+    b3.querySelector('.i').style.transform = t > T0[2] ? `rotate(${Math.sin(t * 24) * 18 * clamp(1 - (t - T0[2]) / 1.2)}deg)` : ''; }); }
+// panah memantul ke bawah: arahkan ke tautan video terkait (kiri bawah layar aplikasi)
+function arrowDown(t0, t1, txt, top) { const n = node(`<div style="display:flex;align-items:center;gap:20px"><div style="font:900 40px Inter;line-height:1.2;width:920px">${txt}</div></div><div class="ar2" style="position:absolute;left:30px;top:130px;font:900 120px Inter;color:${Y}">⬇</div>`, `left:70px;top:${top}px;width:960px;height:300px`);
+  sfx(t0, 'beep', .9); return item(t0, t1, n, (lt, t) => { n.style.opacity = eo(lt / .3) * clamp((t1 - t) / .25); n.querySelector('.ar2').style.transform = `translateY(${Math.abs(Math.sin(t * 5)) * 40}px)`; }); }
+
+
+// ======================================================= 0 COVER (0–1.5) · HOOK (1.5–3) · AJAKAN + ISI (3–6)
+scene(0, 'none');
+(() => { const n = node('<img src="cover.png" style="width:1080px;height:1920px;display:block">', 'left:0;top:0;width:1080px;height:1920px;z-index:40');
+  item(0, 1.5, n, (lt, t) => { n.style.opacity = clamp((1.5 - t) / .2); n.style.transform = `scale(${1 + .02 * lt})`; }); })();
+scene(1.5);
+show(`<div style="font:900 70px Inter;line-height:1.08">Al-Qur'an dulu<br><span style="color:#111;background:${CR};padding:0 .12em">TIDAK BERTITIK</span><br>& tidak berbaris?! 😳</div>`, 'left:70px;top:330px;width:940px', 1.55, 3.0, 'scale', 'impact');
+show(`<div style="font:900 52px Inter;color:${Y}">siapa yang menghimpun & menyusunnya? 👇</div>`, 'left:70px;top:760px;width:940px', 2.1, 3.0, 'up', 'beep');
+scene(3.0);
+show(`<div style="font:900 76px Inter;line-height:1.02">sebelum mulai…<br><span style="color:#111;background:${Y};padding:0 .12em">like · comment · sub</span> 🙏</div>`, 'left:70px;top:280px;width:940px', 3.05, 6.0, 'scale', 'impact');
+cta(3.3, 6.0, 520);
+show(`<div class="mono" style="font-size:26px;color:${Y}">DI VIDEO INI:</div><div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">${[['01', '📗', 'dihimpun · Abu Bakar & Zaid bin Tsabit'], ['02', '📑', "disusun · Utsman bin 'Affan"], ['03', '✒️', "titik & baris · 'Abdul Malik bin Marwan"]].map(([n, e, s]) => `<div style="display:flex;align-items:center;gap:18px;border-left:8px solid ${Y};background:rgba(233,242,58,.06);padding:12px 18px"><div class="num" style="font-size:28px">${n}</div><div style="font-size:44px">${e}</div><div style="font:900 32px Inter">${s}</div></div>`).join('')}</div>`, 'left:60px;top:720px;width:960px', 4.0, 6.0, 'up', 'tick');
+arrowDown(4.6, 6.0, `📺 video lengkapnya <span style="color:${Y}">klik di bawah ini</span>`, 1130);
+
+// ======================================================= PEMBUKA ISI · belum berwujud (audio 90.0–95.5)
+scene(6.0);
+kin('Nabi ﷺ wafat · Al-Qur\'an [belum ada wujudnya] sebagai kitab', 'left:70px;top:420px;width:940px', A(90.0), A(95.5), { fs: 58, iv: .06, m: [A(92.5)] });
+show(`<div style="display:flex;gap:20px">${[['🧠', 'hafalan sahabat'], ['🪨', 'batu'], ['🍃', 'daun'], ['🐪', 'kulit']].map(([e, s]) => `<div style="width:225px;height:210px;border:4px solid #fff;border-radius:18px;text-align:center;padding-top:22px"><div style="font-size:72px">${e}</div><div style="font:900 28px Inter;margin-top:6px">${s}</div></div>`).join('')}</div>`, 'left:60px;top:760px', A(91.0), A(95.5), 'up', 'tick');
+
+// ======================================================= 1 TAHAP 01 · ABU BAKAR & ZAID (audio 95.5–150.0)
+scene(A(95.5));
+header('01', 'ABU BAKAR ash-Shiddiq · menghimpun', A(95.5), A(150.0), Y);
+kin('kalau tidak dikumpulkan · [menyulitkan generasi] yang akan datang', 'left:70px;top:420px;width:940px', A(95.6), A(115.8), { fs: 48, iv: .05, m: [A(103.0)] });
+show(box2(CR, `<div class="mono" style="font-size:24px;color:${CR}">KEKHAWATIRAN</div><div style="font:900 40px Inter;margin-top:10px;line-height:1.3">yang hafal wafat → generasi berikutnya tak hafal → <span style="color:${CR}">Al-Qur'an bisa hilang</span></div>`), 'left:60px;top:680px', A(107.4), A(115.8), 'up', 'stamp');
+kin('bersama [Umar bin al-Khattab] · menyuruh [Zaid bin Tsabit]', 'left:70px;top:420px;width:940px', A(115.8), A(141.9), { fs: 50, iv: .06, m: [A(118.0), A(121.0)] });
+flow([['🧠', 'dari dada para sahabat', CB], ['🪨🍃', 'daun · kulit · batu', CB], ['📗', 'menjadi satu', CG]], 680, [A(126.0), A(131.0), A(136.0)], A(141.9));
+kin('Abu Bakar wafat → masa Umar · Al-Qur\'an [masih demikian adanya]', 'left:70px;top:420px;width:940px', A(141.9), A(150.0), { fs: 48, iv: .05, m: [A(146.0)] });
+show(`<div style="font:900 44px Inter;color:#111;background:${Y};border-radius:12px;padding:10px 22px">✓ lengkap · belum tersusun</div>`, 'left:70px;top:700px', A(144.0), A(150.0), 'scale', 'impact');
+
+// ======================================================= 2 TAHAP 02 · UTSMAN (audio 150.0–189.2)
+scene(A(150.0));
+header('02', "UTSMAN bin 'Affan · menyusun surah", A(150.0), A(189.2), CG);
+kin('menyusun kembali surah-surahnya [sesuai petunjuk Rasulullah] ﷺ', 'left:70px;top:420px;width:940px', A(151.6), A(178.3), { fs: 50, iv: .05, m: [A(155.0)] });
+show(box2(CB, `<div class="mono" style="font-size:24px;color:${CB}">ZAID BIN TSABIT</div><div style="font:900 40px Inter;margin-top:10px">lengkap · tapi belum tersusun</div>`), 'left:60px;top:680px', A(158.4), A(178.3), 'up', 'stamp');
+show(box2(CG, `<div class="mono" style="font-size:24px;color:${CG}">UTSMAN BIN 'AFFAN</div><div style="font:900 40px Inter;margin-top:10px">disusun seperti petunjuk Rasulullah ﷺ</div>`), 'left:60px;top:930px', A(166.7), A(178.3), 'up', 'stamp');
+[['01', 'الْفَاتِحَةُ'], ['02', 'الْبَقَرَةُ'], ['03', 'آلُ عِمْرَانَ'], ['…', 'dan seterusnya']].forEach(([n, s], i) => show(`<div style="width:960px;display:flex;align-items:center;gap:26px;border-left:8px solid ${CG};background:rgba(255,255,255,.04);padding:16px 22px"><div class="num" style="color:${CG}">${n}</div><div class="${i < 3 ? 'ar' : ''}" style="font:${i < 3 ? '700 54px Amiri' : '900 38px Inter'}">${s}</div></div>`, `left:60px;top:${430 + i * 140}px`, A(178.4 + i * 1.6), A(189.2), 'left', 'tick'));
+show(`<div style="font:900 44px Inter;color:#111;background:${Y};border-radius:12px;padding:10px 22px">jasa Khalifah Utsman 🤍</div>`, 'left:70px;top:1020px', A(185.5), A(189.2), 'scale', 'impact');
+
+// ======================================================= 3 TAHAP 03 · TITIK & BARIS (audio 222.1–282.6)
+scene(B(222.1));
+header('03', "TITIK & BARIS · 'Abdul Malik bin Marwan", B(222.1), B(282.6), CR);
+kin('surah sudah tersusun · tapi [belum bertitik] & [belum berbaris]', 'left:70px;top:420px;width:940px', B(222.1), B(236.4), { fs: 50, iv: .05, m: [B(225.0), B(228.0)] });
+show(`<div style="display:flex;gap:30px;align-items:center"><div style="width:440px;height:230px;border:4px solid ${CR};border-radius:20px;text-align:center;padding-top:20px"><div class="mono" style="font-size:24px;color:${CR}">DULU</div><div class="ar" style="font-size:80px;line-height:1;margin-top:28px">ٮسم</div></div><div style="font:900 60px Inter;color:${Y}">→</div><div style="width:440px;height:230px;border:4px solid ${CG};border-radius:20px;text-align:center;padding-top:20px"><div class="mono" style="font-size:24px;color:${CG}">SEKARANG</div><div class="ar" style="font-size:80px;line-height:1;margin-top:28px">بِسْمِ</div></div></div>`, 'left:60px;top:660px', B(226.0), B(236.4), 'up', 'stamp');
+show(`<div style="font:900 40px Inter;color:${CR}">orang yang tidak mengaji · tak pandai membacanya</div>`, 'left:70px;top:960px', B(230.2), B(236.4), 'up', 'beep');
+kin('Khalifah [\'Abdul Malik bin Marwan] · khalifah ke-10 · sekitar tahun [80 Hijriyah]', 'left:70px;top:420px;width:940px', B(236.4), B(260.6), { fs: 48, iv: .05, m: [B(238.0), B(246.0)] });
+show(box2(Y, `<div class="mono" style="font-size:24px;color:${Y}">MENURUT SEBAGIAN AHLI SEJARAH</div><div style="font:900 40px Inter;margin-top:10px;line-height:1.3">menyuruh para ulama memberi <span style="color:${Y}">titik</span> & <span style="color:${Y}">baris (harakat)</span></div>`), 'left:60px;top:700px', B(249.5), B(260.6), 'up', 'stamp');
+kin('salah satu ulamanya: [Syaikh Yahya bin Ya\'mar]', 'left:70px;top:420px;width:940px', B(260.6), B(282.6), { fs: 50, iv: .06, m: [B(264.0)] });
+show(`<div style="display:flex;gap:16px">${[['📚', 'tersusun'], ['•', 'bertitik'], ['َ', 'berharakat']].map(([e, s]) => `<div style="width:300px;height:220px;border:4px solid ${CG};border-radius:18px;text-align:center;padding-top:22px"><div style="font:900 76px Amiri;color:${CG}">${e}</div><div style="font:900 32px Inter;margin-top:6px">${s}</div></div>`).join('')}</div>`, 'left:60px;top:680px', B(268.1), B(282.6), 'up', 'tick');
+show(`<div style="font:900 42px Inter;color:#111;background:${Y};border-radius:12px;padding:10px 22px">mudah dibaca · jasa para pendahulu kita 🤍</div>`, 'left:70px;top:980px', B(277.9), B(282.6), 'scale', 'impact');
+
+// ======================================================= PENUTUP + CTA (165.7–170)
+scene(B(282.6));
+show(`<div style="display:flex;gap:16px">${[['01', '📗', 'dihimpun'], ['02', '📑', 'disusun'], ['03', '✒️', 'titik & baris']].map(([n, e, s]) => `<div style="width:300px;height:170px;border:4px solid ${Y};border-radius:16px;text-align:center;padding-top:12px"><div class="num" style="font-size:24px">${n}</div><div style="font-size:48px">${e}</div><div style="font:900 26px Inter">${s}</div></div>`).join('')}</div>`, 'left:60px;top:260px', B(282.7), TOTAL, 'scale', 'tick');
+cta(B(282.8), TOTAL, 480);
+arrowDown(B(283.2), TOTAL, `💬 tulis di komentar: sudah tahu sejarah ini?<br>tonton video lengkapnya → <span style="color:${Y}">klik di bawah ini</span>`, 700);
+
+// ======================================================= mesin waktu
+const HUDC = document.getElementById('cnt'), PROG = document.getElementById('prog'), FL = document.getElementById('flash');
+const ADAB = [[A(95.5), A(150.0), 'TAHAP 1/3'], [A(150.0), A(189.2), 'TAHAP 2/3'], [B(222.1), B(282.6), 'TAHAP 3/3']];
+window.setTime = t => {
+  for (const it of ITEMS) { const on = t >= it.t0 && t < it.t1; it.n.style.display = on ? '' : 'none'; if (on) it.fn(t - it.t0, t); }
+  document.getElementById('hud').style.opacity = t < 1.5 ? 0 : 1;
+  PROG.style.width = (t / TOTAL * 100) + '%'; const a = ADAB.find(a => t >= a[0] && t < a[1]); HUDC.textContent = a ? a[2] : '';
+  let f = 0; for (const c of CUTS) if (c.cut === 'flash' && t >= c.t && t < c.t + .25) f = .35 * (1 - (t - c.t) / .25); FL.style.opacity = f;
+  const z = 1 + .015 * Math.sin(t * .4); S.style.transform = `scale(${z})`;
+};
+setTime(0);
+</script></body></html>
