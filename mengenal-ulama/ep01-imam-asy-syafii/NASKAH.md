@@ -98,6 +98,8 @@
 Rujukan biografi klasik: *Siyar A'lam an-Nubala'* (adz-Dzahabi), *Manaqib asy-Syafi'i*
 (al-Baihaqi), *Tawali at-Ta'sis* (Ibnu Hajar al-'Asqalani).
 
+**Area aman YouTube Shorts:** semua tulisan diletakkan di atas ±1.400 px (dari 1.920) dan berjarak dari tepi kanan, supaya tidak tertutup judul, caption, dan tombol Shorts.
+
 **Adab visual:** video ini tidak menampilkan wajah atau sosok beliau. Yang tampil hanya
 peta, kaligrafi nama, dan kitab.
 
