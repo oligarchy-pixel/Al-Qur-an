@@ -1,127 +1,141 @@
-# Mengenal Ulama Dunia — Episod 03 (draf): Syeikh Yusuf al-Makassari rahimahullah
+# Mengenal Ulama Dunia — Episod 03: Syeikh Yusuf al-Makassari rahimahullah
 
-> **Status:** draf. Naskah dan sampul ini dibuat sebagai Episod 02, kemudian dipindah menjadi Episod 03. Teks "Episod 02" pada sampul dan pembayang episod seterusnya perlu dikemas kini sebelum dirender.
-
-**Durasi:** 2 minit 50 saat (170 saat) · **Format:** 9:16 · **Bahasa:** Melayu · **Jumlah kata narasi:** ±365
+**Durasi:** 2 minit 50 saat (170 saat, tidak melebihi 3 minit) · **Format:** 9:16 ·
+**Bahasa:** Melayu Malaysia · **Jumlah kata narasi:** ±375
 
 ## Cara merakam
 
-- Baca dengan **tenang, lembut dan penuh hormat**, lebih kurang 2–2,3 patah perkataan sesaat.
+- Baca dengan **tenang tetapi bertenaga**. Naskah ini padat, jadi kurangkan jeda panjang.
+- Pada pembukaan, **berhenti sejenak selepas "Alhamdulillah"** supaya penonton sempat mengucapkannya.
 - Sebut **"rahimahullah"** dengan jelas.
 - Berhenti ±1 saat pada setiap tanda **/ /**.
-- Tidak perlu tepat dengan lajur masa. Hantar rakaman, saya akan selaraskan animasi
-  dengan suara tuan dan tambah sari kata (subtitle).
-- Nama tempat: **Gowa** (Go-wa), **Tuanta Salamaka** (Tu-an-ta Sa-la-ma-ka),
-  **Zandvliet** (Zand-flit), **Ceylon** (Si-lon).
+- Hantar rakaman, saya akan selaraskan animasi dengan suara tuan, seperti Episod 02.
+- Sebutan: **Gowa** (Go-wa), **Tuanta Salamaka** (Tu-an-ta Sa-la-ma-ka),
+  **Zandvliet** (Zand-flit), **Ceylon** (Si-lon), **Tirtayasa** (Tir-ta-ya-sa).
 
 ---
 
 ## Naskah narasi
 
-### 1. Hook — 0:00–0:09
-> Seorang ulama dari Gowa, dibuang penjajah ke hujung benua Afrika.
-> Namun di sanalah Islam bertapak, dan namanya dikenang hingga hari ini. / /
+### 1. Hook — 0:00–0:10
+> Sebelum mula, ucapkan **Alhamdulillah** atas nikmat Islam. / /
+> Tahukah tuan-tuan, Islam di Afrika Selatan berakar daripada seorang tahanan Belanda
+> dari Makassar? / /
 
-### 2. Pembukaan siri dan ajakan ikuti — 0:09–0:17
-> Ini **Mengenal Ulama Dunia**, episod kedua.
-> Ikuti kami, supaya kita sama-sama mengenali para pewaris Nabi, satu demi satu. / /
+### 2. Pembukaan siri — 0:10–0:15
+> Ini **Mengenal Ulama Dunia**, episod ketiga. Ikuti kami supaya tidak terlepas. / /
 
-### 3. Zum ke Sulawesi, nama beliau — 0:17–0:30
-> Mari kita ke Sulawesi.
-> Di Gowa, pada tahun seribu enam ratus dua puluh enam Masihi, lahirlah
+### 3. Zum ke Sulawesi, biodata — 0:15–0:28
+> Mari ke Sulawesi.
+> Di Gowa, pada tahun seribu enam ratus dua puluh enam, lahirlah
 > **Muhammad Yusuf al-Makassari**, rahimahullah.
-> Masyarakat Makassar memanggil beliau **Tuanta Salamaka**, tuan guru kita yang selamat. / /
+> Rakyat Makassar menggelarnya **Tuanta Salamaka**, tuan guru kita yang selamat. / /
 
-### 4. Menuntut ilmu — 0:30–1:02
-> Sejak kecil, beliau mempelajari Al-Qur'an dan ilmu agama di tanah Gowa.
-> Pada usia lapan belas tahun, beliau belayar meninggalkan kampung halaman.
-> Beliau singgah di Banten dan Aceh, kemudian menyeberangi Lautan Hindi ke Yaman.
-> Dari sana ke Makkah dan Madinah, hingga ke Damsyik di negeri Syam.
-> Beliau berguru dengan ramai ulama besar, dan menerima ijazah beberapa tarekat,
-> antaranya Tarekat Khalwatiyah. / /
+### 4. Menuntut ilmu — 0:28–0:58
+> Beliau membesar di lingkungan istana Gowa dan mempelajari Al-Qur'an sejak kecil.
+> Pada usia lapan belas tahun, beliau belayar ke Banten, kemudian ke Aceh.
+> Seterusnya beliau menyeberangi Lautan Hindi ke Yaman, lalu ke Makkah dan Madinah,
+> dan berguru dengan Syeikh Ibrahim al-Kurani.
+> Di Damsyik, beliau menerima ijazah Tarekat Khalwatiyah.
+> Lebih kurang dua puluh tahun beliau merantau menuntut ilmu. / /
 
-### 5. Perjuangan di Banten — 1:02–1:20
-> Apabila pulang ke Nusantara, Gowa telah jatuh ke tangan Belanda.
-> Maka beliau menetap di Banten, menjadi guru dan penasihat Sultan Ageng Tirtayasa,
-> dan bersama-sama menentang penjajah VOC.
-> Hingga pada tahun seribu enam ratus lapan puluh tiga… beliau akhirnya ditangkap. / /
+### 5. Perjuangan di Banten — 0:58–1:20
+> Apabila pulang, Gowa telah tewas kepada Belanda.
+> Beliau menetap di Banten, menjadi mufti dan guru kepada Sultan Ageng Tirtayasa.
+> Apabila Banten diserang, beliau memimpin ribuan pengikut berperang secara gerila di
+> hutan Jawa Barat, hingga akhirnya ditangkap pada tahun seribu enam ratus lapan puluh
+> tiga. / /
 
-### 6. Ajakan like — 1:20–1:27
-> Kalau kisah ini menyentuh hati tuan-tuan, tekan butang like, supaya lebih ramai
-> yang mengenali beliau. / /
+### 6. Ajakan like — 1:20–1:25
+> Tekan like jika tuan-tuan mahu kisah ulama kita terus tersebar. / /
 
-### 7. Dibuang negeri — 1:27–1:58
-> Belanda membuang beliau jauh dari tanah air.
-> Mula-mula ke Ceylon, iaitu Sri Lanka.
-> Di sana beliau tetap mengajar dan menulis, dan jemaah haji dari Nusantara singgah
-> untuk menemui beliau.
-> Kerana pengaruhnya masih besar, beliau dibuang lebih jauh lagi, ke Tanjung Harapan
-> di Afrika Selatan, pada tahun seribu enam ratus sembilan puluh empat, bersama empat
-> puluh sembilan orang pengikut. / /
+### 7. Dibuang negeri — 1:25–1:53
+> Belanda takut akan pengaruhnya.
+> Beliau dibuang ke Ceylon, iaitu Sri Lanka.
+> Di sana beliau terus menulis risalah, dan jemaah haji dari Nusantara singgah menemuinya.
+> Kerana itu, Belanda membuangnya lebih jauh, ke Tanjung Harapan di hujung Afrika, pada
+> tahun seribu enam ratus sembilan puluh empat, bersama empat puluh sembilan orang ahli
+> keluarga dan pengikut. / /
 
-### 8. Di hujung Afrika — 1:58–2:15
-> Di Zandvliet, berhampiran Cape Town, beliau membina sebuah komuniti Muslim.
-> Beliau dianggap sebagai pengasas Islam di Afrika Selatan.
-> Beliau wafat di sana pada tahun seribu enam ratus sembilan puluh sembilan. / /
+### 8. Di hujung Afrika — 1:53–2:12
+> Di Zandvliet, beliau menghimpunkan hamba abdi dan orang buangan yang beragama Islam,
+> lalu mengajar mereka solat dan membaca Al-Qur'an.
+> Daripada komuniti kecil inilah, Islam bertapak di Afrika Selatan.
+> Beliau wafat pada dua puluh tiga Mei, seribu enam ratus sembilan puluh sembilan. / /
 
-### 9. Karya dan warisan — 2:15–2:32
-> Beliau meninggalkan banyak risalah, antaranya **Zubdat al-Asrar**, dan
-> **An-Nafhah as-Sailaniyyah** yang ditulis di Ceylon.
-> Makam beliau dimuliakan di Gowa dan di Cape Town.
-> Indonesia mengiktirafnya sebagai Pahlawan Nasional, dan Afrika Selatan turut
-> memberikan penghormatan negara. / /
+### 9. Warisan — 2:12–2:32
+> Pada tahun seribu tujuh ratus lima, jenazahnya dibawa pulang ke Gowa.
+> Hari ini makamnya diziarahi di dua negara.
+> Beliau meninggalkan berpuluh risalah, antaranya **Zubdat al-Asrar**.
+> Indonesia mengiktirafnya sebagai Pahlawan Nasional, dan Afrika Selatan turut memberikan
+> penghormatan kebangsaan kepadanya. / /
 
 ### 10. Penutup — 2:32–2:50
-> Dibuang dari tanah air, namun beliau tidak pernah berhenti berdakwah.
-> Semoga Allah merahmati beliau, dan menjadikan kita penyambung perjuangannya. / /
+> Di setiap tempat beliau dibuang, di situlah Islam tumbuh.
+> Semoga Allah merahmati beliau. / /
 > Ikuti, like dan langgan.
-> Dalam episod seterusnya, kita akan mengenali seorang imam ahli hadis dari Bukhara.
+> Episod seterusnya: seorang ulama muda dari Syam, yang kitabnya dibaca di hampir setiap
+> pondok.
 
 ---
 
-## Data ringkas (untuk kapsyen dan semakan)
+## Biodata (yang dipaparkan dalam video)
 
 | | |
 |---|---|
-| Nama | Muhammad Yusuf al-Makassari; gelaran *Tuanta Salamaka* (Gowa), *Syeikh Yusuf* (Afrika Selatan) |
-| Lahir | Gowa, Sulawesi Selatan, 1626 M / 1036 H |
-| Wafat | Zandvliet, Tanjung Harapan (Cape Town), Afrika Selatan, 23 Mei 1699 M / 1110 H |
-| Rihlah | 1644 belayar: Banten → Aceh → Yaman (Zabid) → Makkah → Madinah → Damsyik |
-| Tarekat | Antaranya Khalwatiyah (Damsyik); juga Naqsyabandiyah, Qadiriyah, Ba'alawiyah |
-| Perjuangan | Guru dan penasihat Sultan Ageng Tirtayasa, Banten; menentang VOC; ditangkap 1683 |
-| Pembuangan | Ceylon (Sri Lanka) 1684; Tanjung Harapan 1694 bersama 49 pengikut |
-| Karya | Antaranya *Zubdat al-Asrar*, *Taj al-Asrar*, *An-Nafhah as-Sailaniyyah* (ditulis di Ceylon) |
-| Makam | Lakiung, Katangka, Gowa (jenazah sebahagiannya dibawa pulang 1705) dan *kramat* di Macassar, Cape Town |
-| Penghormatan | Pahlawan Nasional Indonesia (1995); Afrika Selatan menganugerahkan *Order of the Companions of O.R. Tambo* (2005) — **sila semak semula sebelum disebut dalam kapsyen** |
+| Nama | Muhammad Yusuf al-Makassari (Syeikh Yusuf al-Taj al-Khalwati) |
+| Gelaran | *Tuanta Salamaka* (Gowa) · *Syeikh Yusuf* (Afrika Selatan) |
+| Lahir | 3 Julai 1626 M / 1036 H, Gowa, Sulawesi Selatan |
+| Wafat | 23 Mei 1699 M / 1110 H, Zandvliet, Tanjung Harapan (Cape Town) |
+| Usia | 72 tahun |
+| Makam | Lakiung, Katangka, Gowa (Indonesia) dan *kramat* di Macassar, Cape Town (Afrika Selatan) |
 
-Rujukan: Azyumardi Azra, *Jaringan Ulama Timur Tengah dan Kepulauan Nusantara*;
-Abu Hamid, *Syekh Yusuf Makassar: Seorang Ulama, Sufi dan Pejuang*.
+## Data dan rujukan
 
-Tarikh sebahagian peristiwa (misalnya tahun pulang ke Nusantara) berbeza antara sumber,
-jadi naskah sengaja tidak menyebut tahun yang dipertikaikan.
+| Peristiwa | Keterangan |
+|---|---|
+| 1644 | Belayar meninggalkan Gowa: Banten → Aceh → Yaman → Makkah → Madinah → Damsyik |
+| Guru | Antaranya Syeikh Ibrahim al-Kurani dan Syeikh Ahmad al-Qusyasyi (Madinah); Syeikh Ayyub al-Khalwati (Damsyik) |
+| Banten | Mufti dan guru Sultan Ageng Tirtayasa; memimpin perang gerila menentang VOC |
+| 1683 | Ditangkap Belanda |
+| 1684 | Dibuang ke Ceylon (Sri Lanka) |
+| 1694 | Tiba di Tanjung Harapan bersama 49 orang (ahli keluarga dan pengikut) |
+| 1699 | Wafat di Zandvliet |
+| 1705 | Jenazah dibawa pulang ke Gowa |
+| Karya | Berpuluh risalah dalam bahasa Arab, Bugis dan Makassar; antaranya *Zubdat al-Asrar*, *Taj al-Asrar*, *An-Nafhah as-Sailaniyyah* |
+| 1995 | Pahlawan Nasional Indonesia |
+| 2005 | Penghormatan kebangsaan Afrika Selatan (*Order of the Companions of O.R. Tambo*) — **sila semak sebelum menyebut nama anugerah dalam kapsyen** |
 
-**Area aman YouTube Shorts:** semua tulisan diletakkan di atas ±1.400 px (daripada 1.920)
-dan berjarak dari tepi kanan.
+Rujukan: Azyumardi Azra, *Jaringan Ulama Timur Tengah dan Kepulauan Nusantara Abad
+XVII dan XVIII*; Abu Hamid, *Syekh Yusuf Makassar: Seorang Ulama, Sufi dan Pejuang*.
 
-**Adab visual:** video ini tidak menampilkan wajah atau sosok beliau.
+- Tarikh pulang ke Nusantara berbeza antara sumber, jadi naskah tidak menyebut tahunnya.
+- "Ribuan pengikut" dalam perang gerila: sumber menyebut angka yang berbeza-beza, jadi
+  naskah tidak menyebut angka tepat.
+
+**Tentang gambar tokoh:** tiada gambar sebenar Syeikh Yusuf. Video menggunakan medalion
+kaligrafi nama beliau dan ilustrasi peta.
+
+**Area aman YouTube Shorts:** semua tulisan di atas ±1.400 px (daripada 1.920) dan
+berjarak dari tepi kanan.
 
 ---
 
 ## Kapsyen
 
-> Dilahirkan di Gowa, menuntut ilmu hingga ke Makkah, Madinah dan Damsyik, berjuang
-> menentang penjajah di Banten… lalu dibuang ke Sri Lanka dan Afrika Selatan.
-> Namun di setiap tempat beliau dibuang, di situlah ilmu dan dakwah tumbuh.
+> Ucapkan Alhamdulillah atas nikmat Islam 🤍
+>
+> Lahir di Gowa, menuntut ilmu hingga ke Madinah dan Damsyik, memimpin perang gerila di
+> Banten… lalu dibuang Belanda ke Sri Lanka dan Afrika Selatan. Namun di setiap tempat
+> beliau dibuang, di situlah Islam tumbuh.
 >
 > Inilah Syeikh Yusuf al-Makassari rahimahullah (1626–1699), Tuanta Salamaka.
 > Gowa · Banten · Aceh · Yaman · Makkah · Madinah · Damsyik · Ceylon · Cape Town
 >
-> 📜 Zubdat al-Asrar
-> 📜 An-Nafhah as-Sailaniyyah — ditulis di Ceylon
+> Mengenal Ulama Dunia · Episod 03
+> Ikuti supaya tidak terlepas episod seterusnya
+> Teka di ruangan komen: siapakah ulama muda dari Syam yang kitabnya dibaca di hampir
+> setiap pondok?
 >
-> Mengenal Ulama Dunia · Episod 02
-> Ikuti supaya tidak terlepas episod seterusnya 🤍
-> Teka di ruangan komen: siapakah imam ahli hadis dari Bukhara?
->
-> #syeikhyusuf #tuantasalamaka #ulamanusantara #makassar #capetown #sejarahislam
-> #mengenalulama #dakwah #kisahislam
+> #syeikhyusuf #tuantasalamaka #ulamanusantara #makassar #capetown #afrikaselatan
+> #sejarahislam #mengenalulama #dakwah
