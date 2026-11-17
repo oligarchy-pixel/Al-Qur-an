@@ -1,0 +1,60 @@
+{
+ "end": 173, "follow": 170.0, "safe": true, "subs": [5.6, 159.4],
+ "intro": {"t0": 0.4, "path": [[2.6, 499, 12], [3.7, 201, 6]]},
+ "modes": [[0, "mushaf"], [41.8, "ring"], [54.5, "mushaf"], [65.8, "ring"], [74.5, "mushaf"], [110.2, "ring"], [170.0, "follow"]],
+ "ayahs": [
+  {"t": 19.3, "page": 84, "hl": ["4:34"], "until": 41.75, "label": "QS. An-Nisa' 4:34", "lab": "Langkah bertahap", "trans": ["Nasihat dahulu, kemudian berasingan tempat tidur,", "kemudian tindakan ringan yang tidak bertujuan menyakiti", "(menurut huraian penceramah daripada ulama tafsir)."]},
+  {"t": 54.6, "page": 36, "hl": ["2:229"], "until": 65.75, "label": "QS. Al-Baqarah 2:229", "lab": "Khulu'", "trans": ["\"...maka tiada dosa atas keduanya tentang bayaran", "yang diberikan oleh isteri untuk menebus dirinya...\""]},
+  {"t": 77.9, "page": 516, "hl": ["49:11"], "until": 88.85, "label": "QS. Al-Hujurat 49:11", "lab": "Maksudnya", "trans": ["\"Wahai orang-orang yang beriman, janganlah suatu kaum", "memperolok-olokkan kaum yang lain... dan janganlah", "kamu panggil-memanggil dengan gelaran yang buruk...\""]},
+  {"t": 88.9, "page": 517, "hl": ["49:12"], "until": 92.45, "label": "QS. Al-Hujurat 49:12", "lab": "Maksudnya", "trans": ["\"...jauhilah kebanyakan sangkaan... janganlah mencari-cari", "kesalahan orang, dan janganlah mengumpat...\""]},
+  {"t": 92.5, "page": 47, "hl": ["2:275"], "until": 100.25, "label": "QS. Al-Baqarah 2:275", "lab": "Maksudnya", "trans": ["\"...Allah telah menghalalkan jual beli", "dan mengharamkan riba...\""]},
+  {"t": 100.3, "page": 47, "hl": ["2:276"], "until": 110.15, "label": "QS. Al-Baqarah 2:276", "lab": "Maksudnya", "trans": ["\"Allah menghapuskan (keberkatan) riba", "dan menyuburkan sedekah...\""]}
+ ],
+ "points": [
+  {"t": 41.9, "until": 54.4, "idx": 4, "no": "01", "kicker": "Rumah tangga", "title": ["Bertakwa ketika", "berselisih"], "sub": "Bila baik semula, jangan terus memarahi"},
+  {"t": 65.9, "until": 74.4, "idx": 20, "no": "02", "kicker": "Peringatan", "title": ["Jangan minta cerai", "tanpa sebab"], "sub": "Haram baginya bau syurga"},
+  {"t": 110.3, "until": 121.2, "idx": 40, "no": "R1", "kicker": "Jenis riba 1", "title": ["Riba fadhl"], "sub": "Beras 10 kg ditukar 8 kg"},
+  {"t": 121.3, "until": 125.6, "idx": 52, "no": "R2", "kicker": "Jenis riba 2", "title": ["Riba nasi'ah"], "sub": "Pertukaran ditangguhkan"},
+  {"t": 125.7, "until": 129.7, "idx": 64, "no": "R3", "kicker": "Jenis riba 3", "title": ["Riba yad"], "sub": "Berpisah sebelum serah terima"},
+  {"t": 129.8, "until": 149.7, "idx": 76, "no": "R4", "kicker": "Jenis riba 4", "title": ["Riba qardh"], "sub": "Pinjaman yang memberi manfaat"}
+ ],
+ "cards": [
+  [66.6, 74.3, "Maksud hadis · riwayat Abu Dawud 2226 & at-Tirmidzi 1187", ["\"Mana-mana wanita yang meminta cerai daripada", "suaminya tanpa sebab yang dibenarkan, maka", "haram baginya bau syurga.\""], 300]
+ ],
+ "chips": [
+  [19.1, 300, [["Rumah tangga", 12.6], ["Adab bermasyarakat", 16.1]]],
+  [19.1, 356, [["Mencari rezeki", 17.6]]],
+  [41.7, 300, [["1 · Nasihat", 22.0], ["2 · Berasingan tidur", 26.0]]],
+  [41.7, 356, [["3 · Tindakan ringan, bukan menyakiti", 30.4]]],
+  [65.7, 300, [["Melalui wali / hakim", 60.4], ["Mahar dipulangkan", 62.8]]],
+  [149.7, 412, [["Fadhl", 113.9], ["Nasi'ah", 121.3], ["Yad", 125.7], ["Qardh", 129.8]]],
+  [159.0, 300, [["Keluarga", 151.9], ["Sesama manusia", 154.2]]],
+  [159.0, 356, [["Rezeki", 155.6], ["Jauhi riba", 157.0]]]
+ ],
+ "titles": [
+  [0.2, 5.5, [["Tulis di komen satu zikir"], ["yang anda ", ["amalkan.", "g"]]]],
+  [5.7, 10.5, [["Like, follow &"], [["subscribe.", "g"]]]],
+  [10.7, 19.1, [["Panduan Al-Quran dalam"], [["3 urusan hidup.", "g"]]]],
+  [19.3, 25.8, [["Konflik suami isteri:"], ["mulakan dengan ", ["nasihat.", "g"]]]],
+  [25.9, 33.7, [["Masih berterusan?"], [["Berasingan tempat tidur.", "g"]]]],
+  [33.8, 41.7, [["Tindakan ringan,"], [["bukan untuk menyakiti.", "g"]]]],
+  [41.9, 48.4, [["Bertakwa kepada Allah"], ["ketika ", ["berselisih.", "g"]]]],
+  [48.6, 54.4, [["Bila sudah baik,"], [["jangan terus memarahi.", "g"]]]],
+  [54.6, 59.9, [["Isteri tak mahu teruskan"], ["kerana ", ["layanan suami?", "g"]]]],
+  [60.1, 65.7, [["Hak khulu'"], [["melalui wali atau hakim.", "g"]]]],
+  [65.9, 74.4, [["Peringatan: minta cerai"], ["kerana ", ["lelaki lain.", "g"]]]],
+  [74.6, 83.4, [["Al-Quran pedoman"], [["adab bermasyarakat.", "g"]]]],
+  [83.6, 88.8, [["Jangan mengolok-olok,"], [["jangan gelaran buruk.", "g"]]]],
+  [89.0, 92.4, [["Jauhi buruk sangka"], ["& ", ["mengumpat.", "g"]]]],
+  [92.6, 100.2, [["Jual beli dibenarkan,"], [["riba ditegah.", "g"]]]],
+  [100.4, 110.1, [["Riba menghilangkan"], [["keberkatan.", "g"]]]],
+  [110.3, 121.2, [["Empat bentuk riba:"], ["pertama, ", ["riba fadhl.", "g"]]]],
+  [121.4, 125.6, [["Kedua,"], [["riba nasi'ah.", "g"]]]],
+  [125.8, 129.7, [["Ketiga,"], [["riba yad.", "g"]]]],
+  [129.9, 142.7, [["Keempat,"], [["riba qardh (hutang).", "g"]]]],
+  [142.9, 149.7, [["Pinjaman yang memberi"], ["manfaat kepada ", ["pemberi.", "g"]]]],
+  [149.9, 159.0, [["Rujuk Al-Quran dalam"], [["semua urusan hidup.", "g"]]], {"center": true}],
+  [159.2, 164.0, [["Bermanfaat? Like,"], ["follow & ", ["subscribe.", "g"]]], {"center": true}],
+  [164.2, 169.9, [["Zikir apa yang paling"], [["dekat di hati anda?", "g"]]], {"center": true}]
+ ]
+}
