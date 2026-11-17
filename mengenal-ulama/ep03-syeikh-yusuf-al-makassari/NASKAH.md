@@ -3,6 +3,10 @@
 **Durasi:** 2 minit (120 saat) · **Format:** 9:16 · **Bahasa:** Melayu Malaysia ·
 **Jumlah kata narasi:** ±250
 
+> **Versi akhir (dengan narasi):** `ep03-syeikh-yusuf-al-makassari.mp4` berdurasi **2 minit**.
+> Setiap perkataan narasi diselaraskan dengan rakaman, dan animasi (peta, kapal, kad, butang)
+> muncul tepat pada frasa yang disebut. Video tidak memaparkan sari kata.
+
 ## Cara merakam
 
 - Baca dengan **laju yang sederhana tetapi bertenaga**: naskah ini padat, jadi elakkan jeda panjang.
