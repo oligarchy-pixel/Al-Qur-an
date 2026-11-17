@@ -4,8 +4,8 @@
 
 > **Versi akhir (dengan narasi):** `ep02-imam-al-bukhari.mp4` berdurasi **2 minit 30 saat**.
 > Rakaman narasi dipadatkan (jeda panjang dipendekkan, tempo dipercepat ±3% tanpa mengubah nada),
-> animasi diselaraskan dengan setiap ayat, dan sari kata karaoke menyala perkataan demi perkataan.
-> Sari kata juga tersedia sebagai `ep02-imam-al-bukhari.srt` untuk dimuat naik ke YouTube.
+> dan animasi diselaraskan dengan setiap ayat. Video tidak memaparkan sari kata; jika perlu,
+> sari kata tersedia berasingan sebagai `ep02-imam-al-bukhari.srt` untuk dimuat naik ke YouTube.
 > Lajur masa dalam naskah di bawah ialah versi asal 2:50.
 
 ## Cara merakam
