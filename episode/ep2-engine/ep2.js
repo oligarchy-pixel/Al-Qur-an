@@ -184,7 +184,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 const CLEAN = new URLSearchParams(location.search).get('clean');
 const GUIDE = new URLSearchParams(location.search).get('guide');
 // ZONA AMAN Reels (permintaan pengguna): semua pembahasan di y 140-1030 (kanvas 720x1280)
-const SAFE = CFG.safe !== false && CFG.safe !== undefined; const ZT = 140, ZB = 1030;
+const SAFE = CFG.safe !== false && CFG.safe !== undefined; const ZT = 140, ZB = 870;   // dinaikkan (permintaan Ep6): pembahasan tidak terlalu ke bawah
 
 // ---------- kitab + piringan ----------
 function coverTex() {
@@ -368,11 +368,11 @@ function drawTitle(T, t) {
     let x = o.center ? W / 2 - wd.reduce((p, q) => p + q, 0) / 2 : 30;
     segs.forEach(([s, k], n) => { txt(s, x, y0 + li * lh, { font: segFont(k, size), col: k ? GOLD : WHITE, a, blur, ls: k === 'ar' ? '0px' : '-0.6px' }); x += wd[n]; }); });
 }
-function counter(num, a, y = SAFE ? 880 : 1000) { if (a <= 0) return; label('Halaman', W / 2, y - 58, a * .8, GREY, 'center', 9); ox.font = `bold 66px ${SANS}`; ox.letterSpacing = '-2px'; const w = ox.measureText(String(num)).width; txt(String(num), W / 2 - 18, y, { font: `bold 66px ${SANS}`, col: WHITE, al: 'center', a, ls: '-2px' }); txt('/604', W / 2 - 18 + w / 2 + 4, y, { font: `600 19px ${SANS}`, col: GREY, a }); }
+function counter(num, a, y = SAFE ? 740 : 1000) { if (a <= 0) return; label('Halaman', W / 2, y - 58, a * .8, GREY, 'center', 9); ox.font = `bold 66px ${SANS}`; ox.letterSpacing = '-2px'; const w = ox.measureText(String(num)).width; txt(String(num), W / 2 - 18, y, { font: `bold 66px ${SANS}`, col: WHITE, al: 'center', a, ls: '-2px' }); txt('/604', W / 2 - 18 + w / 2 + 4, y, { font: `600 19px ${SANS}`, col: GREY, a }); }
 function glassCard(x, y, w, lab, q, a) { if (a <= 0) return; const h = 46 + q.length * 25 + 18; if (y < 0) y = -y - h; ox.save(); ox.globalAlpha = a; ox.fillStyle = 'rgba(20,18,14,.66)'; ox.strokeStyle = 'rgba(255,255,255,.12)'; ox.beginPath(); ox.roundRect(x, y, w, h, 14); ox.fill(); ox.stroke(); ox.restore(); label(lab, x + 20, y + 28, a, GOLD2, 'left', 9); q.forEach((l, i) => txt(l, x + 20, y + 58 + i * 25, { font: `500 19px ${SANS}`, a })); }
 function pointCard(p, t) {
   const a = win(t, p.t + .7, p.until, .45, .35); if (a <= 0) return;
-  { const g0 = SAFE ? 600 : 780; const g = ox.createLinearGradient(0, g0, 0, 1280); g.addColorStop(0, 'rgba(4,4,4,0)'); g.addColorStop(.3, `rgba(4,4,4,${.72 * a})`); g.addColorStop(1, `rgba(4,4,4,${.9 * a})`); ox.fillStyle = g; ox.fillRect(0, g0, W, 1280 - g0); } const dy = 14 * (1 - ss(p.t + .7, p.t + 1.2, t)), x = 30, y = (SAFE ? 762 : 900) + dy;
+  { const g0 = SAFE ? 430 : 780; const g = ox.createLinearGradient(0, g0, 0, 1280); g.addColorStop(0, 'rgba(4,4,4,0)'); g.addColorStop(.3, `rgba(4,4,4,${.72 * a})`); g.addColorStop(1, `rgba(4,4,4,${.9 * a})`); ox.fillStyle = g; ox.fillRect(0, g0, W, 1280 - g0); } const dy = 14 * (1 - ss(p.t + .7, p.t + 1.2, t)), x = 30, y = (SAFE ? 596 : 900) + dy;
   label(p.kicker || 'Poin', x, y, a, GOLD, 'left', 11);
   const g = ox.createLinearGradient(0, y + 10, 0, y + 130); g.addColorStop(0, '#FFE7A8'); g.addColorStop(.6, '#E4B85E'); g.addColorStop(1, '#9C7330');
   txt(p.no, x - 4, y + (SAFE ? 100 : 118), { font: `900 ${SAFE ? 100 : 120}px ${SANS}`, col: g, a, ls: '-5px' });
@@ -383,7 +383,7 @@ function pointCard(p, t) {
 }
 function bloom(t) { let a = 0, k = 0; for (const p of BLOOMS) { a = Math.max(a, win(t, p - .5, p + .55, .5, .55)); k = Math.max(k, 1 - Math.abs(t - p) / .5); } if (a <= 0) return; const g = ox.createRadialGradient(W / 2, H * .45, 10, W / 2, H * .45, 900); g.addColorStop(0, `rgba(255,246,222,${a})`); g.addColorStop(.4, `rgba(251,237,204,${a * (.6 + .4 * k)})`); g.addColorStop(1, `rgba(214,170,90,${a * k * .9})`); ox.fillStyle = g; ox.fillRect(0, 0, W, H); }
 function subFollow(t) {
-  const a = win(t, .2, 3.5, .3, .35); if (a <= 0) return; const x = 150, y = (SAFE ? 930 : 1100) + 14 * (1 - ss(.2, .5, t)), w = 420, h = 74;
+  const a = win(t, .2, 3.5, .3, .35); if (a <= 0) return; const x = 150, y = (SAFE ? 790 : 1100) + 14 * (1 - ss(.2, .5, t)), w = 420, h = 74;
   ox.save(); ox.globalAlpha = a; ox.fillStyle = '#fff'; ox.shadowColor = 'rgba(0,0,0,.4)'; ox.shadowBlur = 20; ox.beginPath(); ox.roundRect(x, y, w, h, 16); ox.fill(); ox.shadowBlur = 0; avatar(x + 38, y + 37, 25); ox.globalAlpha = a;
   ox.fillStyle = '#111'; ox.font = `bold 17px ${SANS}`; ox.fillText('alurziyadahku', x + 72, y + 32); ox.fillStyle = '#777'; ox.font = `500 12px ${SANS}`; ox.fillText('Kajian Al-Qur\'an', x + 72, y + 52);
   const s1 = t > 1.25, s2 = t > 2.25;

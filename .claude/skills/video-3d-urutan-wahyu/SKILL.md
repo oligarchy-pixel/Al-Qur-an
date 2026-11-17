@@ -88,3 +88,6 @@ supaya tidak tertutup nama akun di atas dan caption/tombol di bawah.
 - Koordinat di config untuk mode safe: chip baris 1 `y: 300`, baris 2 `y: 356` (baris 3 `412`); kartu `cards[...][4] = 300`.
 - Semak dengan `&guide=1` (garis oranye zona) pada still sebelum render: tiada teks di luar garis.
 - Contoh: `episode/ep2-engine/contoh_safe_ep4.json`, pratinjau `episode/ep2-engine/still/Zona_Aman_Reels_preview.jpg`.
+
+### Revisi zona (Ep6+): pembahasan DINAIKKAN
+Pengguna minta pembahasan tidak terlalu ke bawah: batas bawah zona kini **y 870** (bukan 1030). Kartu poin y 596-845, kartu terjemahan menempel ke 870, kad Subscribe y 790, penghitung y 740. Judul (196), label (270), chip (300/356/412), kartu (300) tetap.
