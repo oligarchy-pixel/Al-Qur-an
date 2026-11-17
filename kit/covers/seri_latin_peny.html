@@ -21,8 +21,8 @@ const q = new URLSearchParams(location.search), L1 = q.get('l1') || 'KEHORMATAN'
 const P = [['١', 'belajar & mengajarkan Al-Qur\'an', 'sebaik-baik kalian · HR. al-Bukhari'], ['٢', 'Al-Qur\'an adalah jamuan Allah', 'Ibnu Mas\'ud'], ['٣', 'mulut kita adalah jalan Al-Qur\'an', 'atsar'], ['٤', 'kehormatan & adab terhadap Al-Qur\'an', 'Tafsir al-Qurthubi']];
 document.getElementById('c').innerHTML = `
  <div class="c" style="top:360px;font-family:Amiri;font-weight:700;font-size:42px">Ep ${ep}</div>
- <div class="c" style="top:430px;font-family:Bebas;font-size:178px;line-height:.9"><span style="position:relative"><span style="position:absolute;left:-58px;top:-10px;font-family:Amiri;font-weight:700;font-size:136px">“</span>${L1}</span><br>${L2}</div>
- <div class="c" style="top:775px;font-family:Amiri;font-size:46px;direction:rtl">بِإِذْنِ اللَّهِ · إِنْ شَاءَ اللَّهُ</div>
+ <div class="c" style="top:430px;font-family:Bebas;font-size:${q.get('fs')||178}px;line-height:.9"><span style="position:relative"><span style="position:absolute;left:-58px;top:-10px;font-family:Amiri;font-weight:700;font-size:136px">“</span>${L1}</span><br>${L2}</div>
+ <div class="c" style="top:${q.get('at')||775}px;font-family:Amiri;font-size:46px;direction:rtl">بِإِذْنِ اللَّهِ · إِنْ شَاءَ اللَّهُ</div>
  <div class="c" style="top:960px;display:flex;justify-content:center;align-items:center;gap:20px">
    <div style="width:92px;height:92px;border-radius:50%;border:3px solid #fff;background:url(file:///home/claude/covers/user_photo.jpg) 45% 54%/150% auto no-repeat"></div>
    <div style="text-align:left"><div style="font-family:Amiri;font-size:22px;letter-spacing:.14em;color:#f2e6cf">PENYAMPAI</div><div style="font-family:Inter;font-weight:800;font-size:32px">@alurziyadahku</div></div></div>`;
