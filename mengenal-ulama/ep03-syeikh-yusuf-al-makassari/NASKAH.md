@@ -1,4 +1,6 @@
-# Mengenal Ulama Dunia — Episod 02: Syeikh Yusuf al-Makassari rahimahullah
+# Mengenal Ulama Dunia — Episod 03 (draf): Syeikh Yusuf al-Makassari rahimahullah
+
+> **Status:** draf. Naskah dan sampul ini dibuat sebagai Episod 02, kemudian dipindah menjadi Episod 03. Teks "Episod 02" pada sampul dan pembayang episod seterusnya perlu dikemas kini sebelum dirender.
 
 **Durasi:** 2 minit 50 saat (170 saat) · **Format:** 9:16 · **Bahasa:** Melayu · **Jumlah kata narasi:** ±365
 

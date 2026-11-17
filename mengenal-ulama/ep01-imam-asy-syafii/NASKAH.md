@@ -77,8 +77,7 @@
 > *"Jika sebuah hadits itu shahih, maka itulah mazhabku."*
 > Semoga Allah merahmati beliau, dan mengumpulkan kita bersama para ulama di surga-Nya. / /
 > Follow, like, dan subscribe.
-> Di episode berikutnya, kita mengenal ulama Nusantara yang dimuliakan hingga Afrika
-> Selatan.
+> Di episode berikutnya, kita mengenal seorang imam ahli hadis dari Bukhara.
 
 ---
 
