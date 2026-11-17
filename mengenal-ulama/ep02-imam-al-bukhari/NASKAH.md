@@ -2,6 +2,12 @@
 
 **Durasi:** 2 minit 50 saat (170 saat) · **Format:** 9:16 · **Bahasa:** Melayu · **Jumlah kata narasi:** ±370
 
+> **Versi akhir (dengan narasi):** `ep02-imam-al-bukhari.mp4` berdurasi **2 minit 30 saat**.
+> Rakaman narasi dipadatkan (jeda panjang dipendekkan, tempo dipercepat ±3% tanpa mengubah nada),
+> animasi diselaraskan dengan setiap ayat, dan sari kata karaoke menyala perkataan demi perkataan.
+> Sari kata juga tersedia sebagai `ep02-imam-al-bukhari.srt` untuk dimuat naik ke YouTube.
+> Lajur masa dalam naskah di bawah ialah versi asal 2:50.
+
 ## Cara merakam
 
 - Baca dengan **tenang, lembut dan penuh hormat**, lebih kurang 2–2,3 patah perkataan sesaat.
