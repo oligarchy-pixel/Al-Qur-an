@@ -1,15 +1,15 @@
 # Mengenal Ulama Dunia — Episod 03: Syeikh Yusuf al-Makassari rahimahullah
 
-**Durasi:** 2 minit 50 saat (170 saat, tidak melebihi 3 minit) · **Format:** 9:16 ·
-**Bahasa:** Melayu Malaysia · **Jumlah kata narasi:** ±375
+**Durasi:** 2 minit (120 saat) · **Format:** 9:16 · **Bahasa:** Melayu Malaysia ·
+**Jumlah kata narasi:** ±250
 
 ## Cara merakam
 
-- Baca dengan **tenang tetapi bertenaga**. Naskah ini padat, jadi kurangkan jeda panjang.
+- Baca dengan **laju yang sederhana tetapi bertenaga**: naskah ini padat, jadi elakkan jeda panjang.
 - Pada pembukaan, **berhenti sejenak selepas "Alhamdulillah"** supaya penonton sempat mengucapkannya.
 - Sebut **"rahimahullah"** dengan jelas.
-- Berhenti ±1 saat pada setiap tanda **/ /**.
-- Hantar rakaman, saya akan selaraskan animasi dengan suara tuan, seperti Episod 02.
+- Berhenti ±0,5 saat pada setiap tanda **/ /**.
+- Hantar rakaman, saya akan selaraskan animasi dengan suara tuan dan pastikan video tepat 2 minit.
 - Sebutan: **Gowa** (Go-wa), **Tuanta Salamaka** (Tu-an-ta Sa-la-ma-ka),
   **Zandvliet** (Zand-flit), **Ceylon** (Si-lon), **Tirtayasa** (Tir-ta-ya-sa).
 
@@ -17,65 +17,53 @@
 
 ## Naskah narasi
 
-### 1. Hook — 0:00–0:10
-> Sebelum mula, ucapkan **Alhamdulillah** atas nikmat Islam. / /
+### 1. Hook — 0:00–0:08
+> Ucapkan **Alhamdulillah** atas nikmat Islam. / /
 > Tahukah tuan-tuan, Islam di Afrika Selatan berakar daripada seorang tahanan Belanda
 > dari Makassar? / /
 
-### 2. Pembukaan siri — 0:10–0:15
-> Ini **Mengenal Ulama Dunia**, episod ketiga. Ikuti kami supaya tidak terlepas. / /
+### 2. Pembukaan siri — 0:08–0:12
+> **Mengenal Ulama Dunia**, episod ketiga. Ikuti kami. / /
 
-### 3. Zum ke Sulawesi, biodata — 0:15–0:28
-> Mari ke Sulawesi.
-> Di Gowa, pada tahun seribu enam ratus dua puluh enam, lahirlah
-> **Muhammad Yusuf al-Makassari**, rahimahullah.
-> Rakyat Makassar menggelarnya **Tuanta Salamaka**, tuan guru kita yang selamat. / /
+### 3. Biodata — 0:12–0:21
+> Di Gowa, Sulawesi, tahun seribu enam ratus dua puluh enam, lahirlah
+> **Muhammad Yusuf al-Makassari**, rahimahullah, yang digelar **Tuanta Salamaka**. / /
 
-### 4. Menuntut ilmu — 0:28–0:58
-> Beliau membesar di lingkungan istana Gowa dan mempelajari Al-Qur'an sejak kecil.
-> Pada usia lapan belas tahun, beliau belayar ke Banten, kemudian ke Aceh.
-> Seterusnya beliau menyeberangi Lautan Hindi ke Yaman, lalu ke Makkah dan Madinah,
-> dan berguru dengan Syeikh Ibrahim al-Kurani.
+### 4. Menuntut ilmu — 0:21–0:42
+> Pada usia lapan belas tahun, beliau belayar ke Banten dan Aceh, menyeberangi Lautan
+> Hindi ke Yaman, lalu ke Makkah dan Madinah, berguru dengan Syeikh Ibrahim al-Kurani.
 > Di Damsyik, beliau menerima ijazah Tarekat Khalwatiyah.
-> Lebih kurang dua puluh tahun beliau merantau menuntut ilmu. / /
+> Dua puluh tahun beliau merantau. / /
 
-### 5. Perjuangan di Banten — 0:58–1:20
-> Apabila pulang, Gowa telah tewas kepada Belanda.
-> Beliau menetap di Banten, menjadi mufti dan guru kepada Sultan Ageng Tirtayasa.
-> Apabila Banten diserang, beliau memimpin ribuan pengikut berperang secara gerila di
-> hutan Jawa Barat, hingga akhirnya ditangkap pada tahun seribu enam ratus lapan puluh
-> tiga. / /
+### 5. Perjuangan di Banten — 0:42–0:56
+> Pulang ke Nusantara, beliau menjadi mufti Sultan Ageng Tirtayasa di Banten, lalu
+> memimpin perang gerila menentang Belanda, hingga ditangkap pada tahun seribu enam ratus
+> lapan puluh tiga. / /
 
-### 6. Ajakan like — 1:20–1:25
-> Tekan like jika tuan-tuan mahu kisah ulama kita terus tersebar. / /
+### 6. Ajakan like — 0:56–1:00
+> Tekan like supaya kisah ini tersebar. / /
 
-### 7. Dibuang negeri — 1:25–1:53
-> Belanda takut akan pengaruhnya.
-> Beliau dibuang ke Ceylon, iaitu Sri Lanka.
-> Di sana beliau terus menulis risalah, dan jemaah haji dari Nusantara singgah menemuinya.
-> Kerana itu, Belanda membuangnya lebih jauh, ke Tanjung Harapan di hujung Afrika, pada
-> tahun seribu enam ratus sembilan puluh empat, bersama empat puluh sembilan orang ahli
-> keluarga dan pengikut. / /
+### 7. Dibuang negeri — 1:00–1:20
+> Belanda membuangnya ke Ceylon, Sri Lanka.
+> Di sana beliau terus menulis, dan jemaah haji Nusantara singgah menemuinya.
+> Belanda gusar, lalu membuangnya lebih jauh, ke Tanjung Harapan, Afrika Selatan, pada
+> tahun seribu enam ratus sembilan puluh empat, bersama empat puluh sembilan pengikut. / /
 
-### 8. Di hujung Afrika — 1:53–2:12
-> Di Zandvliet, beliau menghimpunkan hamba abdi dan orang buangan yang beragama Islam,
-> lalu mengajar mereka solat dan membaca Al-Qur'an.
-> Daripada komuniti kecil inilah, Islam bertapak di Afrika Selatan.
-> Beliau wafat pada dua puluh tiga Mei, seribu enam ratus sembilan puluh sembilan. / /
+### 8. Di hujung Afrika — 1:20–1:34
+> Di Zandvliet, beliau menghimpunkan Muslim dalam kalangan hamba abdi dan orang buangan,
+> lalu mengajar mereka.
+> Dari situlah Islam bertapak di Afrika Selatan.
+> Beliau wafat di sana pada tahun seribu enam ratus sembilan puluh sembilan. / /
 
-### 9. Warisan — 2:12–2:32
-> Pada tahun seribu tujuh ratus lima, jenazahnya dibawa pulang ke Gowa.
-> Hari ini makamnya diziarahi di dua negara.
-> Beliau meninggalkan berpuluh risalah, antaranya **Zubdat al-Asrar**.
-> Indonesia mengiktirafnya sebagai Pahlawan Nasional, dan Afrika Selatan turut memberikan
-> penghormatan kebangsaan kepadanya. / /
+### 9. Warisan — 1:34–1:47
+> Jenazahnya dibawa pulang ke Gowa, dan makamnya diziarahi di dua negara.
+> Beliau meninggalkan berpuluh risalah, dan dimuliakan oleh Indonesia serta Afrika
+> Selatan. / /
 
-### 10. Penutup — 2:32–2:50
+### 10. Penutup — 1:47–2:00
 > Di setiap tempat beliau dibuang, di situlah Islam tumbuh.
 > Semoga Allah merahmati beliau. / /
-> Ikuti, like dan langgan.
-> Episod seterusnya: seorang ulama muda dari Syam, yang kitabnya dibaca di hampir setiap
-> pondok.
+> Ikuti, like dan langgan untuk episod seterusnya.
 
 ---
 
