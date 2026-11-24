@@ -1,0 +1,160 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Amiri;src:url('file:///home/claude/fonts/Amiri-Regular.ttf')}
+@font-face{font-family:Amiri;font-weight:700;src:url('file:///home/claude/fonts/Amiri-Bold.ttf')}
+:root{--y:#e9f23a;--r:#ff8a5c;--g:#7fe0a0;--b:#7fd6ff;--cream:#ebe6d6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:#000;overflow:hidden;font-family:Inter,sans-serif;color:#fff}
+.ab{position:absolute}
+.ar{font-family:Amiri,serif;direction:rtl;unicode-bidi:isolate}
+.mono{font-family:'DejaVu Sans Mono',monospace;letter-spacing:.06em}
+.mk{background:linear-gradient(var(--y),var(--y)) no-repeat;background-size:0% 92%;background-position:left 60%;padding:0 .08em}
+.mk.on{color:#111}
+.w{display:inline-block;opacity:0;transform:translateY(16px);margin-right:.24em}
+.paper{background:var(--cream);color:#151515;border-radius:10px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.chip{display:inline-block;padding:10px 16px;border:2px solid var(--y);color:var(--y);font:600 22px 'DejaVu Sans Mono';letter-spacing:.04em;border-radius:6px}
+.card{border:4px solid var(--y);border-radius:22px;background:rgba(233,242,58,.07)}
+.num{font:900 34px 'DejaVu Sans Mono';color:var(--y)}
+#bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 35%,#16140a,#000 65%)}
+#hud{position:absolute;inset:0;z-index:50;pointer-events:none}
+#flash{position:absolute;inset:0;background:var(--y);opacity:0;z-index:60}
+</style></head><body>
+<div id="bg"></div><div id="stage" class="ab" style="inset:0"></div>
+<div id="hud">
+  <div class="ab mono" style="left:60px;top:150px;font-size:24px"><span style="color:var(--y)">●</span> EP 06 · 19 HURUF BISMILLAH</div>
+  <div class="ab mono" id="cnt" style="right:60px;top:150px;font-size:24px;color:var(--y)"></div>
+  <div class="ab mono" style="left:60px;top:1560px;font-size:24px">@alurziyadahku · Mengenal Al-Qur'an</div>
+  <div class="ab" style="left:60px;right:60px;top:1610px;height:6px;background:rgba(233,242,58,.2)"><div id="prog" style="height:100%;width:0;background:var(--y)"></div></div>
+</div><div id="flash"></div>
+<script>
+const TOTAL = 150, Y = '#e9f23a', R = '#ff8a5c', GR = '#7fe0a0', BL = '#7fd6ff';
+const CG = GR, CB = BL, CR = R;
+const ITEMS = [], SFX = [], CUTS = [];
+const S = document.getElementById('stage');
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), eo = x => 1 - Math.pow(1 - clamp(x), 3), eio = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const sfx = (t, type, g = 1) => SFX.push({ t: +t.toFixed(3), type, g });
+function getSFX() { return SFX; }
+function node(html, css) { const d = document.createElement('div'); d.className = 'ab'; d.style.cssText = css; d.innerHTML = html; d.style.opacity = 0; S.appendChild(d); return d; }
+function item(t0, t1, n, fn) { ITEMS.push({ t0, t1, n, fn }); return n; }
+function show(html, css, t0, t1, kind = 'up', snd) { const n = node(html, css); if (snd) sfx(t0, snd, .8);
+  return item(t0, t1, n, (lt, t) => { const k = eo(lt / .45), out = clamp((t1 - t) / .25); n.style.opacity = k * out;
+    n.style.transform = kind === 'up' ? `translateY(${(1 - k) * 50}px)` : kind === 'scale' ? `scale(${.8 + .2 * k})` : kind === 'left' ? `translateX(${(1 - k) * -80}px)` : kind === 'drop' ? `translateY(${(1 - k) * -90}px) rotate(${(1 - k) * -6}deg)` : ''; }); }
+// teks kinetik kata demi kata; [kata] distabilo pada marks[i]
+function kin(text, css, t0, t1, o = {}) {
+  const parts = []; text.replace(/\[([^\]]+)\]|([^\s\[\]]+)/g, (m, a, b) => { if (a) a.split(' ').forEach((w, j, A) => parts.push({ w, g: parts.mk = (j ? parts.mk : (parts.mk ?? -1) + 1), last: j === A.length - 1 })); else parts.push({ w: b, g: -1 }); });
+  const n = node(parts.map(p => `<span class="w${p.g >= 0 ? ' mk' : ''}" data-g="${p.g}">${p.w}</span>`).join(' '), css + `;font:${o.w || 800} ${o.fs || 52}px Inter;line-height:1.3;color:${o.c || '#fff'}`);
+  const W = [...n.querySelectorAll('.w')], iv = o.iv || .07, M = o.m || [];
+  W.forEach((w, i) => { if (i % 3 === 0) sfx(t0 + i * iv, 'tick', .45); });
+  M.forEach(m => sfx(m, 'mark', .8));
+  return item(t0, t1, n, (lt, t) => { n.style.opacity = clamp((t1 - t) / .25);
+    W.forEach((w, i) => { const k = eo((lt - i * iv) / .25); w.style.opacity = k; w.style.transform = `translateY(${(1 - k) * 16}px)`;
+      const g = +w.dataset.g; if (g >= 0 && M[g] != null) { const u = eo((t - M[g]) / .35); w.style.backgroundSize = `${u * 100}% 92%`; w.classList.toggle('on', u > .5); } }); }); }
+// arab muncul per kata
+function arw(text, css, t0, t1, dur, o = {}) { const parts = []; text.replace(/\[([^\]]+)\]|([^\s\[\]]+)/g, (m, a, b) => { if (a) a.split(' ').forEach(w => parts.push({ w, g: 1 })); else parts.push({ w: b, g: 0 }); });
+  const n = node(parts.map(p => `<span class="w${p.g ? ' mk' : ''}" style="margin:0 .12em">${p.w}</span>`).join(' '), css + ';font-family:Amiri,serif;direction:rtl'); n.classList.add('ar');
+  const W = [...n.querySelectorAll('.w')]; sfx(t0, 'whoosh', .5); if (o.mark) sfx(o.mark, 'mark', .8);
+  return item(t0, t1, n, (lt, t) => { n.style.opacity = clamp((t1 - t) / .25); W.forEach((w, i) => { const k = eo((lt - i * dur / W.length) / .35); w.style.opacity = k; w.style.transform = `translateY(${(1 - k) * 14}px)`;
+    if (w.classList.contains('mk') && o.mark) { const u = eo((t - o.mark) / .35); w.style.backgroundSize = `${u * 100}% 92%`; w.classList.toggle('on', u > .5); } }); }); }
+function sv(inner, css, w, h, t0, t1, dur = 1) { const n = node(`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow:visible">${inner}</svg>`, css); sfx(t0, 'draw', .5);
+  return item(t0, t1, n, (lt, t) => { n.style.opacity = clamp(lt / .2) * clamp((t1 - t) / .25);
+    n.querySelectorAll('[data-d]').forEach(p => { const L = +p.dataset.d, k = eio((lt - +(p.dataset.del || 0)) / dur); p.style.strokeDasharray = L; p.style.strokeDashoffset = L * (1 - k); });
+    n.querySelectorAll('[data-f]').forEach(p => { p.style.opacity = eo((lt - +p.dataset.f) / .35); }); }); }
+const T = (x, y, s, o = {}) => `<text x="${x}" y="${y}" data-f="${o.f ?? 0}" text-anchor="${o.a || 'middle'}" font-family="Inter" font-weight="${o.fw || 900}" font-size="${o.fs || 34}" fill="${o.c || '#fff'}">${s}</text>`;
+function scene(t, cut = 'flash') { CUTS.push({ t, cut }); if (t > 0) sfx(t, cut === 'flash' ? 'whoosh' : 'click', .7); }
+const header = (no, title, t0, t1, c = Y) => show(`<div style="display:flex;align-items:center;gap:22px"><div style="width:110px;height:110px;border-radius:20px;background:${c};color:#111;font:900 56px Inter;display:flex;align-items:center;justify-content:center">${no}</div><div><div class="mono" style="font-size:24px;color:${c}">MAZHAB ${+no}</div><div style="font:900 50px Inter;line-height:1.1;margin-top:6px">${title}</div></div></div>`, 'left:70px;top:250px;width:940px', t0, t1, 'left', 'stamp');
+const flow = (steps, top, t0s, t1) => steps.forEach(([e, s, c], i) => { show(`<div style="width:290px;height:250px;border:4px solid ${c};border-radius:20px;text-align:center;padding-top:26px;background:rgba(255,255,255,.03)"><div style="font-size:84px">${e}</div><div style="font:900 30px Inter;color:${c};margin-top:8px;line-height:1.15">${s}</div></div>`, `left:${60 + i * 340}px;top:${top}px`, t0s[i], t1, 'up', 'click');
+  if (i) show(`<div style="font:900 50px Inter;color:${Y}">→</div>`, `left:${i * 340 + 22}px;top:${top + 95}px`, t0s[i] - .15, t1, 'scale'); });
+const box2 = (c, inner) => `<div style="width:960px;border:5px solid ${c};border-radius:20px;padding:22px 28px">${inner}</div>`;
+const A = x => +(x - 243.33).toFixed(2), B = x => +(x - 349.04).toFixed(2); // audio Ep6 249.33–359.21 → 6.0–115.88 ; 464.92–491.85 → 115.88–142.81
+// tombol CTA: like, follow, subscribe
+function cta(t0, t1, top) { const n = node(`<div style="display:flex;gap:22px;justify-content:center">
+  <div class="b1" style="width:290px;height:150px;border:5px solid #ff4d6d;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="i" style="font-size:66px">🤍</div><div style="font:900 34px Inter;color:#ff4d6d">LIKE</div></div>
+  <div class="b2" style="width:290px;height:150px;border:5px solid ${Y};border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="i" style="font-size:60px">💬</div><div style="font:900 34px Inter;color:${Y}">COMMENT</div></div>
+  <div class="b3" style="width:290px;height:150px;border:5px solid #d7322b;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#d7322b"><div class="i" style="font-size:60px">🔔</div><div style="font:900 30px Inter;color:#fff">SUBSCRIBE</div></div></div>`, `left:60px;top:${top}px;width:960px`);
+  const [b1, b2, b3] = ['.b1', '.b2', '.b3'].map(s => n.querySelector(s)), T0 = [t0 + .5, t0 + 1.0, t0 + 1.5]; T0.forEach(t => sfx(t, 'click', 1));
+  return item(t0, t1, n, (lt, t) => { n.style.opacity = eo(lt / .3) * clamp((t1 - t) / .25);
+    [b1, b2, b3].forEach((b, i) => { const k = t - T0[i], pop = k > 0 && k < .35 ? 1 + .18 * Math.sin(k / .35 * Math.PI) : 1; b.style.transform = `scale(${pop})`; });
+    b1.querySelector('.i').textContent = t > T0[0] ? '❤️' : '🤍'; b1.style.background = t > T0[0] ? 'rgba(255,77,109,.18)' : '';
+    b2.querySelector('.i').textContent = t > T0[1] ? '✍️' : '💬'; b2.style.background = t > T0[1] ? 'rgba(233,242,58,.18)' : '';
+    b3.querySelector('.i').style.transform = t > T0[2] ? `rotate(${Math.sin(t * 24) * 18 * clamp(1 - (t - T0[2]) / 1.2)}deg)` : ''; }); }
+// panah memantul ke bawah: arahkan ke tautan video terkait (kiri bawah layar aplikasi)
+function arrowDown(t0, t1, txt, top) { const n = node(`<div style="display:flex;align-items:center;gap:20px"><div style="font:900 40px Inter;line-height:1.2;width:920px">${txt}</div></div><div class="ar2" style="position:absolute;left:30px;top:130px;font:900 120px Inter;color:${Y}">⬇</div>`, `left:70px;top:${top}px;width:960px;height:300px`);
+  sfx(t0, 'beep', .9); return item(t0, t1, n, (lt, t) => { n.style.opacity = eo(lt / .3) * clamp((t1 - t) / .25); n.querySelector('.ar2').style.transform = `translateY(${Math.abs(Math.sin(t * 5)) * 40}px)`; }); }
+
+
+// ======================================================= 0 COVER (0–1.5) · HOOK (1.5–3) · AJAKAN + ISI (3–6)
+scene(0, 'none');
+(() => { const n = node('<img src="cover.png" style="width:1080px;height:1920px;display:block">', 'left:0;top:0;width:1080px;height:1920px;z-index:40');
+  item(0, 1.5, n, (lt, t) => { n.style.opacity = clamp((1.5 - t) / .2); n.style.transform = `scale(${1 + .02 * lt})`; }); })();
+scene(1.5);
+show(`<div style="font:900 200px Inter;color:${Y};line-height:1">19</div><div style="font:900 64px Inter;line-height:1.1;margin-top:20px">huruf bismillah<br>vs <span style="color:#111;background:${CR};padding:0 .12em">19 malaikat</span> 😳</div>`, 'left:70px;top:300px;width:940px', 1.55, 3.0, 'scale', 'impact');
+scene(3.0);
+show(`<div style="font:900 76px Inter;line-height:1.02">sebelum mulai…<br><span style="color:#111;background:${Y};padding:0 .12em">like · comment · sub</span> 🙏</div>`, 'left:70px;top:280px;width:940px', 3.05, 6.0, 'scale', 'impact');
+cta(3.3, 6.0, 520);
+show(`<div class="mono" style="font-size:26px;color:${Y}">DI VIDEO INI:</div><div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">${[['01', "pesan Ibnu Mas'ud"], ['02', '19 huruf بِسْمِ اللَّهِ'], ['03', 'QS. Al-Muddatstsir : 30'], ['04', 'bonus: harga setiap nikmat']].map(([n, s]) => `<div style="font:900 36px Inter"><span class="num" style="font-size:30px">${n}</span>&nbsp; ${s}</div>`).join('')}</div>`, 'left:70px;top:740px', 3.6, 6.0, 'up', 'tick');
+arrowDown(4.6, 6.0, `📺 video lengkapnya <span style="color:${Y}">klik di bawah ini</span>`, 1080);
+
+// ======================================================= 1 ATSAR IBNU MAS'UD (249.33–274.18)
+scene(6.0);
+show(`<div class="mono" style="font-size:28px;color:${Y}">01 · ABDULLAH BIN MAS'UD BERKATA</div><div style="font:800 30px Inter;margin-top:10px">atsar sahabat · dinukil Ibnu Katsir & al-Qurthubi</div>`, 'left:70px;top:270px;width:940px', A(249.5), A(274.18), 'left', 'stamp');
+arw('مَنْ أَرَادَ أَنْ يُنَجِّيَهُ اللَّهُ مِنَ [الزَّبَانِيَةِ] التِّسْعَةَ عَشَرَ فَلْيَقُلْ بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', 'left:60px;top:430px;width:960px;font-size:62px;line-height:1.7;text-align:center;color:#fff', A(250.5), A(274.18), 6.0, { mark: A(255.0) });
+show(`<div style="width:960px;border:4px solid ${Y};border-radius:20px;padding:20px 26px;background:rgba(233,242,58,.06);font:800 38px/1.35 Inter">"siapa ingin diselamatkan Allah dari <span style="color:${CR}">Zabaniyah yang 19</span>, ucapkanlah بِسْمِ اللَّهِ… <span style="color:${Y}">hurufnya 19</span>"</div>`, 'left:60px;top:830px', A(258.0), A(274.18), 'up', 'paper');
+show(`<div style="font:900 40px Inter">🔥 Zabaniyah = <span style="color:${CR}">malaikat penjaga neraka</span></div>`, 'left:70px;top:1200px;width:940px', A(268.0), A(274.18), 'up', 'beep');
+
+// ======================================================= 2 19 HURUF (274.18–285.7)
+scene(A(274.18));
+show(`<div class="mono" style="font-size:28px;color:${Y}">02 · DIURAI PER HURUF</div>`, 'left:70px;top:270px', A(274.3), A(285.7), 'left', 'stamp');
+['ب', 'س', 'م', 'ا', 'ل', 'ل', 'ه', 'ا', 'ل', 'ر', 'ح', 'م', 'ن', 'ا', 'ل', 'ر', 'ح', 'ي', 'م'].forEach((h, i) => { const col = i % 5, row = Math.floor(i / 5);
+  show(`<div style="width:170px;height:200px;border:4px solid ${Y};border-radius:14px;text-align:center;background:#000"><div class="ar" style="font-size:80px;line-height:1.45">${h}</div><div class="num" style="font-size:20px;margin-top:6px">${String(i + 1).padStart(2, '0')}</div></div>`, `left:${870 - col * 200}px;top:${340 + row * 215}px`, A(274.6 + i * .2), A(285.7), 'scale', i % 3 ? null : 'tick'); });
+show(`<div style="font:900 44px Inter"><span style="color:${Y};font-size:90px">19</span> huruf = 19 malaikat</div><div style="font:800 34px Inter;margin-top:6px">tercantum di <span style="color:${Y}">Surah Al-Muddatstsir</span></div>`, 'left:70px;top:1230px;width:940px', A(279.0), A(285.7), 'up', 'impact');
+
+// ======================================================= 3 AL-MUDDATSTSIR 26–30 (285.7–311.31)
+scene(A(285.7));
+show(`<div class="mono" style="font-size:28px;color:${Y}">03 · QS. AL-MUDDATSTSIR : 26 – 30</div>`, 'left:70px;top:270px', A(285.8), A(311.31), 'left', 'stamp');
+arw('أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 'left:60px;top:360px;width:960px;font-size:46px;text-align:center;color:#fff', A(285.8), A(290.0), 1.6);
+arw('سَأُصْلِيهِ سَقَرَ · وَمَا أَدْرَاكَ مَا سَقَرُ · لَا تُبْقِي وَلَا تَذَرُ · لَوَّاحَةٌ لِلْبَشَرِ · عَلَيْهَا [تِسْعَةَ عَشَرَ]', 'left:60px;top:460px;width:960px;font-size:70px;line-height:1.8;text-align:center;color:#fff', A(290.0), A(311.31), 16.0, { mark: A(306.6) });
+show(`<div style="font:900 120px Inter;color:${Y};text-align:center;width:960px">19</div><div style="font:900 40px Inter;text-align:center;width:960px">malaikat penjaga di atasnya</div>`, 'left:60px;top:1060px', A(306.8), A(311.31), 'scale', 'impact');
+
+// ======================================================= 4 GAMBARAN NERAKA (311.31–337.65)
+scene(A(311.31));
+show(`<div class="mono" style="font-size:28px;color:${CR}">GAMBARAN DALAM AYAT</div>`, 'left:70px;top:270px', A(311.4), A(337.65), 'left', 'stamp');
+[['❓', 'tahukah engkau perihal neraka?', 313.8, '#fff'], ['✕', 'tak menyisakan daging & rambut', 322.3, CR], ['🔥', 'menghancurkan kulit manusia', 327.7, CR], ['19', 'dijaga Malaikat Zabaniyah', 331.2, Y]].forEach(([e, s, t, c], i) => show(`<div style="width:960px;display:flex;align-items:center;gap:26px;border:4px solid ${c};border-radius:20px;padding:18px 26px;background:#000"><div style="font:900 72px Inter;color:${c};width:110px;text-align:center">${e}</div><div style="font:900 42px Inter;line-height:1.2">${s}</div></div>`, `left:60px;top:${350 + i * 200}px`, A(t), A(337.65), 'left', 'tick'));
+arw('الزَّبَانِيَةُ', 'left:60px;top:1180px;width:960px;font-size:110px;text-align:center;color:' + Y, A(333.0), A(337.65), 1.0);
+
+// ======================================================= 5 19 vs 19 (337.65–359.21)
+scene(A(337.65));
+kin('dengan [hati yang bersih] & penuh keimanan kepada Allah…', 'left:70px;top:280px;width:940px', A(337.7), A(359.21), { fs: 54, iv: .06, m: [A(340.6)] });
+sv((() => { let g = ''; for (let i = 0; i < 19; i++) { const y = 70 + i * 30, d = .2 + i * .12; g += `<circle cx="160" cy="${y}" r="11" fill="${Y}" data-f="${d}"/><circle cx="800" cy="${y}" r="11" fill="${CR}" data-f="${d}"/>`; }
+  return g + T(160, 30, '19 HURUF', { f: .1, fs: 32, c: Y }) + T(800, 30, '19 MALAIKAT', { f: .1, fs: 32, c: CR }) +
+    `<path d="M400 230 L480 190 L560 230 V350 Q560 430 480 470 Q400 430 400 350 Z" fill="rgba(233,242,58,.15)" stroke="${Y}" stroke-width="6" data-d="800" data-f="3"/>` + T(480, 360, '✓', { f: 3.6, fs: 90, c: Y }); })(), 'left:60px;top:500px', 960, 660, A(345.0), A(359.21), .6);
+show(`<div style="font:900 44px Inter;line-height:1.25;text-align:center;width:940px">mencegah kita dari cengkeraman <span style="color:${CR}">19 malaikat</span> itu</div>`, 'left:70px;top:1250px', A(349.6), A(359.21), 'up', 'impact');
+
+// ======================================================= BONUS · HARGA NIKMAT (464.92–491.85)
+scene(B(464.92));
+show(`<div class="mono" style="font-size:28px;color:${Y}">✨ BONUS · RASULULLAH ﷺ BERSABDA</div>`, 'left:70px;top:270px', B(465.0), B(491.85), 'left', 'stamp');
+arw('[الْحَمْدُ لِلَّهِ] ثَمَنُ كُلِّ نِعْمَةٍ', 'left:60px;top:360px;width:960px;font-size:96px;text-align:center;color:#fff', B(465.3), B(491.85), 2.4, { mark: B(467.0) });
+kin('alhamdulillah = [harga] setiap nikmat', 'left:70px;top:540px;width:940px', B(468.0), B(491.85), { fs: 58, iv: .06, m: [B(469.4)] });
+sv(`<path d="M480 60 V420 M320 470 H640" stroke="#fff" stroke-width="6" data-d="840"/><g data-f=".3"><path d="M150 120 L810 120" stroke="#fff" stroke-width="6"/><path d="M150 120 L70 260 H230 Z" fill="rgba(233,242,58,.12)" stroke="${Y}" stroke-width="4"/><path d="M810 120 L730 260 H890 Z" fill="rgba(127,224,160,.12)" stroke="${GR}" stroke-width="4"/></g>` +
+  T(150, 310, 'nikmat Allah', { f: .6, fs: 34, c: Y }) + T(810, 310, 'alhamdulillah', { f: 2.9, fs: 34, c: GR }) + T(810, 380, 'LUNAS ✓', { f: 5.9, fs: 50, c: GR }), 'left:60px;top:720px', 960, 520, B(474.2), B(491.85), .6);
+kin('tidak mengucap alhamdulillah → [belum membayar] nikmat itu', 'left:70px;top:1260px;width:940px', B(480.4), B(491.85), { fs: 44, c: CR, iv: .05, m: [B(484.0)] });
+show(`<div class="chip" style="font-size:20px">RIWAYAT MARFU'-NYA LEMAH · IBNU RAJAB</div>`, 'left:70px;top:1460px', B(470.0), B(491.85), 'up');
+
+// ======================================================= PENUTUP + CTA (142.81–150)
+scene(B(491.85));
+show(`<div style="display:flex;gap:30px;align-items:center"><div style="font:900 120px Inter;color:${Y}">19</div><div class="ar" style="font-size:64px">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div></div>`, 'left:60px;top:260px;width:960px', B(491.9), TOTAL, 'scale', 'tick');
+cta(B(492.1), TOTAL, 480);
+arrowDown(B(492.5), TOTAL, `💬 tulis <span style="color:${Y}">بِسْمِ اللَّهِ</span> di komentar<br>tonton video lengkapnya → <span style="color:${Y}">klik di bawah ini</span>`, 700);
+
+// ======================================================= mesin waktu
+const HUDC = document.getElementById('cnt'), PROG = document.getElementById('prog'), FL = document.getElementById('flash');
+const ADAB = [[A(249.33), A(274.18), 'ATSAR'], [A(274.18), A(285.7), '19 HURUF'], [A(285.7), A(337.65), 'AL-MUDDATSTSIR'], [A(337.65), A(359.21), 'PERLINDUNGAN'], [B(464.92), B(491.85), 'BONUS']];
+window.setTime = t => {
+  for (const it of ITEMS) { const on = t >= it.t0 && t < it.t1; it.n.style.display = on ? '' : 'none'; if (on) it.fn(t - it.t0, t); }
+  document.getElementById('hud').style.opacity = t < 1.5 ? 0 : 1;
+  PROG.style.width = (t / TOTAL * 100) + '%'; const a = ADAB.find(a => t >= a[0] && t < a[1]); HUDC.textContent = a ? a[2] : '';
+  let f = 0; for (const c of CUTS) if (c.cut === 'flash' && t >= c.t && t < c.t + .25) f = .35 * (1 - (t - c.t) / .25); FL.style.opacity = f;
+  const z = 1 + .015 * Math.sin(t * .4); S.style.transform = `scale(${z})`;
+};
+setTime(0);
+</script></body></html>
