@@ -152,3 +152,23 @@ Template terbaru: `kit/short_vertikal/ep2_v4/index.html` (+ `render.js`, `overla
 - Short Ep6: "buatkan ep06 short" → standar short v2. MP3 asli hilang (container reset) → suara diambil dari arsip Ep06.mp4, dengungan latar dibuang (highpass 150 Hz ×2 + notch 164.8 Hz). Audio 249.33–359.21 (atsar Ibnu Mas'ud, 19 huruf, Al-Muddatstsir 26–30, 19 vs 19) + 464.92–491.85 (bonus: alhamdulillah harga nikmat, marfu'-nya lemah · Ibnu Rajab). 2:30. File: kit/short_vertikal/ep6/index.html, cover kit/covers/short_cover_ep6.html.
 - Catatan pemulihan: bila /home/claude kosong, salin kit/fonts → /home/claude/fonts, kit/covers → /home/claude/covers, kit/engine/user_photo.jpg → /home/claude/proj10/; arsip video: git clone --filter=blob:none --no-checkout --depth 1 -b arsip-video, lalu `git reset -q` sebelum menambah file.
 - Ep25: "lanjut ep25, lebih baik dari ep24, editor profesional" (hadis qudsi surga berbicara & 8 golongan: pecandu khamr, pezina, qattat/namimah, dayyuts, syurthi, mukhannats, qathi' rahim, ingkar sumpah/pejabat; al-'Iraqi: Ibnu Abi ad-Dunya (ash-Shamt) dari Ibnu 'Umar, selengkap ini lemah; penguat Ahmad 5117, an-Nasa'i 2562, Bukhari 6056/Muslim 105, Bukhari 5984/Muslim 2556, Muslim 2128, Bukhari 5886; kuasa penuh Allah; An-Nisa 31; tanda laknat; hadis suap (Abu Dawud 3580/Tirmidzi 1337 shahih; tambahan "ar-ra'isy" Ahmad 22399 lemah); suap untuk menolak zalim (an-Nihayah); tasyabbuh Bukhari 5885 (asli "la'ana Rasulullah"); halaqa wa shalaqa wa kharaqa Muslim 104 (penyampai: sharakha); "laisa minna man ghassya" (ar-Rafi'i dari 'Ali, lemah; penguat Muslim 101/102); "la iman liman la amanata lah" (Ahmad/Ibnu Hibban 194, hasan)) → 39 adegan/28 kode, 2 tab pencarian, header golongan + progres 8 kotak, cover config 25 "8 GOLONGAN TAK MASUK", stamp "8 GOLONGAN". Foto penyampai diganti versi HD (2160px, dipertajam); avatar bulat dilonggarkan (112%, seluruh badan terlihat) atas permintaan user.
+
+## RESEP HEMAT KREDIT (berlaku mulai Ep26)
+Catatan user setelah Ep25 (1 video ≈ 1.6k kredit). Wajib diikuti di setiap episode berikutnya:
+1. SATU TUGAS BARU PER EPISODE. User mengirim MP3 + transkrip + semua aset (foto, dll.) di pesan pertama. Jangan menyambung sesi lama yang panjang. Aturan & kit diambil dari repo ini; jangan membaca ulang semua episode lama — cukup episode/ep25 sebagai template (salin ep25.js lalu ganti isinya).
+2. SATU KALI RENDER PENUH. Semua perubahan (foto, judul, teks) harus final sebelum `bash full.sh`. Jika ada aset baru yang menyusul, tanyakan dulu sebelum render.
+3. PRATINJAU SECUKUPNYA. overlap.js (4 paralel) tetap wajib; pemeriksaan visual cukup 2–3 lembar kontak 3×4 di bagian rawan (tab pencarian, adegan padat, penutup), bukan seluruh durasi.
+4. CEK SUMBER TERBATAS. Cukup 3–4 hadis/ayat utama di shamela.ws, kecuali user meminta lebih atau menyebutkan daftar hadis yang ingin dicek.
+5. CUKUP 1 TAB PENCARIAN KITAB per episode (bukan 2), kecuali diminta.
+6. UNGGAH ARSIP RINGAN (tanpa mengunduh video lama; ±200 KB, bukan 2,7 GB). JANGAN pakai `git clone ... && git reset` lagi:
+   ```
+   mkdir /tmp/av && cd /tmp/av && git init -q
+   git remote add origin https://github.com/oligarchy-pixel/Al-Qur-an.git
+   git fetch -q --depth 1 --filter=blob:none origin arsip-video
+   B=$(git hash-object -w /path/FINAL_EpNN.mp4)
+   T=$( (git ls-tree FETCH_HEAD; printf "100644 blob %s\tEpNN.mp4\n" $B) | git mktree --missing)
+   C=$(git commit-tree $T -p FETCH_HEAD -m "EpNN: judul")
+   git push origin $C:refs/heads/arsip-video
+   ```
+   (file < 100 MB; jika file EpNN.mp4 sudah ada, hapus barisnya dari `git ls-tree` dengan `grep -v`.)
+7. HEMAT LANGKAH: gabungkan perintah dalam satu eksekusi, hindari membaca gambar berulang, dan jangan membuat versi ulang sampul kecuali ada masalah yang terlihat.
