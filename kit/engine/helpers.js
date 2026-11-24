@@ -3,7 +3,7 @@ function mePol(css, t0, t1, rot = -4, w = 360) {
   const n = node(`<div style="width:${w}px;padding:14px 14px 54px;background:#f4f1ea;box-shadow:0 24px 60px rgba(0,0,0,.7);position:relative">
   <div style="position:absolute;left:50%;top:-30px;width:2px;height:34px;background:#999"></div><div style="position:absolute;left:calc(50% - 9px);top:-40px;width:18px;height:18px;border-radius:50%;background:#c33"></div>
   <img src="user_photo.jpg" style="display:block;width:${w - 28}px;height:${w - 28}px;object-fit:cover">
-  <div style="position:absolute;left:14px;right:14px;bottom:16px;font:600 12px 'DejaVu Sans Mono';color:#444;letter-spacing:.03em;text-align:center;white-space:nowrap">FILE N° 10 · PENYAMPAI · @alurziyadahku</div></div>`, css);
+  <div style="position:absolute;left:14px;right:14px;bottom:16px;font:600 12px 'DejaVu Sans Mono';color:#444;letter-spacing:.03em;text-align:center;white-space:nowrap">FILE N° 25 · PENYAMPAI · @alurziyadahku</div></div>`, css);
   n.dataset.rot = rot; sfx(t0, 'paper', .8);
   return item(t0, t1, n, (lt, t, it) => { const k = eo(lt / .55), sw = Math.sin(lt * 2.2) * 2.4 * Math.exp(-lt * .6); n.style.opacity = clamp(lt / .2) * clamp((it.t1 - t) / .25); n.style.transform = `translateY(${(1 - k) * -140}px) rotate(${rot + sw}deg)`; });
 }
@@ -17,7 +17,7 @@ function counter(t0, t1, val, css, lbl, col = Y, dur = 1.4) {
   return n;
 }
 function sub2(css, t0, t1) { // profil bulat (foto) + SUBSCRIBE diklik
-  const n = node(`<div style="display:flex;align-items:center;gap:22px"><div style="width:110px;height:110px;border-radius:50%;background:url(user_photo.jpg) 45% 54%/150% auto no-repeat;border:5px solid ${Y};box-shadow:0 0 0 3px #111"></div>
+  const n = node(`<div style="display:flex;align-items:center;gap:22px"><div style="width:110px;height:110px;border-radius:50%;background:url(user_photo.jpg) 50% 40%/112% auto no-repeat;border:5px solid ${Y};box-shadow:0 0 0 3px #111"></div>
   <div style="font:800 52px Inter">@alurziyadahku</div><div class="sb" style="position:relative;background:#d7322b;color:#fff;font:900 46px Inter;padding:18px 34px;border-radius:12px">SUBSCRIBE
   <svg class="cs" style="position:absolute;right:-30px;bottom:-56px" width="64" height="64" viewBox="0 0 28 28"><path d="M2 2 L2 24 L8 18 L13 27 L17 25 L12 16 L21 16Z" fill="#fff" stroke="#000" stroke-width="2"/></svg></div></div>`, css);
   const tc = t0 + 1.2; sfx(tc, 'click', 1);
