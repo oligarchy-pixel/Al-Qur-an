@@ -1,0 +1,58 @@
+{
+  "episode": 27,
+  "series": "Mengenal Al-Qur'an",
+  "version": 1,
+  "headline": ["LIMA AYAT", "AN-NISA"],
+  "arabic_header": "سُورَةُ النِّسَاءِ",
+  "hook": "Dosa besar · amal sekecil zarrah<br>dan kisah al-‘Utbi yang ditelaah",
+  "stamp": "31 · 40 · 48 · 64 · 110",
+  "youtube": {
+    "canvas": "1920x1080",
+    "title_scale": 0.82,
+    "visual_code": ["05", "/scripture"],
+    "cards": [
+      ["AYAT 31", "Jauhi dosa besar", "الْكَبَائِرُ", "#e9f23a"],
+      ["AYAT 40", "Kebaikan sekecil zarrah", "ذَرَّةٍ", "#7fd6ff"],
+      ["AYAT 48", "Ampunan atas kehendak Allah", "يَشَاءُ", "#2fae5b"],
+      ["AYAT 64", "Kisah al-‘Utbi ditelaah", "حِكَايَةٌ", "#ffffff"]
+    ],
+    "blueprint": {
+      "visual_code": ["27", "/timeline"],
+      "title": "LIMA AYAT · AN-NISA",
+      "center": "النِّسَاءُ",
+      "items": [
+        ["An-Nisa 31", "الْكَبَائِرُ"],
+        ["An-Nisa 40", "ذَرَّةٍ"],
+        ["An-Nisa 48", "يَشَاءُ"],
+        ["An-Nisa 64", "اسْتَغْفَرُوا"],
+        ["An-Nisa 110", "غَفُورًا"]
+      ]
+    }
+  },
+  "reel": {
+    "canvas": "1080x1920",
+    "title_scale": 0.82,
+    "same_hook_cards_stamp_and_blueprint": true,
+    "safe_area_note": "Judul, kartu, dan CTA ditempatkan di dalam kanvas vertikal; foto penyampai tidak dibuat close-up."
+  },
+  "series_latin_post": {
+    "canvas_css": "1080x1350",
+    "export_px": "2160x2700",
+    "episode_label": "Ep 27",
+    "line_1": "LIMA AYAT",
+    "line_2": "AN-NISA",
+    "signature": "بِإِذْنِ اللَّهِ · إِنْ شَاءَ اللَّهُ",
+    "presenter": "PENYAMPAI · @alurziyadahku"
+  },
+  "style": {
+    "background": "hitam/navy gelap",
+    "accent": "#e9f23a",
+    "text": "putih dan kuning",
+    "subject_exclusions": ["penggambaran Allah", "Nabi", "Sahabat", "tokoh hikayat", "individu/kelompok sasaran"]
+  },
+  "output_names": [
+    "Cover_YouTube_Ep27_v1.png",
+    "Cover_Reel_Ep27_v1.png",
+    "Post_Seri_Ep27_v1.png"
+  ]
+}
