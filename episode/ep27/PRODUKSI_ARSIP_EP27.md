@@ -27,8 +27,8 @@ Visual menggunakan 27 kode unik dengan gaya hitam/navy dan aksen kuning-putih. T
 - `ffmpeg` mendekode seluruh video (17.903 frame) tanpa error.
 - Frame pembuka (00:01), tab sumber (06:15), rangkuman (09:35), dan salam (09:54) diperiksa sesudah encode.
 
-## Struktur arsip
+## Arsip repo
 
-Source dan bahan produksi disimpan di `episode/ep27/`. MP4 final, cover YouTube/Reel/post seri, caption, storyboard, dossier sumber, konfigurasi cover, dan dokumen ini disimpan di `hasil/Ep27_Dokumen/` pada repo seri.
+Source dan bahan produksi disimpan di `episode/ep27/`. MP4 final, cover YouTube/Reel/post seri, caption, storyboard, dossier sumber, konfigurasi cover, dan dokumen ini disimpan di `hasil/Ep27_Dokumen/` pada branch kerja seri.
 
-MP4 juga diarsipkan ke branch `arsip-video` memakai resep Git ringan di `PROMPT_DAN_ATURAN.md`: `git init`, `fetch --depth 1 --filter=blob:none`, bentuk tree yang membawa MP4 baru, lalu `git push`. Blob video episode lama tidak diunduh. Versi cover dan video memakai nama baru bertanda `v1` dan tidak menimpa versi sebelumnya.
+MP4 juga diarsipkan sebagai `Ep27.mp4` di branch `arsip-video` menggunakan resep Git ringan di `PROMPT_DAN_ATURAN.md`: `git init`, `fetch --depth 1 --filter=blob:none`, bentuk tree yang membawa MP4 baru, lalu `git push`. Blob video episode lama tidak diunduh. Commit arsip: `867bcf7324c32b857ed1ecf0e87588ce35b2dce1`. Versi cover dan video memakai nama baru bertanda `v1` dan tidak menimpa versi sebelumnya.
