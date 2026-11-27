@@ -31,6 +31,6 @@ Visual menggunakan 27 kode unik dengan gaya hitam/navy dan aksen kuning-putih. T
 
 Source dan bahan produksi disimpan di `episode/ep27/`. MP4 final, cover YouTube/Reel/post seri, caption, storyboard, dossier sumber, konfigurasi cover, dan dokumen ini disimpan di `hasil/Ep27_Dokumen/` pada branch kerja seri.
 
-Cover direvisi menjadi v2 sesuai permintaan pengguna: **AMPUNAN / PERIHAL TAUBAT / KEHATI-HATIAN**. Versi v1 tetap tersimpan dan tidak ditimpa.
+Cover v2 memakai headline **AMPUNAN / PERIHAL TAUBAT / KEHATI-HATIAN**. Atas permintaan berikutnya, post Instagram saja dibuat ulang sebagai v3 dengan teks **AMPUNAN ALLAH / PERIHAL TAUBAT / KEHATI-HATIAN**. Cover v1 dan v2 tetap tersimpan dan tidak ditimpa; YouTube dan Reel tidak dibuat ulang.
 
 MP4 juga diarsipkan sebagai `Ep27.mp4` di branch `arsip-video` menggunakan resep Git ringan di `PROMPT_DAN_ATURAN.md`: `git init`, `fetch --depth 1 --filter=blob:none`, bentuk tree yang membawa MP4 baru, lalu `git push`. Blob video episode lama tidak diunduh. Commit arsip: `867bcf7324c32b857ed1ecf0e87588ce35b2dce1`. Versi cover dan video memakai nama baru, dan tidak menimpa versi sebelumnya.
