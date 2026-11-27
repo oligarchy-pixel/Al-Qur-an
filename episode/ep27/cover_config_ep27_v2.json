@@ -1,0 +1,16 @@
+{
+  "episode": 27,
+  "series": "Mengenal Al-Qur'an",
+  "version": 2,
+  "headline_lines": ["AMPUNAN", "PERIHAL TAUBAT", "KEHATI-HATIAN"],
+  "spelling_note": "Menggunakan ejaan baku PERIHAL.",
+  "youtube": { "canvas": "1920x1080", "output": "Cover_YouTube_Ep27_v2.png" },
+  "reel": { "canvas": "1080x1920", "output": "Cover_Reel_Ep27_v2.png" },
+  "series_latin_post": { "canvas": "2160x2700", "output": "Post_Seri_Ep27_v2.png" },
+  "style": {
+    "background": "hitam",
+    "accent": "#e9f23a",
+    "other_cover_content": "Dipertahankan dari versi pertama: kartu lima ayat, foto penyampai, cap rujukan, dan identitas seri.",
+    "preserve_previous_version": true
+  }
+}
