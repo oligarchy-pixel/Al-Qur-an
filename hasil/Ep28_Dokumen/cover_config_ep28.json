@@ -1,0 +1,16 @@
+{
+  "episode": 28,
+  "series": "Mengenal Al-Qur'an",
+  "version": 1,
+  "headline_lines": ["DARI SATU JIWA", "IKATAN KELUARGA"],
+  "youtube": { "canvas": "1920x1080", "output": "Cover_YouTube_Ep28_v1.png" },
+  "reel": { "canvas": "1080x1920", "output": "Cover_Reel_Ep28_v1.png" },
+  "series_latin_post": { "canvas": "2160x2700", "output": "Post_Seri_Ep28_v1.png" },
+  "cards": [
+    "QS An-Nisa:1 — takwa, penciptaan, hubungan rahim",
+    "Hadis Ibn Mas'ud — tiga masa, masing-masing 40 hari",
+    "Empat catatan — rezeki, ajal, amal, bahagia/celaka",
+    "Silaturahim — berbuat baik kepada orang tua"
+  ],
+  "source_note": "Tidak menyajikan kisah janin atau Jubb al-Ahzan sebagai hadis terverifikasi."
+}

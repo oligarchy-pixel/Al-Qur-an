@@ -172,3 +172,5 @@ Catatan user setelah Ep25 (1 video ≈ 1.6k kredit). Wajib diikuti di setiap epi
    ```
    (file < 100 MB; jika file EpNN.mp4 sudah ada, hapus barisnya dari `git ls-tree` dengan `grep -v`.)
 7. HEMAT LANGKAH: gabungkan perintah dalam satu eksekusi, hindari membaca gambar berulang, dan jangan membuat versi ulang sampul kecuali ada masalah yang terlihat.
+
+- Ep28: “Dari Satu Jiwa Menuju Ikatan Keluarga” (An-Nisa:1) → 59 adegan/29 kode visual, satu tab “◆ pustaka kitab”, MP3 utuh 09:59,8; final H.264 1920×1080/30 fps, AAC stereo. QS An-Nisa:1 dan Tafsir al-Tabari diperiksa; hadis Ibn Mas‘ud cocok dengan Bukhari 3208/Muslim 2643a. Dialog janin “aku yang dizalimi” belum terverifikasi; riwayat Jubb al-Huzn yang ditemukan berbeda dan lemah; Al-Adab al-Mufrad 63 sanadnya sangat lemah. Storyboard, source, dan dossier di `episode/ep28/`; tiga cover dan caption di `hasil/Ep28_Dokumen/`. MP4 disimpan sebagai `Ep28.mp4` di branch `arsip-video` (commit `2e882eb2329bea9beb4375dd3f96bfba68fbecc4`).
